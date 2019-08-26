@@ -326,6 +326,8 @@ class pageManager extends Document {
 	}
 
 	function displayOmniBox() {
+		if(!$this->classes) { return; }
+		
 		$classes = $this->classes;
 		$class_js_array = json_encode($classes);
 		$class_id = (isset($_POST['itc_class_id'])) ? $_POST['itc_class_id'] : key($classes);
@@ -337,9 +339,10 @@ class pageManager extends Document {
 		$createForm .= $javascript_omni_box;
 		return $message . $createForm . $javascript_omni_box;
 	}	
-	
 
 	function displayOmniEditBox($item_id) {
+		if(!$this->classes) { return; }
+		
 		$classes = $this->classes;
 		$class_js_array = json_encode($classes);
 		$item_js_array = json_encode($this->items[0]);
@@ -498,12 +501,12 @@ class ItemDisplay {
 
 	function itemUserTools() {
 		if($this->owner) { 
-			$edit_button = "<form id=\"itemEditForm" . $this->item_id . "\" action=\"index.php?id=" . $this->item_id . "\" method=\"post\">"
+			$edit_button = "<form id=\"itemEditForm" . $this->item_id . "\" action=\"./?id=" . $this->item_id . "\" method=\"post\">"
 			. "<input type=\"hidden\" name=\"edit\" value=\"" . $this->item_id ."\"/>"
 			. "<div class=\"item-tools_grey float-right\" onclick=\"domId('itemEditForm" . $this->item_id . "').submit()\">edit </div>"
 			. "</form>";
 			
-			return "<form id=\"itemForm" . $this->item_id . "\" action=\"index.php?user=" . $this->item_user_id . "\" method=\"post\">"
+			return "<form id=\"itemForm" . $this->item_id . "\" action=\"./?user=" . $this->item_user_id . "\" method=\"post\">"
 			. "<input type=\"hidden\" name=\"delete\" value=\"" . $this->item_id ."\"/>"
 			. "<div class=\"item-tools_grey float-right\" onclick=\"domId('itemForm" . $this->item_id . "').submit()\">delete</div>"
 			. "</form>" . $edit_button; 
