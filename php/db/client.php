@@ -38,6 +38,7 @@ class Client extends Core {
 
 		$this->auth = false;
 		$this->owner = false;
+		$this->level = 3; //CONFIG DEFAULT
 			
 		///-- serial --///
 		$this->user_serial = false;
@@ -54,7 +55,7 @@ class Client extends Core {
 			///-- serial --///
 			$this->user_serial = $_COOKIE[$uid];
 			///-- getUser() --///
-			$user = $this->getUser($_COOKIE[$uid]);
+			$this->level = $this->getUser($_COOKIE[$uid]);
 		} else {
 			//new account request
 			if (isset($_REQUEST['REG_new']) && isset($_REQUEST['e']) && isset($_REQUEST['p'])) {
@@ -66,7 +67,7 @@ class Client extends Core {
 			if(isset($user_match)) {
 				$this->auth = true;	
 				$this->user_serial = $user_match['user_id'];				
-				$user = $this->getUser($user_match['user_id']);
+				$this->level = $this->getUser($user_match['user_id']);
 			}
 		} return $this->auth;
 	}
@@ -88,7 +89,7 @@ class Client extends Core {
 					$user = $addon_request->getAddOnLoot($this);
 				}
 			}
-		} return $user;
+		} return $user['level'];
 	}
 
 	function signIn ($e, $p) {
@@ -160,7 +161,7 @@ class Client extends Core {
 	}
 
 	function itemManager() {
-		return new itemManager($this->stream);
+		return new itemManager($this->stream, $this->level);
 	}
 }
 
@@ -171,14 +172,17 @@ class Client extends Core {
 class itemManager {
 	var $stream;
 
-	function __construct ($stream) {
+	function __construct ($stream, $level) {
 		$this->stream = $stream;
 		$this->meta = NULL;
 		$this->items = NULL;
 		$this->addOns = NULL;
 		
-		$this->classes = $this->getItemClasses();
+		$this->level = $level;
+		$this->classes = $this->getItemClasses($level);
 		$this->types = $this->getItemTypes();
+		
+		$this->insertOk = "1";
 	}
 	
 	function enableAddOns () {
@@ -192,6 +196,7 @@ class itemManager {
 		global $CONFIG;
 		$start = (isset($_GET['start'])) ? $_GET['start'] : 0;
 		$count = $CONFIG['item_count'];
+		$user_level = $this->level;
 		
 		if(isset($_GET['connect'])) {
 		    return;
@@ -199,7 +204,7 @@ class itemManager {
 			global $message;
 			$message = "The item has been deleted.";
 			$this->deleteUserItem($_POST['delete']);
-			$this->items = $this->getUserItems($_GET['user'], $start, $count);
+			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
 			return $this->items;
 		} elseif(isset($_POST['itc_edit_item'])) {
 			global $message;
@@ -223,9 +228,9 @@ class itemManager {
 		if(isset($_GET['id'])){
 			$this->items = $this->getItemById($_GET['id']);
 		} else if(isset($_GET['user'])){
-			$this->items = $this->getUserItems($_GET['user'], $start, $count);
+			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
 		} else if(!$this->items) {
-			$this->items = $this->getAllItems($start, $count);
+			$this->items = $this->getAllItems($start, $count, $user_level);
 		} return $this->items;
 	}
 
@@ -268,7 +273,7 @@ class itemManager {
 		$stream->query($quest);		
 	}
 
-	function getUserItems($user_serial, $start, $count) {
+	function getUserItems($user_serial, $start, $count, $level) {
 		$stream = $this->stream;	   
 		$quest = "SELECT SQL_CALC_FOUND_ROWS item.*, user_items.user_id"
 		       . " FROM item, user_items"
@@ -289,16 +294,16 @@ class itemManager {
 		
 		if(isset($this->addOns) == true) {
 			foreach($this->addOns as $addOn) {
-				if(isset($addOn['item-request'])) { 
+				if(isset($addOn['item-request'])) {
 					$addon_request = new $addOn['item-request']($this->stream, $item_loot_array);
-					$item_loot_array = $addon_request->getAddOnLoot();
+					$item_loot_array = $addon_request->getAddOnLoot($level);
 				}
 			}
 		}
 		return $item_loot_array;
 	}
 
-	function getAllItems($start, $count) {
+	function getAllItems($start, $count, $user_level) {
 		$stream = $this->stream;
 		$quest = "SELECT SQL_CALC_FOUND_ROWS item.*, user_items.user_id"
 		       . " FROM item, user_items"
@@ -320,7 +325,7 @@ class itemManager {
 			foreach($this->addOns as $addOn) {
 				if(isset($addOn['item-request'])) { 
 					$addon_request = new $addOn['item-request']($this->stream, $item_loot_array);
-					$item_loot_array = $addon_request->getAddOnLoot();
+					$item_loot_array = $addon_request->getAddOnLoot($user_level);
 				}
 			}
 		}
@@ -353,13 +358,14 @@ class itemManager {
 			foreach($this->addOns as $addOn) {
 				if(isset($addOn['item-request'])) { 
 					$addon_request = new $addOn['item-request']($this->stream, $item_loot_array);
-					$item_loot_array = $addon_request->getAddOnLoot();
+					$item_loot_array = $addon_request->getAddOnLoot($this->level);
 				}
 			}
 		}		
 		return $item_loot_array;
-	}		
-		function getItemsByClass($class_id, $limit, $start) {
+	}
+	
+	function getItemsByClass($class_id, $limit, $start) {
 		 		
 		$quest = "SELECT item.*, user_items.user_id"
 		       . " FROM item, user_items"
@@ -397,13 +403,15 @@ class itemManager {
 		$this->deleteItem($_POST['delete']);
 	}
 
-	function getItemClasses() {
+	function getItemClasses($level) {
 		$stream = $this->stream;
 		$class_quest = "SELECT item_class.*, item_nodes.*"
 					. " FROM item_class, item_nodes"
-					. " WHERE item_nodes.class_id=item_class.class_id";
+					. " WHERE item_nodes.class_id=item_class.class_id"
+					. " AND item_class.level > $level";
 		
-		$class_loot = mysqli_query($stream, $class_quest);		
+		$class_loot = mysqli_query($stream, $class_quest);
+		$class_loot_array = NULL;
 		if($class_loot) {
 			while($class=$class_loot->fetch_assoc()) {
 				$class_id = $class['class_id'];				
@@ -417,22 +425,24 @@ class itemManager {
 				$class_loot_array[$class_id]['nodes'][] = $class;
 			}
 			
-			foreach($class_loot_array as $loot_array) {
-				$class_id = $loot_array['class_id'];				
-				$type_quest = "SELECT * FROM item_type"
-					. " WHERE class_id='" . $class_id . "'";
-					
-				$type_loot = mysqli_query($stream, $type_quest);				
-				if($type_loot) {
-					while($type=$type_loot->fetch_assoc()) {
-						array_push($class_loot_array[$class_id]['types'], $type['file_type']);
-						array_push($class_loot_array[$class_id]['ext'], $type['ext']);
+			if($class_loot_array) {
+				foreach($class_loot_array as $loot_array) {
+					$class_id = $loot_array['class_id'];				
+					$type_quest = "SELECT * FROM item_type"
+						. " WHERE class_id='" . $class_id . "'";
+						
+					$type_loot = mysqli_query($stream, $type_quest);				
+					if($type_loot) {
+						while($type=$type_loot->fetch_assoc()) {
+							array_push($class_loot_array[$class_id]['types'], $type['file_type']);
+							array_push($class_loot_array[$class_id]['ext'], $type['ext']);
+						}
 					}
 				}
 			}
 		}
 		
-		reset($class_loot_array);
+		if($class_loot_array) { reset($class_loot_array); }
 		return $class_loot_array;
 	}
 
@@ -506,13 +516,16 @@ class itemManager {
 			}
 
 			if($insertOk) {
+				$this->insertOk = $insertOk;
 				$id = $this->insertItem($class_id, $title, $info, $file);
 				if(isset($id) && $client->user_serial) {
-				  $this->insertUserItem($client->user_serial, $id);
+					$this->item_id = $id;
+					$this->insertUserItem($client->user_serial, $id);
 				    return "Another " . "<a href=\"./?id=$id\">new item</a> has been added.";
 				}
 			} else {
-					return $message;
+				$this->insertOk = "0";
+				return $message;
 			}
 		}
 	}
