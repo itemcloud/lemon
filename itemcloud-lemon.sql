@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 18, 2019 at 11:26 PM
+-- Generation Time: Aug 26, 2019 at 02:35 AM
 -- Server version: 10.1.10-MariaDB
 -- PHP Version: 5.6.19
 
@@ -56,8 +56,22 @@ INSERT INTO `item_class` (`class_id`, `class_name`, `level`) VALUES
 (2, 'link', 3),
 (3, 'file', 3),
 (4, 'photo', 3),
-(5, 'audio', 1),
-(6, 'video', 1);
+(5, 'audio', 2),
+(6, 'video', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `item_labels`
+--
+
+CREATE TABLE `item_labels` (
+  `entry` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `label_id` int(11) NOT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -122,6 +136,21 @@ INSERT INTO `item_type` (`type_id`, `class_id`, `file_type`, `ext`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `label`
+--
+
+CREATE TABLE `label` (
+  `label_id` int(11) NOT NULL,
+  `owner_id` int(11) NOT NULL,
+  `name` varchar(64) NOT NULL,
+  `label_img` varchar(256) NOT NULL DEFAULT 'default.png',
+  `parent_id` int(11) DEFAULT NULL,
+  `level` int(11) NOT NULL DEFAULT '3'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user`
 --
 
@@ -129,7 +158,8 @@ CREATE TABLE `user` (
   `user_id` int(11) NOT NULL,
   `email` varchar(100) CHARACTER SET latin1 NOT NULL,
   `password` varchar(100) CHARACTER SET latin1 NOT NULL,
-  `date` datetime NOT NULL
+  `date` datetime NOT NULL,
+  `level` int(11) NOT NULL DEFAULT '3'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -143,6 +173,32 @@ CREATE TABLE `user_items` (
   `user_id` int(11) NOT NULL,
   `item_id` int(11) NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_labels`
+--
+
+CREATE TABLE `user_labels` (
+  `entry` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `label_id` int(11) NOT NULL,
+  `last_used` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_profile`
+--
+
+CREATE TABLE `user_profile` (
+  `user_id` int(11) NOT NULL,
+  `user_img` varchar(256) DEFAULT NULL,
+  `user_name` varchar(64) NOT NULL,
+  `email_alerts` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -162,6 +218,12 @@ ALTER TABLE `item_class`
   ADD PRIMARY KEY (`class_id`);
 
 --
+-- Indexes for table `item_labels`
+--
+ALTER TABLE `item_labels`
+  ADD PRIMARY KEY (`entry`);
+
+--
 -- Indexes for table `item_nodes`
 --
 ALTER TABLE `item_nodes`
@@ -172,6 +234,12 @@ ALTER TABLE `item_nodes`
 --
 ALTER TABLE `item_type`
   ADD PRIMARY KEY (`type_id`);
+
+--
+-- Indexes for table `label`
+--
+ALTER TABLE `label`
+  ADD PRIMARY KEY (`label_id`);
 
 --
 -- Indexes for table `user`
@@ -186,6 +254,18 @@ ALTER TABLE `user_items`
   ADD PRIMARY KEY (`entry`);
 
 --
+-- Indexes for table `user_labels`
+--
+ALTER TABLE `user_labels`
+  ADD PRIMARY KEY (`entry`);
+
+--
+-- Indexes for table `user_profile`
+--
+ALTER TABLE `user_profile`
+  ADD PRIMARY KEY (`user_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -193,12 +273,17 @@ ALTER TABLE `user_items`
 -- AUTO_INCREMENT for table `item`
 --
 ALTER TABLE `item`
-  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 --
 -- AUTO_INCREMENT for table `item_class`
 --
 ALTER TABLE `item_class`
   MODIFY `class_id` int(16) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+--
+-- AUTO_INCREMENT for table `item_labels`
+--
+ALTER TABLE `item_labels`
+  MODIFY `entry` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 --
 -- AUTO_INCREMENT for table `item_nodes`
 --
@@ -210,15 +295,25 @@ ALTER TABLE `item_nodes`
 ALTER TABLE `item_type`
   MODIFY `type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=208;
 --
+-- AUTO_INCREMENT for table `label`
+--
+ALTER TABLE `label`
+  MODIFY `label_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+--
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `user_items`
 --
 ALTER TABLE `user_items`
-  MODIFY `entry` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `entry` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+--
+-- AUTO_INCREMENT for table `user_labels`
+--
+ALTER TABLE `user_labels`
+  MODIFY `entry` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
