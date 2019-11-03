@@ -39,8 +39,14 @@ class infoLinks {
 		//include new infoLinks().updateOutputHTML($item) to use with another add-on
 		$raw_input = ($item->infoOutput == $item->infoDisplayHTML()) ? $item->info : NULL;
 		
+		$limit = $item->info_limit;
+		$extra = "<div class=\"item-tools_grey\" onclick=\"window.location='" . $item->webroot . $item->itemLink . "'\" title=\"Show more\">...</div>";
+
+		$info_string = $this->replaceUrls($item->info);
+		$info_string = ($limit && !isset($_GET['id'])) ? chopString($info_string, $limit,  $extra) : $info_string;
+		
 		$class_name = "item-info";
-		if($raw_input) { $item->infoOutput = "<div class=\"$class_name\">" . nl2br($this->replaceUrls($item->info)) . "</div>"; }
+		if($raw_input) { $item->infoOutput = "<div class=\"$class_name\"><span>" . nl2br($info_string) . "</span></div>"; }
 	}
 
 	function replaceUrls($inputText) {

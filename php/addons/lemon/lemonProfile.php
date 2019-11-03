@@ -11,7 +11,7 @@ $profile_addon['item-request'] = 'addonItemProfileRequest';
 $profile_addon['banner-display'] = 'addonBannerDisplay';
 
 //Add to global $addOns variable
-$addOns[] = $profile_addon;
+//$addOns[] = $profile_addon;
 
 class addonUserProfileAccount {
 	function __construct ($stream) {
@@ -37,23 +37,24 @@ class addonPostProfileHandler {
 	
 	function handleAddOnPost ($itemManager) {
 		global $client;
+		$level = $this->DEFAULT_USER_LEVEL;
+		
 		if(isset($_POST['itc_profile_name'])) {
 			$this->changeProfileName($_POST['itc_profile_name'], $client->user_serial);
 		} elseif(isset($_POST['itc_profile_img'])) {
 			$this->handleProfileUpload($client);
 		}
-		
+
 		if(!isset($_GET['user'])) { $this->meta['owner'] = false; return false; }
 		$itemManager->meta['owner'] = ($_GET['user'] == $client->user_serial) ? true : false;
 		$itemManager->meta['profile'] = $this->getUserProfile($_GET['user']);
 		
 		//Create a new profile if empty (when owner requests profile)
 		if($itemManager->meta['owner'] && !isset($itemManager->meta['profile']['user_id'])) {
-				$level = $this->DEFAULT_USER_LEVEL;
-				$profile_insert = "INSERT INTO user_profile (user_id, level) VALUES('" . $client->user_serial . "', '$level')";
-				$new_profile = mysqli_query($this->stream, $profile_insert);
-				
-				if($new_profile) { $itemManager->meta['profile'] = $this->getUserProfile($_GET['user']); }
+			$profile_insert = "INSERT INTO user_profile (user_id) VALUES('" . $client->user_serial . "')";
+			$new_profile = mysqli_query($this->stream, $profile_insert);
+			
+			if($new_profile) { $itemManager->meta['profile'] = $this->getUserProfile($_GET['user']); }
 		}
 		
 		global $CONFIG;
@@ -107,10 +108,11 @@ class addonPostProfileHandler {
 		
 	function getUserProfile ($user_id) {
 		$stream = $this->stream;
-		$input = "SELECT user_profile.*, user.date, user.level"
+		$input = "SELECT user_profile.*, user.user_id, user.date, user.level"
 			. " FROM user_profile, user"
 			. " WHERE user_profile.user_id='$user_id'"
 			. " AND user_profile.user_id=user.user_id";
+			
 		$profile_loot = $stream->query($input);
 		
 		if($profile_loot) {
@@ -130,18 +132,19 @@ class addonPostProfileHandler {
 }
 
 class addonBannerDisplay {
-	function __construct ($user, $auth) { 
+	function __construct ($user, $auth, $pageManager) { 
 		$this->user = $user;
 		$this->auth = $auth;
+		$this->pageManager = $pageManager;
 	}
 	
 	function updateOutputHTML ($banner) {
 		$user_links = '<div class="user_links">';
 		$user = $this->user;
 		if($this->auth) {
-			  $user_links .= '+<a href="./add.php">Add</a>' . ' &nbsp;';
-			  $user_links .= '<a href="./?user=' . $user->user_serial . '">Profile</a>' . ' &nbsp;';
-			  if(!isset($user->profile['user_id'])) { $user_links .= '<a onclick="logout()"><u>Sign Out</u></a><form id="logoutForm" action="./?connect=1&logout=1" method="post"><input name="logout" type="hidden"/></form>'; }
+			  $user_links .= '+ <a href="./add.php"><u>New</u></a>' . ' &nbsp;';
+			  $user_links .= '<a href="./?user=' . $user->user_serial . '"><u>Profile</u></a>';
+			  if(!isset($user->profile)) { $user_links .= ' &nbsp;<a onclick="logout()"><u>Sign Out</u></a><form id="logoutForm" action="./?connect=1&logout=1" method="post"><input name="logout" type="hidden"/></form>'; }
 		}
 		else { $user_links .=  '<a href="./?connect=1">Sign In</a>'; }
 		$user_links .= '</div>';
@@ -169,7 +172,7 @@ class addonProfileDisplay {
 		
 		$date = new DateService($profile['date']);
 		$user_banner_html = (isset($profile['user_img'])) ? " style=\"background-image: url('" . $rootFiles . $profile['user_img'] . "')\"" : ""; 
-		$user_name = $profile['user_name'] ? $profile['user_name'] : "New Member (" . chopString($profile['date'], 10, '') . ")";
+		$user_name = $profile['user_name'] ? $profile['user_name'] : "New Member (" . chopString($profile['date'], 4, '') . ")";
 		 
 		$profile_link = "./?user=" . $profile['user_id'];
 		 
@@ -177,41 +180,40 @@ class addonProfileDisplay {
 		$banner_html = "<div class=\"profile-banner\" onlick=\"window.location='" . $profile_link . "'\">$n";
 		$banner_html .= "<div class=\"profile-banner_inner\">$n";
 
-			$imageRollover = "changeImageRollover";
-			$banner_html .= "<div style=\"float: left; width: 210px;\"><div class=\"avatar item-user\"";
-			if($this->owner) { $banner_html .= " onmouseover=\"domId('$imageRollover').style.display='block'\" onmouseout=\"domId('$imageRollover').style.display='none'\""; }
-			$banner_html .= $user_banner_html;
-			$banner_html .= ">";
-				
-			if($this->owner) { $banner_html .= "<div id=\"$imageRollover\" onclick=\"domId('itc_banner_image_form').style.display='inline-block'; domId('show-form-button').style.display='none'\" style=\"display: none; width: 100%; height: 100%; opacity: 0.5; font-size: 92px\">&#8853;</div>"; }
-				
-			$banner_html .= "</div></div>$n";
+		$imageRollover = "changeImageRollover";
+		$banner_html .= "<div style=\"float: left; width: 210px;\"><div class=\"avatar item-user\"";
+		if($this->owner) { $banner_html .= " onmouseover=\"domId('$imageRollover').style.display='block'\" onmouseout=\"domId('$imageRollover').style.display='none'\""; }
+		$banner_html .= $user_banner_html;
+		$banner_html .= ">";
 			
-			$banner_html .= "<div style=\"float: left; text-align: left; margin-top: 20px;\">$n"
-				. "<form action=\"./?user=" . $profile['user_id'] . "\" method=\"post\"><div id=\"itc_banner_name_form\" style=\"display: none;\"><input type=\"hidden\" name=\"user_id\" value=\"" . $profile['user_id'] . "\"/><input class=\"form\" name=\"itc_profile_name\" value=\"" . $profile['user_name'] . "\"/><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"✅ SAVE\"></div><div id=\"itc_banner_name\"><span class=\"profile-name\"><div style=\"font-size: 2em; display: inline-block\" onclick=\"window.location.reload()\"><u>" . $user_name . "</u></div></span>";
+		if($this->owner) { $banner_html .= "<div id=\"$imageRollover\" onclick=\"domId('itc_banner_image_form').style.display='inline-block'; domId('show-form-button').style.display='none'\" style=\"display: none; width: 100%; height: 100%; opacity: 0.5; font-size: 92px\">&#8853;</div>"; }
 			
-			if($this->owner) { $banner_html .= " <span class=\"item-tools\" onclick=\"domId('itc_banner_name').style.display='none'; domId('itc_banner_name_form').style.display='block';\">&#9998; EDIT</span>"; }
-			$banner_html .= "</div></form>";
-			
-			$banner_html .= "<div class=\"item-tools_dark\"><small>MEMBER SINCE</small><br />" . $date->date_time . "</div>$n";
-			
-			if($this->owner) {
-				$banner_html .= "<form enctype=\"multipart/form-data\" action=\"./?user=" . $profile['user_id'] . "\" method=\"post\"><div style=\"display: none; margin-top: 4px;\" id=\"itc_banner_image_form\"><input type=\"hidden\" name=\"itc_profile_img\" value=\"change\"/><input type=\"hidden\" name=\"user_id\" value=\"" . $profile['user_id'] . "\"/><input type=\"file\" class=\"item-tools\" name=\"itc_user_img\" accept=\"image/jpeg,image/png,image/gif\"><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"✅ SAVE\"></div></form>";
-				$banner_html .= "<div id=\"show-form-button\" class=\"item-tools_dark\" onclick=\"domId('itc_banner_image_form').style.display='inline-block'; this.style.display='none'\" style=\"margin: 4px 0px;\">" . "Change the profile image" . "</div>";
-			}
+		$banner_html .= "</div></div>$n";
+		
+		$banner_html .= "<div style=\"float: left; text-align: left; margin-top: 20px;\">$n"
+			. "<form action=\"./?user=" . $profile['user_id'] . "\" method=\"post\"><div id=\"itc_banner_name_form\" style=\"display: none;\"><input type=\"hidden\" name=\"user_id\" value=\"" . $profile['user_id'] . "\"/><input class=\"form\" name=\"itc_profile_name\" value=\"" . $profile['user_name'] . "\"/><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"✅ SAVE\"></div><div id=\"itc_banner_name\"><span class=\"profile-name\"><div style=\"font-size: 2em; display: inline-block\" onclick=\"window.location.reload()\"><u>" . $user_name . "</u></div></span>";
+		
+		if($this->owner) { $banner_html .= " <span class=\"item-tools\" onclick=\"domId('itc_banner_name').style.display='none'; domId('itc_banner_name_form').style.display='block';\">&#9998; EDIT</span>"; }
+		$banner_html .= "</div></form>";
+		
+		$banner_html .= "<div class=\"item-tools_dark\"><small>MEMBER SINCE</small><br />" . $date->date_time . "</div>$n";
+		
+		if($this->owner) {
+			$banner_html .= "<form enctype=\"multipart/form-data\" action=\"./?user=" . $profile['user_id'] . "\" method=\"post\"><div style=\"display: none; margin-top: 4px;\" id=\"itc_banner_image_form\"><input type=\"hidden\" name=\"itc_profile_img\" value=\"change\"/><input type=\"hidden\" name=\"user_id\" value=\"" . $profile['user_id'] . "\"/><input type=\"file\" class=\"item-tools\" name=\"itc_user_img\" accept=\"image/jpeg,image/png,image/gif\"><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"✅ SAVE\"></div></form>";
+			$banner_html .= "<div id=\"show-form-button\" class=\"item-tools_dark\" onclick=\"domId('itc_banner_image_form').style.display='inline-block'; this.style.display='none'\" style=\"margin: 4px 0px;\">" . "Change the profile image" . "</div>";
+		}
 
+		$banner_html .= "</div>";
+
+		if($this->owner) { 
+			$banner_html .= "<div style=\"float: right; margin: 10px 28px 10px 10px; text-align: right\">";
+			$banner_html .= '<a onclick="logout()"><small><u>Sign Out</u></small></a><form id="logoutForm" action="./?connect=1&logout=1" method="post"><input name="logout" type="hidden"/></form>';		
 			$banner_html .= "</div>";
-
-			if($this->owner) { 
-				$banner_html .= "<div style=\"float: right; margin: 10px 28px 10px 10px; text-align: right\">";
-				$banner_html .= '<a onclick="logout()"><small><u>Sign Out</u></small></a><form id="logoutForm" action="./?connect=1&logout=1" method="post"><input name="logout" type="hidden"/></form>';		
-				$banner_html .= "</div>";
-			}
+		}
 			
 		$banner_html .= "<div class=\"clear\"></div>$n";		
 		$banner_html .= "</div>$n";		
 		$banner_html .= "</div>$n";
-			
 		return $banner_html;
 	}
 }
@@ -226,7 +228,7 @@ class addonItemProfileDisplay {
 		
 		$user_name = "New Member";
 		if(isset($itemDisplay->item['profile'])) {			
-			$user_name .= " (" . chopString($itemDisplay->item['profile']['date'], 10, '') . ")";
+			$user_name .= " (" . chopString($itemDisplay->item['profile']['date'], 4, '') . ")";
 			if($itemDisplay->item['profile']['user_name']) { $user_name = $itemDisplay->item['profile']['user_name']; }
 		}
 		$item_link_html = '<div class="item-user-link"><a href="./?user=' . $itemDisplay->item_user_id . '">' . $user_name . '</a></div>';
@@ -253,7 +255,8 @@ class addonItemProfileRequest {
 			foreach($this->item_loot as $item) {
 				$quest = "SELECT user_profile.*, user.date"
 					. " FROM user_profile, user"
-					. " WHERE user_profile.user_id=" . $item['user_id'];
+					. " WHERE user_profile.user_id=" . $item['user_id']
+					. " AND user_profile.user_id=user.user_id";
 			
 				$profile_loot = mysqli_query($this->stream, $quest);
 				if($profile_loot) { 
@@ -276,12 +279,14 @@ class addonUserProfileRequest {
 		$tmp_loot_array = NULL;
 		if($this->user_loot) {
 			$user_id = $this->user_loot['user_id'];
-			$quest = "SELECT user_profile.*, user.date, user.level"
+			$quest = "SELECT user_profile.*, user.user_id, user.date, user.level"
 				. " FROM user_profile, user"
-				. " WHERE user_profile.user_id='" . $user_id . "'";
+				. " WHERE user_profile.user_id='" . $user_id . "'"
+				. " AND user_profile.user_id=user.user_id";
 		
 			$profile_loot = mysqli_query($this->stream, $quest);
-			if($profile_loot) { $profile = $profile_loot->fetch_assoc();
+			if($profile_loot->fetch_assoc()) { 
+				$profile = $profile_loot->fetch_assoc();
 				global $addOns;
 				foreach($addOns as $addOn) {
 					if(isset($addOn['profile-request'])) { 
