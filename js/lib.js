@@ -154,6 +154,7 @@ var OmniBox = class {
 		this.class_array = class_array;
 		this.active_class = Object.keys(class_array)[0];
 		this.parent_div = parent_div;
+		this.str = '';
 	}
 	
 	toggle (class_id) {
@@ -161,34 +162,38 @@ var OmniBox = class {
 		domId(this.parent_div).innerHTML = this.class_form_HTML(this.class_array[class_id]);
 	}
 
+	set_active_str (id_string) {
+		this.str = id_string;
+	}
+	
 	submitCallback () {
-		domId('itc_OmniBoxForm').submit();
+		domId('itc_OmniBoxForm' + this.str).submit();
 	}
 	
 	addItemButton () {
-		var button = "<input class=\"item-tools\" type=\"button\" name=\"checkInput\" onClick=\"OmniController.checkInput()\"  value=\"&#10004 SAVE\"/><br />";
+		var button = "<input class=\"item-tools\" type=\"button\" name=\"checkInput" + this.str + "\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
 		return button;	
 	}
 	
 	form_input(class_id) { return "<input type=\"hidden\" name=\"itc_class_id\" value=\"" + class_id + "\"/>"; }
-	form_id() { return " id=\"itc_OmniBoxForm\""; }
+	form_id() { return " id=\"itc_OmniBoxForm" + this.str + "\""; }
 	functions_str() { return " action=\"add.php\" method=\"post\""; }
 	functions_file() { return " action=\"add.php\" method=\"post\" enctype=\"multipart/form-data\""; }
 	
     checkInput () {
 		var class_form = this.class_array[this.active_class];
-
 		for (var i = 0; i < class_form.nodes.length; i++) {
 			var node = class_form.nodes[i];
-			var value = document.getElementById('itc_' + node['node_name'] + '_txt').value;
+
+			var value = document.getElementById('itc_' + node['node_name'] + '_txt' + this.str).value;
 			
 			if(node['required'] && !value) {
-			var item_name = node['node_name']; //node['node_name'].charAt(0).toUpperCase() + node['node_name'].slice(1);
+			var item_name = node['node_name'];
 
-			domId('alertbox').innerHTML = "Adding a " + item_name + " is required for new " + class_form['class_name'] + ".";
-				domId('alertbox').className = "alertbox-show";
+			domId('alertbox' + this.str).innerHTML = "Adding a " + item_name + " is required for new " + class_form['class_name'] + ".";
+			domId('alertbox' + this.str).className = "alertbox-show";
 			return false;
-			}	    
+			}
 		}
 
 		this.submitCallback();
@@ -206,7 +211,7 @@ var OmniBox = class {
 				var functions = this.functions_file();
 
 				var types = class_form['types'];
-				form_input += "<input type=\"file\" class=\"item-tools\" name=\"itc_" + node['node_name'] + "\" id=\"itc_" + node['node_name'] + "_txt\" accept=\"";
+				form_input += "<input type=\"file\" class=\"item-tools\" value=\"title\" name=\"itc_" + node['node_name'] + "\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" accept=\"";
 
 				//accepted filetypes
 				form_input += types.join();
@@ -219,16 +224,18 @@ var OmniBox = class {
 					var domid_add = "itc_add_" + node['node_name'] + "_" + class_form['class_id'];
 
 					var show = "this.style.display='none';"
-						  + "domId('" + domid + "').style.display = 'block'";
-					var hide = "domId('" + domid_add + "').style.display = 'block';"
-						  + "domId('" + domid + "').style.display = 'none';"
-						  + "domId('" + domid + "_txt').value = '';";
+						  + "domId('" + domid + this.str + "').style.display = 'block'";
+					var hide = "domId('" + domid_add + this.str + "').style.display = 'block';"
+						  + "domId('" + domid + this.str + "').style.display = 'none';"
+						  + "domId('" + domid + "_txt" + this.str + "').value = '';";
 					
-					form_input += "<div id=\"" + domid_add + "\" onclick=\"" + show + "\"><a>+ <u>Add " + node['node_name'] + "</u></a></div>";
-					form_input += "<div id=\"" + domid + "\" style=\"display: none\"><textarea id=\"" + domid + "_txt\" class=\"form wider\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\"></textarea> <span onClick=\"" + hide + "\" class=\"item-tools\">x</span></div>";
+					form_input += "<div id=\"" + domid_add + "" + this.str + "\" onclick=\"" + show + "\"><a>+ <u>Add " + node['node_name'] + "</u></a></div>";
+					form_input += "<div id=\"" + domid + "" + this.str + "\" style=\"display: none\"><textarea id=\"" + domid + "_txt" + this.str + "\" class=\"form wider\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\">";			
+					form_input += "</textarea> <span onClick=\"" + hide + "\" class=\"item-tools\">x</span></div>";
 					form_input += "<hr />";
 				} else {
-					form_input += "<textarea class=\"form wider\" id=\"itc_" + node['node_name'] + "_txt\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length'] + "\"></textarea>";
+					form_input += "<textarea class=\"form wider\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length'] + "\">"	
+					form_input += "</textarea>";
 					form_input += "<hr />";
 				}
 			}
@@ -241,8 +248,8 @@ var OmniBox = class {
 		var x;
 		for (x in this.class_array) {
 			var item_class = this.class_array[x];
-			if(item_class['class_id'] == this.active_class) { inactive = ""; }	
-			toggleItemClass += "<input class=\"item_tools" + inactive + "\" type=\"button\" onclick=\"OmniController.toggle('" + item_class['class_id'] + "')\" value=\"" + item_class['class_name'] + "\"/> ";
+			if(item_class['class_id'] == this.active_class) { inactive = ""; }
+			toggleItemClass += "<input class=\"item_tools" + inactive + "\" type=\"button\" onclick=\"OmniController" + this.str + ".toggle('" + item_class['class_id'] + "')\" value=\"" + item_class['class_name'] + "\"/>";
 			inactive = "_inactive";	
 		}
 		
@@ -267,7 +274,7 @@ class OmniLabelBox extends OmniBox {
 	}
 	
 	addItemButton () {
-		return "<input class=\"item-tools\" type=\"button\" name=\"checkInput\" onClick=\"OmniController.checkInput()\"  value=\"&#10004 SAVE\"/><br />";
+		return "<input class=\"item-tools\" type=\"button\" name=\"checkInput" + this.str + "\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
 	}	
 	
 	form_input(class_id) { 
@@ -276,31 +283,130 @@ class OmniLabelBox extends OmniBox {
 			return hidden_input;
 	}
 	
-	form_id() { return " id=\"itc_OmniBoxForm\""; }
+	form_id() { return " id=\"itc_OmniBoxForm" + this.str + "\""; }
 	functions_str() { return " action=\"index.php\" method=\"post\""; }
 	functions_file() { return " action=\"index.php\" method=\"post\" enctype=\"multipart/form-data\""; }
 }
 
-class OmniEditBox extends OmniBox {
+class OmniCommentBox extends OmniLabelBox {
+	
+	set_active_item_id (item_id) {
+		this.item_id = item_id;
+	}
+	
+	form_input(class_id) { 
+		var hidden_input = "<input type=\"hidden\" name=\"itc_class_id\" value=\"" + class_id + "\"/>";
+			hidden_input += "<input type=\"hidden\" name=\"itc_add_item_comment\" value=\"" + this.label_id + "\"/>";
+			hidden_input += "<input type=\"hidden\" name=\"itc_add_item_comment_id\" value=\"" + this.item_id + "\"/>";
+			return hidden_input;
+	}
+}
 
+
+class OmniFirstCommentBox extends OmniLabelBox {
+	
+	set_active_item_id (item_id) {
+		this.item_id = item_id;
+	}
+	
+	form_input(class_id) { 
+		var hidden_input = "<input type=\"hidden\" name=\"itc_class_id\" value=\"" + class_id + "\"/>";
+			hidden_input += "<input type=\"hidden\" name=\"itc_add_item_comment_id\" value=\"" + this.item_id + "\"/>";
+			return hidden_input;
+	}
+}
+
+class OmniEditBox extends OmniBox {
 	set_active_item (item_array) {
 		this.item_array = item_array;
 	}
 	
 	addItemButton () {
 		var upload = "<input onClick=\"window.history.back()\"  type=\"button\" class=\"item-tools\" value=\"&#10008; Cancel\"/>";
-		    upload += "<input class=\"item-tools\" type=\"button\" name=\"checkInput\" onClick=\"OmniEditController.checkInput()\"  value=\"&#10004 SAVE\"/><br />";
+		    upload += "<input class=\"item-tools\" type=\"button\" name=\"checkInput\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
 		return upload;
 	}
 
 	form_input(class_id) { 
-	    var item = JSON.parse(this.item_array);
+	    var item = this.item_array;
 		var hidden_input = "<input type=\"hidden\" name=\"itc_class_id\" value=\"" + class_id + "\"/>";
 			hidden_input += "<input type=\"hidden\" name=\"itc_edit_item\" value=\"" + item['item_id'] + "\"/>";
 		return hidden_input;
 	}
-	
-	form_id() { return " id=\"itc_OmniBoxForm\""; }
+
+	class_form_HTML (class_form) {
+	    var item = this.item_array;		
+	    var form_input = "<input type=\"hidden\" name=\"itc_class_id\" value=\"" + class_form['class_id'] + "\"/>";
+	    form_input += "<input type=\"hidden\" name=\"itc_edit_item\" value=\"" + item['item_id'] + "\"/>";
+	    var form_id = " id=\"itc_OmniBoxForm" + this.str + "\"";
+	    var functions = " action=\"?id=" + item['item_id'] + "\" method=\"post\"";
+			
+		for (var i = 0; i < class_form.nodes.length; i++) {
+			var node = class_form.nodes[i];
+			
+			if(node['node_name'] == "file") {
+			    if(item[node['node_name']]) {
+				form_input += "<input class=\"item-tools\" name=\"itc_" + node['node_name'] + "\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" type=\"hidden\" value=\"" + item[node['node_name']] + "\"/>";
+				form_input += item[node['node_name']];
+				form_input += "<hr />";
+				} else { 
+					//NOT USED - Add file while editing
+					var functions = " action=\"index.php\" method=\"post\" enctype=\"multipart/form-data\"";
+
+					var types = class_form['types'];
+					form_input += "<input type=\"file\" class=\"item-tools\" name=\"itc_" + node['node_name'] + "_txt" + this.str + "\" id=\"itc_" + node['node_name'] + "\" accept=\"";
+
+					//accepted filetypes
+					form_input += types.join();
+					form_input += "\"/><div><small>Choose " + types.join() + " only.</small></div>";
+					form_input += "<hr />";
+				}
+				
+			} else {
+				if(!node['required'] && !item[node['node_name']]) {
+					var domid = "itc_" + node['node_name'];
+					var domid_add = "itc_add_" + node['node_name'] + "_" + class_form['class_id'];
+
+					var show = "this.style.display='none';"
+						  + "domId('" + domid + "').style.display = 'block'";
+					var hide = "domId('" + domid_add + "').style.display = 'block';"
+						  + "domId('" + domid + "').style.display = 'none';"
+						  + "domId('" + domid + "_txt" + this.str + "').value = '" + item[node['node_name']] + "';";
+					
+					form_input += "<div id=\"" + domid_add + "\" onclick=\"" + show + "\"><a>+ <u>Add " + node['node_name'] + "</u></a></div>";
+					form_input += "<div id=\"" + domid + "\" style=\"display: none\"><textarea id=\"" + domid + "_txt" + this.str + "\" class=\"form wider\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\">" + item[node['node_name']] + "</textarea> <span onClick=\"" + hide + "\" class=\"item-tools\">x</span></div>";
+					form_input += "<hr />";
+				} else {
+					form_input += "<textarea class=\"form wider\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length'] + "\">" + item[node['node_name']] + "</textarea>";
+					form_input += "<hr />";
+				}
+			}
+			
+		    var upload = "<input onClick=\"window.history.back()\"  type=\"button\" class=\"item-tools\" value=\"&#10008; Cancel\"/>";
+		    upload += "<input class=\"item-tools\" type=\"button\" name=\"checkInput\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
+		}
+
+		var inactive = "_inactive";
+		var toggleItemClass = "";
+		var x;
+		for (x in this.class_array) {
+			var item_class = this.class_array[x];
+			if(item_class['class_id'] == this.active_class) { inactive = ""; }	
+			if(item_class['class_id'] == item['class_id']) {
+				toggleItemClass += "<input class=\"item_tools" + inactive + "\" type=\"button\" onclick=\"OmniController" + this.str + ".toggle('" + item_class['class_id'] + "')\" value=\"" + item_class['class_name'] + "\"/> ";
+			}
+			inactive = "_inactive";
+		}
+		
+		var form_display = "<form" + form_id + functions + ">"
+			+ form_input
+			+ "<div style='float: right'>" + upload + "</div>"
+			+ toggleItemClass
+			+ "</form></div>";
+			
+		return form_display;
+	}	
+	form_id() { return " id=\"itc_OmniBoxForm" + this.str + "\""; }
 	functions_str() { return " action=\"index.php\" method=\"post\""; }
 	functions_file() { return " action=\"index.php\" method=\"post\" enctype=\"multipart/form-data\""; }
 }

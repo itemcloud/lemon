@@ -45,7 +45,18 @@ $auth = $client->authorizeUser();
 $itemManager = $client->itemManager();
 $itemManager->enableAddOns();
 
-$itemManager->meta['message'] = (isset($_POST['itc_class_id'])) ? $itemManager->handleItemUpload($client) : false;
+$itemManager->meta['message'] = false;
+if (isset($_POST['itc_class_id'])) {
+	$item_id = $itemManager->handleItemUpload($client); 
+	if($itemManager->insertOk) {
+		$itemManager->insertUserItem($client->user_serial, $item_id, 3);
+	}
+	$itemManager->meta['message'] = "Another " . "<a href=\"./?id=$item_id\">new item</a> has been added.";
+	
+	$client->closeConnection();
+	header("Location: ./?id=$item_id");
+}
+
 $client->closeConnection();
 	      
 $pageManager = new pageManager($itemManager, $_ROOTweb);

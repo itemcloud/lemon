@@ -194,24 +194,13 @@ class itemManager {
 	
 	function handleItemRequest() {
 		global $CONFIG;
+		
 		$start = (isset($_GET['start'])) ? $_GET['start'] : 0;
 		$count = $CONFIG['item_count'];
 		$user_level = $this->level;
 		
 		if(isset($_GET['connect'])) {
 		    return;
-		} elseif(isset($_POST['delete'])) {
-			global $message;
-			$message = "The item has been deleted.";
-			$this->deleteUserItem($_POST['delete']);
-			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
-			return $this->items;
-		} elseif(isset($_POST['itc_edit_item'])) {
-			global $message;
-			$message = "The item has been edited.";
-			$this->updateItem($_POST['itc_edit_item'], $_POST['itc_title'], $_POST['itc_info']);
-			$this->items = $this->getItemById($_POST['itc_edit_item']);
-			return $this->items;
 		}	
 		
 		if($this->addOns) {
@@ -220,16 +209,25 @@ class itemManager {
 					//POST ADDONS
 					$addonClass = new $addOn['post-handler']($this->stream);					
 					$addonReturn = $addonClass->handleAddOnPost($this);
-					if($addonReturn == "active") { return $this->items; }
 				}
 			}
 		}
 		
-		if(isset($_GET['id'])){
+		if(isset($_POST['delete'])) {
+			global $message;
+			$message = "The item has been deleted.";
+			$this->deleteUserItem($_POST['delete']);
+			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
+		} elseif(isset($_POST['itc_edit_item'])) {
+			global $message;
+			$message = "The item has been edited.";
+			$this->updateItem($_POST['itc_edit_item'], $_POST['itc_title'], $_POST['itc_info']);
+			$this->items = $this->getItemById($_POST['itc_edit_item']);
+		} else if(isset($_GET['id'])){
 			$this->items = $this->getItemById($_GET['id']);
 		} else if(isset($_GET['user'])){
 			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
-		} else if(!$this->items) {
+		} else if(!isset($_GET['id']) && !isset($_GET['page_id']) && !$this->items) {
 			$this->items = $this->getAllItems($start, $count, $user_level);
 		} return $this->items;
 	}
@@ -247,11 +245,11 @@ class itemManager {
 		return $item_id;
 	}
 
-	function insertUserItem($user_serial, $item_id) {
+	function insertUserItem($user_serial, $item_id, $level) {
 		$stream = $this->stream;
 
-		$quest = "INSERT INTO user_items (user_id, item_id)"
-				. " VALUES('$user_serial', '$item_id')";
+		$quest = "INSERT INTO user_items (user_id, item_id, level)"
+				. " VALUES('$user_serial', '$item_id', '$level')";
 		
 		$stream->query($quest);
 		$item_id = $stream->insert_id;
@@ -275,7 +273,7 @@ class itemManager {
 
 	function getUserItems($user_serial, $start, $count, $level) {
 		$stream = $this->stream;	   
-		$quest = "SELECT SQL_CALC_FOUND_ROWS item.*, user_items.user_id"
+		$quest = "SELECT SQL_CALC_FOUND_ROWS item.*, user_items.*"
 		       . " FROM item, user_items"
 		       . " WHERE user_items.user_id=$user_serial"
 		       . " AND item.item_id=user_items.item_id"
@@ -285,9 +283,9 @@ class itemManager {
 		$item_loot = mysqli_query($stream, $quest);
 		$item_loot_array = NULL;
 		if($item_loot) {
+			$count_quest = mysqli_query($stream, "SELECT FOUND_ROWS() AS count")->fetch_assoc();
 			while($loot=$item_loot->fetch_assoc()) {
-				$count_quest = mysqli_query($stream, "SELECT FOUND_ROWS() AS count")->fetch_assoc();
-				$loot['item_count'] = $count_quest['count'];
+				$loot['total'] = $count_quest['count'];
 				$item_loot_array[] = $loot;
 			}
 		}
@@ -305,18 +303,19 @@ class itemManager {
 
 	function getAllItems($start, $count, $user_level) {
 		$stream = $this->stream;
-		$quest = "SELECT SQL_CALC_FOUND_ROWS item.*, user_items.user_id"
+		$quest = "SELECT SQL_CALC_FOUND_ROWS item.*, user_items.*"
 		       . " FROM item, user_items"
 		       . " WHERE item.item_id=user_items.item_id"
+		       . " AND user_items.level >= $user_level"
 		       . " ORDER BY user_items.date DESC"
 		       . " LIMIT $start, $count";
 		
 		$item_loot = mysqli_query($stream, $quest);
 		$item_loot_array = NULL;
 		if($item_loot) {
+			$count_quest = mysqli_query($stream, "SELECT FOUND_ROWS() AS count")->fetch_assoc();
 			while($loot=$item_loot->fetch_assoc()) {
-				$count_quest = mysqli_query($stream, "SELECT FOUND_ROWS() AS count")->fetch_assoc();
-				$loot['item_count'] = $count_quest['count'];
+				$loot['total'] = $count_quest['count'];
 				$item_loot_array[] = $loot;
 			}
 		}
@@ -341,7 +340,7 @@ class itemManager {
 	}
 
 	function getItemById($item_id) {
-		$quest = "SELECT item.*, user_items.user_id"
+		$quest = "SELECT item.*, user_items.*"
 		     . " FROM item, user_items"
 			 . " WHERE item.item_id='$item_id'"
 			 . " AND item.item_id=user_items.item_id";
@@ -367,7 +366,7 @@ class itemManager {
 	
 	function getItemsByClass($class_id, $limit, $start) {
 		 		
-		$quest = "SELECT item.*, user_items.user_id"
+		$quest = "SELECT item.*, user_items.*"
 		       . " FROM item, user_items"
 		       . " WHERE item.item_id=user_items.item_id"
 			   . " AND item.class_id=" . $class_id 
@@ -408,7 +407,7 @@ class itemManager {
 		$class_quest = "SELECT item_class.*, item_nodes.*"
 					. " FROM item_class, item_nodes"
 					. " WHERE item_nodes.class_id=item_class.class_id"
-					. " AND item_class.level > $level";
+					. " AND item_class.level >= $level";
 		
 		$class_loot = mysqli_query($stream, $class_quest);
 		$class_loot_array = NULL;
@@ -520,8 +519,7 @@ class itemManager {
 				$id = $this->insertItem($class_id, $title, $info, $file);
 				if(isset($id) && $client->user_serial) {
 					$this->item_id = $id;
-					$this->insertUserItem($client->user_serial, $id);
-				    return "Another " . "<a href=\"./?id=$id\">new item</a> has been added.";
+				    return $id;
 				}
 			} else {
 				$this->insertOk = "0";
