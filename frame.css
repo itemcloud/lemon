@@ -36,13 +36,13 @@ a {
 	cursor: pointer;
 }
 
-.banner, .footer {
+.header, .footer {
 	background-color: #333;
 	width: 1240px;
 	margin: 0px auto;
 }
 
-.banner {
+.header {
     background: repeating-linear-gradient(
 			     -55deg,
 			     #222,
@@ -52,7 +52,7 @@ a {
 			 );
 }
 
-.banner_inner, .footer_inner {
+.header_inner, .footer_inner {
 	width: 1200px;
 	margin: 0px auto;
 	color: #eee;
@@ -68,17 +68,51 @@ a {
 	vertical-align:middle;
 }
 
+.nav_toggle {
+	font-size: 10px;
+	border-radius: 4px;
+	border: 1px solid #666;
+	padding: 6px 8px;
+	margin: 0px 6px;
+	background-color: #222;
+	display: inline-block;
+	cursor: pointer;
+}
+
+.nav_menu_links, .nav_label_links {
+	display: inline-block;
+}
+
+.nav_label_links {
+margin-top: 6px;
+}
+ 
+.nav_menu_links select {
+	background-color: #333;
+	color: #FFF;
+	height: 24px;
+	border-radius: 12px;
+	margin-top: 2px;
+}
+
 .nav_links, .user_links { 
-	margin: 14px 6px 0px 0px;
+	margin: 6px 6px 0px 0px;
 	font-size: 14px;
+}
+
+.user_links {
+	margin-top: 12px;
 }
 
 .nav_links { 
 	float: left;
 }
-.nav_links a {
+.nav_links a, .user_links a  {
 	text-decoration: none;
-	margin-left: 20px;
+}
+
+.nav_links a {
+	margin: 0px 10px;
 }
 
 .user_links { 
@@ -87,9 +121,28 @@ a {
 
 /* Page Display */
 .splash-page, .page { 
-	padding: 20px 0px;
-	min-height: 540px;
+	padding: 0px 0px;
 	background-color: #444;
+}
+
+.page_section {
+	padding-bottom: 20px;
+	border-bottom: 2px solid #333;
+	margin: 0px auto;
+}
+
+.page_section .item-page {
+	width: 820px;
+}
+
+.page_section_title .item-tools_grey {
+	padding: 0px;
+}
+
+.page_section_title {
+	border-bottom: 2px solid #333;
+	padding: 20px;
+	text-align: left;
 }
 
 .section {
@@ -116,6 +169,10 @@ a {
 	font-size: 2em;
 }
 
+.label-tools .item-tools_grey {
+	border: 2px solid red;
+	padding: 0px;
+}
 
 /* Display Inputs */
 textarea.form {
@@ -125,13 +182,14 @@ textarea.form {
     max-height: 340px;
 }
 input.form, textarea.form {
-	width: 234px;
+	width: 80%;
+	min-width: 240px;
 	height: 34px;
 	font-size: 22px;
 	padding: 4px;
 }
 input.wider, textarea.form {
-    width: 520px;
+    max-width: auto;
 }
 
 input.form_button {
@@ -180,6 +238,10 @@ input.item_tools_inactive:hover {
 	text-decoration: underline;
 }
 
+.popup-form * {
+	/*pointer-events: none;*/
+}
+
 /* Display helpers */
 .clear {
 	clear: both;
@@ -215,7 +277,7 @@ input.item_tools_inactive:hover {
 .item-link img {
 	cursor: pointer;
 }
-.item-page a {
+.item-page a, .item-box a,  .item-card a,  .item-banner a {
 	color: #73738c;
 	font-size: 12px;
 }
@@ -229,48 +291,7 @@ input.item_tools_inactive:hover {
 
 .item-section {
      width: 820px;
-     margin: 0px auto; 
-}
-
-.item-page {
-    width: 100%;
-    display: inline-block;
-    overflow: hidden;
-    margin-bottom: 8px;
-    padding: 8px 14px;
-    text-align: left;   
-    background-color: #fff;
-    box-sizing: border-box; 
-    border: 1px solid #999;
-    border-radius: 8px;
-    color: #333;
-}
-
-.item-page-inner {
-    padding: 8px 14px;
-}
-
-.item-box {
-	width: 380px;
-	min-height:120px;
-	display: inline-block;
-	overflow: hidden;
-	margin: 4px;
-	text-align: left;
-	background-color: #fff;
-	border-radius: 8px;
-	color: #333;
-}
-
-.item-box .item-nodes .item-link .image-cell {
-	max-height: 240px;
-	overflow: hidden;
-}
-
-.item-box .item-nodes .item-title {
-	padding: 8px 8px;
-	border-bottom: 2px solid #EEE;
-	margin-bottom: 2px;
+     margin: 20px auto 0px auto;; 
 }
 
 .item-info, .item-link {
@@ -279,6 +300,7 @@ input.item_tools_inactive:hover {
 
 .item-meta {
 	padding-top: 8px;
+	min-height: 24px;
 }
 
 .item-box .item-meta {
@@ -291,8 +313,7 @@ input.item_tools_inactive:hover {
 	border-bottom: 2px solid #EEE;
 	padding-bottom: 8px;
 	font-size: 2em;
-	line-height: 1em; 
-	color: #333;
+	line-height: 1em;
 	cursor: pointer;
 }
 
@@ -314,6 +335,174 @@ input.item_tools_inactive:hover {
 	color: #aaa;
 	font-size: 11px;
 }
+
+/*item page*/
+.item-page {
+    width: 100%;
+    display: inline-block;
+    overflow: hidden;
+	margin: 4px;
+    margin-bottom: 8px;
+    padding: 8px 14px;
+    text-align: left;   
+    box-sizing: border-box;
+}
+
+.item-page-inner {
+    padding: 8px 14px;
+}
+
+.item_reply {
+	width: 820px;
+	margin: 0px auto 20px auto;
+}
+
+.item_reply .item-section {
+	width: 820px;
+	float: right;
+}
+
+.item_reply .item-box, .item_reply .item-page {
+	width: 640px;
+	float: right;
+	clear: both;
+}
+
+/*item box*/
+.item-box {
+	min-width: 380px;
+	width: auto;
+	overflow: hidden;
+	display: inline-block;
+	float: left;
+	margin: 4px;
+	text-align: left;
+	background-color: #fff;
+	border-radius: 8px;
+	color: #333;
+}
+
+.item-box .item-nodes .item-link .image-cell {
+	max-height: 380px;
+	overflow: hidden;
+}
+
+.item-box .item-nodes .item-title {
+	padding: 8px 8px;
+	border-bottom: 2px solid #EEE;
+	margin-bottom: 2px;
+}
+
+.item-box .item-info span {
+	display: inline-block;
+	padding: 14px;
+}
+
+/*item card*/
+.item-card {
+	width: 820px;
+	overflow: hidden;
+	display: inline-block;
+	margin: 4px;
+	text-align: left;
+	background-color: #fff;
+	border-radius: 8px;
+	color: #333;
+}
+
+.item-card  .item-nodes .item-link .image-cell {
+	height: 320px;
+	width: 380px;
+	overflow: hidden;
+}
+.item-card  .item-nodes .item-link .image-cell img{
+	height: 100%;
+	object-fit: cover;
+}
+
+.item-card  .item-nodes .item-link  {
+	width: 380px;
+	float: left;
+	border-bottom: 0px solid white;
+}
+
+.item-card  .item-nodes .item-link audio {
+	width: 360px;
+	height: 320px;
+	background-image: linear-gradient(#73738c, #333);
+	padding: 10px;
+}
+
+.item-card .item-meta  {
+	float: right;
+	width: 434px;
+	margin: 0px 2px;
+}
+
+.item-card .item-nodes .item-title, .item-card .item-nodes .item-info  {
+	padding: 8px 8px;
+	border-bottom: 2px solid #EEE;
+	margin-bottom: 2px;
+	float: right;
+	width: 424px;
+}
+
+.item-card .item-info span {
+	display: inline-block;
+	padding: 14px;
+}
+
+.item-card .item-info {
+	max-height: 200px;
+	overflow: auto;
+}
+
+/*item banner*/
+.item-banner .item-nodes {
+ padding: 80px 300px;
+}
+
+.item-banner .item-nodes .item-title, .item-banner .item-nodes .item-info{
+	border-bottom: 0px solid #EEE;
+}
+
+.item-banner .item-nodes .item-title {
+	cursor: default;
+	padding: 8px;	
+	margin-bottom: 2px;
+}
+
+.item-banner .item-nodes .item-link {
+	display: none;
+}
+
+.item-banner .item-meta {
+	padding: 8px;
+	margin: 2px 8px;
+	display: none;
+}
+
+/* Display page sections */
+.banner {
+	background-image: linear-gradient(#333, #444);	
+}
+
+.page {
+	margin: 0px auto;
+}
+
+.box{  
+	-webkit-column-width: 380px; /* Chrome, Safari, Opera */
+	-moz-column-width: 380px; /* Firefox */
+	column-width: 380px;
+	padding: 20px;
+}
+
+.item-box {
+	-webkit-column-break-inside: avoid;
+	page-break-inside: avoid;
+	break-inside: avoid;
+ }
 
 /* Display file items*/
 .file_text {
@@ -373,7 +562,6 @@ input.item_tools_inactive:hover {
 	background-color: #333;
 }
 
-.item-tools_grey {  float: left; }
 .item-meta .item-tools_grey { padding: 0px; }
 .item-meta .item-tools_grey div { margin-right: 4px; }
 .item-tools img, .item-tools_grey img, .item-tools_dark  img{
@@ -448,4 +636,52 @@ select.item-dropdown{
 select.item-dropdown option {
 	color: #222;
 	background-color: #FFF;
+}
+
+/*ADD-ONS*/
+div.item_label_menu {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-transition: max-width .4s; /* For Safari 3.1 to 6.0 */
+  transition: max-width .4s;
+  max-width: 32px;
+  min-width: 32px;
+  padding: 0px;
+}
+div.item_label_menu:hover {
+	max-width: 280px;
+}
+img.label-image { width: 28px; height: 28px; vertical-align: middle; margin: 2px; }
+div.item-tools_txt { height: 30px; width: 30px; font-size: 18px; text-align: center;  font-family: Georgia, serif; margin: auto; padding: 0px; display: table-cell; vertical-align: middle; }
+div.inline-name{
+	display: inline-block;
+	white-space: nowrap;
+	margin-right: 8px;
+	padding-top: 6px;
+	text-decoration: underline;
+}
+
+.browse-labels .item_label_menu {
+  max-width: 52px;
+  min-width: 52px;
+  border-radius: 32px;
+}
+.browse-labels .item_label_menu:hover {
+	max-width: 320px;
+}
+.browse-labels .label-image { width: 48px; height: 48px; }
+.browse-labels .item-tools_txt { height: 52px; width: 52px; font-size: 32px; margin: 0px; }
+
+.browse-labels .inline-name {
+	margin: 0px 12px 0px 4px;
+	padding-top: 12px;
+}
+
+.profile-banner .avatar { margin: 20px 40px; width: 120px; height: 120px; }
+.profile-banner .item-tools_dark { margin: 0px; font-size: .8em; }
+
+
+.item_reply div[id^='itemAdd'] {
+    display: none;
 }
