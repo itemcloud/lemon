@@ -60,7 +60,7 @@ class Client extends Core {
 			//new account request
 			if (isset($_REQUEST['REG_new']) && isset($_REQUEST['e']) && isset($_REQUEST['p'])) {
 				$user_match = $this->registerUser($_REQUEST['e'], $_REQUEST['p']);
-			} else if(isset($_REQUEST['e']) && isset($_REQUEST['p'])) {
+			} else if(isset($_REQUEST['REG_signin']) && isset($_REQUEST['e']) && isset($_REQUEST['p'])) {
 				$user_match = $this->signIn($_REQUEST['e'], $_REQUEST['p']);
 			}
 			
@@ -227,7 +227,7 @@ class itemManager {
 			$this->items = $this->getItemById($_GET['id']);
 		} else if(isset($_GET['user'])){
 			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
-		} else if(!isset($_GET['id']) && !isset($_GET['page_id']) && !$this->items) {
+		} else if(empty($_GET)) {
 			$this->items = $this->getAllItems($start, $count, $user_level);
 		} return $this->items;
 	}
@@ -585,8 +585,7 @@ class uploadManager {
 	
 	function formatImage() {
 		$filePath = $this->tmp_file['tmp_name'];
-		$exif = exif_read_data($filePath);
-	
+		
 		if($this->imageFileType == 'jpeg' || $this->imageFileType == 'jpg') {
 			$imageResource = imagecreatefromjpeg($filePath);
 		} else if ($this->imageFileType == 'png') {
@@ -597,7 +596,7 @@ class uploadManager {
 		
 		$tmp_image = $imageResource;
 		//rotate the image (if needed)
-		$tmp_image = $this->rotateImage($tmp_image, $exif);
+		$tmp_image = $this->rotateImage($tmp_image);
 		//resize the image
 		$tmp_image = $this->resizeImage($tmp_image, 1000, 1000);
 				
@@ -614,7 +613,11 @@ class uploadManager {
 		return $move_upload;
 	}
 	
-	function rotateImage ($tmp_image, $exif) {
+	function rotateImage ($tmp_image) {
+	
+		$exif = function_exists('exif_read_data') && @exif_imagetype($filePath) == 2 ? exif_read_data($filePath): false;
+		if(!$exif) { return $tmp_image; }
+
 		if (!empty($exif['Orientation'])) {	
 			switch ($exif['Orientation']) {
 				case 3:

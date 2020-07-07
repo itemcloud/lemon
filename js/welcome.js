@@ -75,9 +75,11 @@ function joinForm (div) {
     login_form += "<form id=\"sendForm\" action=\"./index.php?connect=1\" method=\"post\"><div>Email</div><div><input id='LOGIN_email' name='e' class='form' value=''/></div>";
     login_form += "<div>Passcode</div><div><input id='LOGIN_pass' name='p' type='password' class='form' value=''/></div>";
 	login_form += "<div><a>Forgot passcode?</a></div>";
+	login_form += "<div><input name='REG_signin' type='hidden' value='1'/></div>";	
 	login_form += "<div><input class='form_button' type=\"button\" onClick=\"sendLoginForm('./')\" value=\"CONNECT\"/></div></form>";
 	login_form += "<div style='width: 80px; text-align: center; color: #DCDCDC; font-size: 10px; margin: 0 auto; padding-top: 20px'></div><div class='arrow-down' style='margin: 0 auto'></div>";
-						
+
+							
 	login_form += "</div>";
 	login_form += "</div>";
 	

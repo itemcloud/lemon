@@ -210,7 +210,7 @@ class pageManager extends Document {
 					$omniBox = $this->displayOmniBox();
 					$page = $omniBox . $page;
 				}		
-		}  else if(isset($_POST['edit'])) {
+		} else if(isset($_POST['edit'])) {
 				$page = "<div class=\"item-section\">"
 		       	    . $this->displayOmniEditBox($_GET['id'])
 					. "</div>";	
@@ -236,7 +236,7 @@ class pageManager extends Document {
 
 	function displayItem() {
 		$box_class = "item-page";
-		if(!isset($this->items)){ return "<div>No items found.</div>"; }	
+		if(!isset($this->items)){ return "<div class=\"clear\">This item could not be found.</div>"; }	
 		$item_html = $this->handleItemType(reset($this->items), $box_class, null, 0);
 		return $item_html;
 	}
@@ -256,7 +256,7 @@ class pageManager extends Document {
 		$col_holder= array();
 		$num = $start;
 
-		if(!isset($this->items)){ return "<div>No items found.</div>"; }
+		if(!isset($this->items)){ return "<div class=\"clear\">No items were found.</div>"; }
 		
 		$count = 0;
 		foreach($this->items as $i) {			
@@ -281,7 +281,7 @@ class pageManager extends Document {
 		$info_limit = 2800;
 		$item_html = "";
 
-		if(!isset($this->items)){ return "<div>No items found.</div>"; }
+		if(!isset($this->items)){ return "<div class=\"clear\"></div>"; }
 
 		$count = 0;
 		foreach($this->items as $item) {
