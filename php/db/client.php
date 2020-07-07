@@ -227,7 +227,7 @@ class itemManager {
 			$this->items = $this->getItemById($_GET['id']);
 		} else if(isset($_GET['user'])){
 			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
-		} else if(empty($_GET)) {
+		} else if(empty($_GET) || $_GET['start']) {
 			$this->items = $this->getAllItems($start, $count, $user_level);
 		} return $this->items;
 	}
