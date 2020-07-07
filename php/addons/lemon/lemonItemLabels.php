@@ -3,7 +3,7 @@ $labels_addon['addon-name'] = 'Item Labels';
 $labels_addon['addon-version'] = '1.0';
 $labels_addon['post-handler'] = 'addonPostLabelHandler';
 
-$labels_addon['page-display'] = 'addonLabelPageDisplay';
+//$labels_addon['page-display'] = 'addonLabelPageDisplay';
 $labels_addon['profile-request'] = 'addonProfileLabelRequest';
 $labels_addon['page-banner-display'] = 'addonProfileLabelDisplay';
 $labels_addon['item-display'] = 'addonItemLabelDisplay';
@@ -33,7 +33,7 @@ class addonBannerLabelsDisplay {
 			$links_browser = new labelBrowse($user->profile['labels'], $start, $max, $total);
 			$links = $links_browser->outputHTML();
 		}
-		$banner->links = $links;
+		$banner->links = $links . $banner->links;
 	}
 }
 
@@ -187,6 +187,74 @@ class labelBrowse {
 		$labelMenu .= $javascript_label_browser;
 		return $labelMenu; 
 	}	
+
+	function listOutputHTML ($index) {
+		global $client;	
+		global $_ROOTweb;	
+		if(!$this->labels) {
+			return;
+		}
+		$user_id = ($client->user_serial) ? $client->user_serial : 0;
+	
+		$labelMenu = "<div style=\"display: inline-block\" id=\"label_browse_$index\">";
+			
+		$start = $this->start;		
+		$new_start = $this->start - $this->max;	
+		if($new_start >= 0) {
+			$labelMenu .= "<div onclick=\"itemLabelBrowser['$index'].update(" . $new_start . ")\" class=\"\">"
+					. "<div class=\"\">" . "&#8943;" . "</div>"
+					. "</div>";
+		}
+		
+		$total = (count($this->labels) <= ($this->start + $this->max)) ? count($this->labels) : ($this->start + $this->max);	
+		
+		for($i = $start; $i < $total; $i++) {	
+			$label = $this->labels[$i];
+			
+			$label_img = "<a href=\"?label_id=" . $label['label_id'] . "&name=" . $label['name'] . "\">" 
+					. "<img class=\"label-image\" src='files/labels/" . $label['label_img'] . "'/>" 
+					. "</a>";
+					
+			$label_name = "<div style=\"display: inline-block;\">";					
+			if(($label['owner_id'] == $user_id) && $index) {
+				//remove label from item if owner
+				$remove_button = "<div style='display: inline-block'><form id='removeForm" . $i . $index . "' action='?id=" . $index. "' method='post'>"
+				. "<input type='hidden' name='item_id' value='" . $index . "'/>"
+				. "<input type='hidden' name='label_id' value='" . $label['label_id'] . "'/>"
+				. "<input type='hidden' name='label' value='remove'/>"		
+				. "<div class='inline-remove'>";
+
+				$remove_button .= " <a onclick=\"domId('removeForm" . $i . $index . "').submit()\">x</a>";	
+				$remove_button .= "</div>";
+				$remove_button .= "</form></div>";
+				
+				$label_name .= $remove_button;
+			}				
+			$label_window_launch = "window.location='" . $_ROOTweb . "?label_id=" . $label['label_id'] . "&name=" . $label['name'] . "'; ";
+			
+			$label_name .= "<div onclick=\"$label_window_launch\" class=\"inline-name\">" . $label['name'] . "</div>";
+			$label_name .= "</div>";
+
+			$label_wrapper = "<div class=\"\" >";
+			$label_wrapper .= $label_img;			
+			$label_wrapper .= $label_name;
+			$label_wrapper .= "</div>";
+			
+			
+			$labelMenu .= $label_wrapper;
+		}
+		
+
+		if($this->start + $this->max <= count($this->labels)) {
+			$labelMenu .= "<div id=\"browse-labels-button" . $i . $index . "\" style=\"display: none;\" onclick=\"itemLabelBrowser['$index'].update(" . ($this->start + $this->max) . ")\"  class=\"item-tools_grey item_label_menu\">"
+					. "<div class=\"item-tools_txt\">" . "&#8943;" . "</div>"
+					. "</div>";
+			$labelMenu .= "<script>itemLabelBrowser['$index']; domId('browse-labels-button" . $i . $index . "').style.display='inline-block';</script>";
+		}
+		
+		$labelMenu .= "</div>";
+		return $labelMenu; 
+	}
 }
 
 class addonProfileLabelDisplay {
@@ -232,24 +300,24 @@ class addonItemLabelDisplay {
 		return $tmp_labels;
 	}
 
-	function addRelatedLabelTools ($profile_labels, $label_id, $_id) {
+	function addRelatedLabelTools ($parent_id, $_id) {
 		global $labels_addon;
-		if($labels_addon['add-new'] == false && !$profile_labels) {
+		if($labels_addon['add-new'] == false) {
 			return "";
 		}
 		
-		$chooseLabel = "<div class='item-tools_dark' style='width: 120px'>+ New</div>";
+		$chooseLabel = ""; //"<div class='item-tools_dark' style='width: 120px'>+ New</div>";
 		$newLabel = "<div id='labelAddNewLabel" . $_id . "' style='position: relative; display: block'><input name='name' class='form' autofocus></div>";
-		$newLabel .= "<input id='labelParentLabel" . $_id . "' type='hidden' name='parent-label' value='$label_id'>"; //PARENT LABEL
+		$newLabel .= "<input id='labelParentLabel" . $_id . "' type='hidden' name='parent-label' value='$parent_id'>"; //PARENT LABEL
 		$newLabel .= "<input id='labelPostLabel" . $_id . "' type='hidden' name='label' value='new-child'>"; //DEFAULT: POSTING TO 'NEW' LABEL IN POST
 		
 		$tools = "<div style='float: right'>" 
 			. "<div id='labelAdd" . $_id . "' " . " onClick=\"this.style.display='none'; domId('labelAddForm" . $_id . "').style.display='inline-block'\" class=\"item-tools_grey\"><div class=\"item-tools_txt\">&#43;</div></div>"
 			. "<div id='labelAddForm" . $_id . "' style='display: none'>"
 				. "<form id='labelLabelForm" . $_id . "' action=\"?id=" . $_id . "\" method=\"post\">"
-				. "<input type='hidden' name='parent_id' value='" . $label_id . "'>"
+				. "<input type='hidden' name='parent_id' value='" . $parent_id . "'>"
 				. "<div style=\"float: left\" onClick=\"domId('labelAdd" . $_id . "').style.display='inline-block'; domId('labelAddForm" . $_id . "').style.display='none'\" class=\"item-tools_grey\"><div class=\"item-tools_txt\">&#8722;</div></div>"				
-				. "<div style='display: inline-block; width: 140px; margin-right: 4px'>" . $chooseLabel . "</div>"
+				. "<div style='display: inline-block; width: 120px; margin-right: 4px'>" . $chooseLabel . "</div>"
 				. "<div onclick=\"domId('labelLabelForm" . $_id . "').submit()\" style=\"display: inline-block; font-size: 12px;\" class=\"item-tools_dark\">&#9989; SAVE</div>"		
 				. $newLabel
 				. "</form>"
@@ -258,7 +326,34 @@ class addonItemLabelDisplay {
 
 		return $tools;
 	}
-	
+
+	function addRelatedLabelTools_small ($parent_id, $_id) {
+		global $labels_addon;
+		if($labels_addon['add-new'] == false) {
+			return "";
+		}
+		
+		$chooseLabel = "";
+		$newLabel = "<div id='labelAddNewLabel" . $_id . "' style='position: relative; display: block'><input name='name' class='form_small' autofocus></div>";
+		$newLabel .= "<input id='labelParentLabel" . $_id . "' type='hidden' name='parent-label' value='$parent_id'>"; //PARENT LABEL
+		$newLabel .= "<input id='labelPostLabel" . $_id . "' type='hidden' name='label' value='new-child'>"; //DEFAULT: POSTING TO 'NEW' LABEL IN POST
+		
+		$tools = "<div style='display: inline-block'>" 
+			. "<div id='labelAdd" . $_id . "' " . " onClick=\"this.style.display='none'; domId('labelAddForm" . $_id . "').style.display='inline-block'\"><div class=\"item-tools_txt\">&#43;</div></div>"
+			. "<div id='labelAddForm" . $_id . "' style='display: none'>"
+				. "<form id='labelLabelForm" . $_id . "' action=\"?id=" . $_id . "\" method=\"post\">"
+				. "<input type='hidden' name='parent_id' value='" . $parent_id . "'>"
+				. "<div style=\"float: left\" onClick=\"domId('labelAdd" . $_id . "').style.display='inline-block'; domId('labelAddForm" . $_id . "').style.display='none'\"><div class=\"item-tools_txt\">&#8722;</div></div>"				
+				. "<div style='display: inline-block; width: 120px; margin-right: 4px'>" . $chooseLabel . "</div>"
+				. "<div onclick=\"domId('labelLabelForm" . $_id . "').submit()\" style=\"display: inline-block; font-size: 12px;\" class=\"item-tools_dark\">&#9989; SAVE</div>"		
+				. $newLabel
+				. "</form>"
+			. "</div>" 
+			. "</div>";
+
+		return $tools . "<div class=\"clear\"></div>";
+	}
+		
 	function userLabelTools ($profile_labels, $item_id, $dom_id) {
 		global $labels_addon;
 		if($labels_addon['add-new'] == false && !$profile_labels) {
@@ -437,7 +532,7 @@ class addonLabelPageDisplay {
 			$page .= "</div>";
 
 			if($label_owner) {			
-				$page .= "<form enctype=\"multipart/form-data\" action=\"./?label_id=" . $label['label_id'] . "&name=" . $label['name'] . "\" method=\"post\"><div style=\"display: none; margin-top: 4px;\" id=\"itc_label_image_form\"><input type=\"hidden\" name=\"itc_label_img\" value=\"change\"/><input type=\"hidden\" name=\"label_id\" value=\"" . $_GET['label_id'] . "\"/><input type=\"file\" class=\"item-tools\" name=\"itc_label_upload\" accept=\"image/jpeg,image/png,image/gif\"><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"✅ SAVE\"></div></form>";
+				$page .= "<form enctype=\"multipart/form-data\" action=\"./?label_id=" . $label['label_id'] . "&name=" . $label['name'] . "\" method=\"post\"><div style=\"display: none; margin-top: 4px;\" id=\"itc_label_image_form\"><input type=\"hidden\" name=\"itc_label_img\" value=\"change\"/><input type=\"hidden\" name=\"label_id\" value=\"" . $_GET['label_id'] . "\"/><input type=\"file\" class=\"item-tools\" name=\"itc_label_upload\" accept=\"image/jpeg,image/png,image/gif\"><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"✅ SAVE NOW\"></div></form>";
 				$page .= "<div id=\"show-form-button\" class=\"item-tools_dark\" onclick=\"domId('itc_label_image_form').style.display='inline-block'; this.style.display='none'\" style=\"margin: 4px 0px;\">" . "Change the label image" . "</div>";
 			}	
 			
@@ -448,7 +543,7 @@ class addonLabelPageDisplay {
 					$profile_labels = $userTools->mergeRemove($profile_labels, $tmp_labels); 
 				}	
 				
-				$related = $userTools->addRelatedLabelTools($profile_labels, $label['label_id'], 0);
+				$related = $userTools->addRelatedLabelTools($profile_labels, $label['label_id'], $label['label_id']);
 				$page .= "<div class=\"label-tools\" style=\"float: right\">" . $related . "</div>";
 			}			
 						
@@ -527,7 +622,7 @@ class addonPostLabelHandler {
 		$this->DEFAULT_MAX_FILESIZE = 10485760; //10MB
 	}
 	
-	function handleAddOnPost ($itemManager) {
+	function handleAddOnPost ($itemManager) {	
 		global $CONFIG;
 		$start = (isset($_GET['start'])) ? $_GET['start'] : 0;
 		$count = $CONFIG['item_count'];
@@ -535,14 +630,14 @@ class addonPostLabelHandler {
 		global $client;	
 		$user_id = $client->user_serial;
 		$user_level = $client->level;
-		
+
 		if(isset($_POST['delete'])) {
 			$this->deleteItemLabel($_POST['delete']);
 		}
 		
 		$active = isset($_POST['label']);
 		if($active) {
-			switch ($_POST['label']) {
+				switch ($_POST['label']) {
 				case 'new':
 					$label_id = $this->newLabel($user_id, $_POST['name'], "default.png", 3, NULL);
 					$this->addItemLabel($user_id, $_POST['id'], $label_id);	
@@ -560,7 +655,7 @@ class addonPostLabelHandler {
 					$this->removeItemLabel($user_id, $_POST['item_id'], $_POST['label_id']);
 					break;
 			}
-		} else if(isset($_POST['itc_add_item_label'])){ 
+		} else if(isset($_POST['itc_add_item_label'])){
 				$item_id = $itemManager->handleItemUpload($client);
 				
 				if($itemManager->insertOk == "1" && isset($item_id)) {
@@ -571,8 +666,8 @@ class addonPostLabelHandler {
 		} else if(isset($_POST['itc_label_edit'])){ 
 				$this->purgeLabel($_POST['label_id']);
 				header("Location: ./");
-		} else if(isset($_POST['itc_label_img'])){ 
-			$this->handleLabelUpload($client);
+		} else if(isset($_POST['itc_label_img'])){
+				$this->handleLabelUpload($client);
 				header("Location: ./?label_id=" . $_GET['label_id']);
 		} else if (isset($_GET['label_id'])){
 			if(isset($_POST['itc_label_name'])) {
@@ -585,12 +680,18 @@ class addonPostLabelHandler {
 			$itemManager->meta['label'] = $this->getLabel($_GET['label_id']);
 			$itemManager->meta['label_display'] = $this->getLabelClass($user_level);		
 
+			// SHOULD BE USED BY OVERRIDE ONLY
+			if (isset($itemManager->meta['label']['related'])) { 
+				$itemManager->meta['label']['related'] = $this->getChildLabelItems($itemManager->meta['label']['related'], 0, 5, $user_level);
+			}
+			
 			if(!isset($_POST['page_id']) && !isset($itemManager->meta['label']['label_page'])) { 	
 				if(isset($_GET['id'])) { $itemManager->items = $itemManager->getItemById($_GET['id']); }
 				else { $itemManager->items = $this->getLabelItems($_GET['label_id'], $start, $count, $user_level); }
 				return "active"; 
 			}
 		}
+		
 	}
 		
 	function changeLabelName ($new_name, $label_id) {
@@ -620,27 +721,89 @@ class addonPostLabelHandler {
 	}
 	
 	function getLabel($label_id) {
-		$label_quest = "SELECT * FROM label WHERE label_id='$label_id'";
+		$label_quest = "SELECT label.* FROM label WHERE label_id='$label_id'";
 		$label_loot_return = mysqli_query($this->stream, $label_quest);	
 		$label_loot = $label_loot_return->fetch_assoc();
 
-		$page_quest = mysqli_query($this->stream, "SELECT * FROM page_labels WHERE label_id='$label_id'");
-		$label_loot['label_page'] = $page_quest->fetch_assoc();
+		//$page_quest = mysqli_query($this->stream, "SELECT * FROM page_labels WHERE label_id='$label_id'");
+		//$label_loot['label_page'] = $page_quest->fetch_assoc();
 		
 		$count_quest = mysqli_query($this->stream, "SELECT * FROM label_items WHERE label_id='$label_id'");
 		$label_loot['total'] = mysqli_num_rows($count_quest);
 		
 		$related_quest = "SELECT label.* FROM label WHERE parent_id='$label_id' AND label_id != '$label_id'";
-		$related_loot_return = mysqli_query($this->stream, $related_quest);	
+		$related_loot_return = mysqli_query($this->stream, $related_quest);
 		
+		if($label_loot['parent_id']) {
+		     $parent_id = $label_loot['parent_id'];
+		     $parent_quest = "SELECT label.* FROM label WHERE label_id='$parent_id'";
+		     $parent_loot_return = mysqli_query($this->stream, $parent_quest);
+		     $label_loot['parent'] = $parent_loot_return->fetch_assoc();		     
+		}
+
 		while($related_loot = $related_loot_return->fetch_assoc()) {
 			$label_loot['related'][] = $related_loot;
 		}
 
 		return $label_loot;
 	}
+
+	function getChildLabels($parent_id) {
+		$label_quest = "SELECT * FROM label WHERE parent_id='$parent_id'";
+		$label_loot_return = mysqli_query($this->stream, $label_quest);
+		while($label_loot = $label_loot_return->fetch_assoc()) {
+			$top_labels[] = $label_loot;
+		}
+		
+		if(!isset($top_labels)) { return; }
+
+		foreach($top_labels as $labels) {
+			$label_id = $labels['label_id'];
+			$related_quest = "SELECT * FROM label WHERE parent_id='$label_id' AND label_id != '$label_id' AND label_id != 0";
+			$related_loot_return = mysqli_query($this->stream, $related_quest);
+			while($row = $related_loot_return->fetch_array(MYSQLI_ASSOC)) {
+				   $labels['related'][] = $row; 
+			}
+			$labels_array[] = $labels;
+		}
+		return $labels_array;
+	}
 	
+	function getChildLabelItems($labels, $start, $count, $level) {
+		if(!$labels) { return; }
+			
+		$labels_array = NULL;
+		foreach($labels as $label) {
+			$quest = "SELECT label_items.*, item.*, user_items.*"
+				. " FROM label_items, item, user_items"
+				. " WHERE label_items.label_id='" . $label['label_id'] . "'"
+				. " AND label_items.item_id=item.item_id"
+				. " AND item.item_id=user_items.item_id"
+				. " ORDER BY label_items.date DESC"
+				. " LIMIT $start, $count";
+
+			$items_loot = mysqli_query($this->stream, $quest);
+			
+ 			$label['items'] = NULL;
+			if($items_loot) {
+				while($loot=$items_loot->fetch_assoc()) { 
+					$label['items'][] = $loot;
+				}
+				$addon_class = new addonItemProfileRequest($this->stream, $label['items']);
+				$label['items'] = $addon_class->getAddOnLoot();
+			}
+			$addon_request = new addonItemLabelRequest($this->stream, $label['items']);
+			$label['items'] = $addon_request->getAddOnLoot($level);
+			
+			$labels_array[] = $label;
+		}
+		return $labels_array;
+	}
+		
+		
 	function getLabelItems($label_id, $start, $count, $level) {
+		if(!$label_id) { return; }
+		
 		$label_quest = "SELECT label.* FROM label WHERE label_id='$label_id' AND label.level > $level";
 		$label_loot_return = mysqli_query($this->stream, $label_quest);	
 		$label_loot = $label_loot_return->fetch_assoc();
@@ -675,7 +838,7 @@ class addonPostLabelHandler {
 			
 		$class_loot = mysqli_query($this->stream, $quest);
 		$class_loot_array = [];
-		if(mysqli_num_rows($class_loot) > 0) {
+		if($class_loot && mysqli_num_rows($class_loot) > 0) {
 			while($loot = $class_loot->fetch_assoc()) {
 				$class_loot_array[] = $loot;
 			}

@@ -51,10 +51,21 @@ class infoLinks {
 
 	function replaceUrls($inputText) {
 		// make the urls hyper links (rough development version) yikes!
-		$reg_exUrl = '@(http(s)?)?(://)?(([a-zA-Z])([-\w]+\.)+([^\s\.]+[^\s]*)+[^,.\s])@';
+		$reg_exUrl = '|(https?://([\d\w\.-]+\.[\w\.]{2,6})[^\s\]\[\<\>]*/?)|i'; //'@(http(s)?)?(://)?(([a-zA-Z])([-\w]+\.)+([^\s\.]+[^\s]*)+[^,.\s])@';
 		
-		$inputText =  preg_replace($reg_exUrl, '<a href="http$2://$4" target="_blank" title="$0">$0</a>', $inputText);
+		$inputText =  preg_replace_callback($reg_exUrl, "checkUrls", $inputText);
 		return $inputText;
     }
+ 
+}
+ 
+function checkUrls($match) {
+	if(fnmatch("*twitter.com/*/status*", $match[0])) {
+		//Support for platform.twitter.com status embeds (widgets.js 7/1/2020)
+		$link = '<blockquote class="twitter-tweet"><a href="' . $match[0] . '">' . $match[0] . '</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>';
+	} else {
+		$link = '<a href="' . $match[1] . '" target="_blank" title="' . $match[2] . '">' . $match[1] . '</a>';
+	}
+	return $link;
 }
 ?>
