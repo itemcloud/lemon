@@ -219,25 +219,44 @@ var OmniBox = class {
 				form_input += "<hr />";
 
 			} else {
-				if(!node['required']) {
-					var domid = "itc_" + node['node_name'];
-					var domid_add = "itc_add_" + node['node_name'] + "_" + class_form['class_id'];
-
-					var show = "this.style.display='none';"
-						  + "domId('" + domid + this.str + "').style.display = 'block'";
-					var hide = "domId('" + domid_add + this.str + "').style.display = 'block';"
-						  + "domId('" + domid + this.str + "').style.display = 'none';"
-						  + "domId('" + domid + "_txt" + this.str + "').value = '';";
-					
-					form_input += "<div id=\"" + domid_add + "" + this.str + "\" onclick=\"" + show + "\"><a>+ <u>Add " + node['node_name'] + "</u></a></div>";
-					form_input += "<div id=\"" + domid + "" + this.str + "\" style=\"display: none\"><textarea id=\"" + domid + "_txt" + this.str + "\" class=\"form wider\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\">";			
-					form_input += "</textarea> <span onClick=\"" + hide + "\" class=\"item-tools\">x</span></div>";
-					form_input += "<hr />";
-				} else {
-					form_input += "<textarea class=\"form wider\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length'] + "\">"	
-					form_input += "</textarea>";
-					form_input += "<hr />";
+				var domid = "itc_" + node['node_name'];
+				var domid_add = "itc_add_" + node['node_name'] + "_" + class_form['class_id'];	
+				
+				//Toggle display onclick
+				var show = "this.style.display='none';"
+					  + "domId('" + domid + this.str + "').style.display = 'block'";
+				var hide = "domId('" + domid_add + this.str + "').style.display = 'block';"
+					  + "domId('" + domid + this.str + "').style.display = 'none';"
+					  + "domId('" + domid + "_txt" + this.str + "').value = '';";	
+				
+				//Use temporary form values
+				var tmp_node_value = "";
+				var tmp_node_onfocus = "";				
+				if(node['node_name'] == 'file') {
+					tmp_node_value = "http://";
+					tmp_node_onfocus = " onfocus=\"if(this.value=='http://'){this.value='';}\"";	
+				} else if(domId(domid + '_txt' + this.str)) {
+					tmp_node_value = domId(domid + '_txt' + this.str).value;
 				}
+				
+				//Default display status for non-required nodes
+				var link_display = "display: block";
+				var input_display = "display: none";
+				if(node['required'] || tmp_node_value) { link_display = "display: none"; input_display = "display: block"; }
+				
+				form_input += "<div id=\"" + domid_add + "" + this.str + "\" style=\"" + link_display + "\" onclick=\"" + show + "\"><a>+ <u>Add " + node['node_name'] + "</u></a></div>";
+				form_input += "<div id=\"" + domid + "" + this.str + "\" style=\"" + input_display + "\"><textarea id=\"" + domid + "_txt" + this.str + "\" class=\"form wider\" name=\"itc_" + node['node_name'] + "\""
+					+ "onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\"" + tmp_node_onfocus + ">";			
+				form_input += tmp_node_value;
+				form_input += "</textarea>";
+				
+				//Toggle display status for non-required nodes					
+				if(!node['required']) {
+					form_input += "<span onClick=\"" + hide + "\" class=\"item-tools\">x</span>";
+				}
+				
+				form_input += "</div>";
+				form_input += "<hr />";
 			}
 			
 		    var upload = this.addItemButton();
