@@ -11,7 +11,7 @@ $profile_addon['item-request'] = 'addonItemProfileRequest';
 $profile_addon['banner-display'] = 'addonBannerDisplay';
 
 //Add to global $addOns variable
-//$addOns[] = $profile_addon;
+$addOns[] = $profile_addon;
 
 class addonUserProfileAccount {
 	function __construct ($stream) {
@@ -49,6 +49,10 @@ class addonPostProfileHandler {
 		$itemManager->meta['owner'] = ($_GET['user'] == $client->user_serial) ? true : false;
 		$itemManager->meta['profile'] = $this->getUserProfile($_GET['user']);
 		
+		$profile = $itemManager->meta['profile'];
+		$user_name = (isset($profile['user_name']) && $profile['user_name'] != false) ? $profile['user_name'] : "New Member (" . date('Y') . ")";		
+		$itemManager->meta['title'] = $user_name;
+			
 		//Create a new profile if empty (when owner requests profile)
 		if($itemManager->meta['owner'] && !isset($itemManager->meta['profile']['user_id'])) {
 			$profile_insert = "INSERT INTO user_profile (user_id) VALUES('" . $client->user_serial . "')";
@@ -78,7 +82,7 @@ class addonPostProfileHandler {
 	function handleProfileUpload($client) {
 		 if (isset($_POST['itc_profile_img'])) {
 			$insertOk = "1";
-			$target_dir = "files/users/";
+			$target_dir = "files/feeds/";
 			$filesize = $this->DEFAULT_MAX_FILESIZE;
 			$ext = ["jpg", "jpeg", "png", "gif"];
 			$file_extensions = $ext;
@@ -118,8 +122,8 @@ class addonPostProfileHandler {
 		if($profile_loot) {
 			$profile = $profile_loot->fetch_assoc();
 		
-			$label_class = new addonProfileLabelRequest($this->stream, $profile, $user_id);
-			$profile = $label_class->getAddOnLoot($profile['level']);
+			$feed_class = new addonProfileLabelRequest($this->stream, $profile, $user_id);
+			$profile = $feed_class->getAddOnLoot($profile['level']);
 		
 			return $profile;
 		}
@@ -161,13 +165,14 @@ class addonProfileDisplay {
 	
 	function updateOutputHTML ($pageManager) {
 		if(isset($this->profile['user_id'])) { 
-			$profileBanner = $this->profileBanner($pageManager->ROOTweb);
+			$profileBanner = $this->profileBanner($pageManager);
 			$banner = $pageManager->displayWrapper('div', 'section', 'section_inner', $profileBanner);
 			$pageManager->pageOutput = $banner . $pageManager->pageOutput;
 		}
 	}
 	
-	function profileBanner ($rootFiles) {
+	function profileBanner ($pageManager) {
+		$rootFiles = $pageManager->ROOTweb;
 		$profile = $this->profile;
 		
 		$date = new DateService($profile['date']);
@@ -207,11 +212,22 @@ class addonProfileDisplay {
 
 		if($this->owner) { 
 			$banner_html .= "<div style=\"float: right; margin: 10px 28px 10px 10px; text-align: right\">";
-			$banner_html .= '<a onclick="logout()"><small><u>Sign Out</u></small></a><form id="logoutForm" action="./?connect=1&logout=1" method="post"><input name="logout" type="hidden"/></form>';		
+			$banner_html .= "<a onclick=\"logout()\"><small><u>Sign Out</u></small></a><form id=\"logoutForm\" action=\"./?connect=1&logout=1\" method=\"post\"><input name=\"logout\" type=\"hidden\"/></form>";		
 			$banner_html .= "</div>";
 		}
-			
-		$banner_html .= "<div class=\"clear\"></div>$n";		
+		$banner_html .= "<div class=\"clear\"></div>$n";
+		
+		//RSS Feed: Link Generator
+		$feed_url = $rootFiles . "?user=" . $profile['user_id'] . "&RSS=2.0";		
+		$pop_up = "<div id=\"RSS_popup\" style=\"display: none; background-color: #222; opacity: 0.8; position: absolute; z-index: 100; left: 0px; width: 100%; min-height: 60%\">" 
+			. "<div onClick=\"domId('RSS_popup').style.display='none'\" style=\"float: right; margin: 10px 28px 10px 10px; font-size: 14px\">" . "&#10005; Close"  . "</div>"
+			. "<div style=\"margin: 40px 20%;\"><h2>" . $profile['user_name'] . " Feed (RSS)</h2></div>"		
+			. "<div style=\"margin: 40px 20%;\">Feed Url: <input class=\"wider\" value=\"" . $feed_url . "\"/></div>"
+			. $pageManager->displayItemXML()			
+			. "</div>";
+		$pop_up .= "<div onClick=\"domId('RSS_popup').style.display='block'\" style=\"float: right; margin: 10px 28px 10px 10px; font-size: 14px;\">&#9776; RSS</div>";
+		
+		$banner_html .= $pop_up;
 		$banner_html .= "</div>$n";		
 		$banner_html .= "</div>$n";
 		return $banner_html;
@@ -290,8 +306,8 @@ class addonUserProfileRequest {
 				global $addOns;
 				foreach($addOns as $addOn) {
 					if(isset($addOn['profile-request'])) { 
-						$label_class = new $addOn['profile-request']($this->stream, $profile, $user_id);
-						$profile = $label_class->getAddOnLoot($profile['level']);
+						$feed_class = new $addOn['profile-request']($this->stream, $profile, $user_id);
+						$profile = $feed_class->getAddOnLoot($profile['level']);
 					}
 				}		
 				$client->profile = $profile;

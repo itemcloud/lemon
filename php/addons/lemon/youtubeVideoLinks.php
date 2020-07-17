@@ -5,9 +5,9 @@
 ** | | __/ _ \ '_ ` _ \ / __| |/ _ \| | | |/ _` |
 ** | | ||  __/ | | | | | (__| | (_) | |_| | (_| |
 ** |_|\__\___|_| |_| |_|\___|_|\___/ \__,_|\__,_|
-**          ITEMCLOUD (LEMON) Version 1.0
+**          ITEMCLOUD (LEMON) Version 1.1
 **
-** Copyright (c) 2019, ITEMCLOUD http://www.itemcloud.org/
+** Copyright (c) 2019-2020, ITEMCLOUD http://www.itemcloud.org/
 ** All rights reserved.
 ** developers@itemcloud.org
 **
