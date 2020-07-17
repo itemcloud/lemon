@@ -20,8 +20,13 @@ Our projects are powered by open-source software.
  - Documentation
  - Better support for photos/video/audio with ffmpeg.
  - Packages with built in add-ons: Lime (2019), Orange (2020).
- - ItemCloud peer-to-peer networks and features forICE Blocks archive (the Future).
+ - ItemCloud peer-to-peer networks and features for ICE Blocks archive (the Future).
  - Tons of cool add-ons and layouts from the community
- 
+ - Importing add-ons and version tracking
+ - Database update packages
+
+## Major Updates
+ - New version 1.1 requires new database install
+
 ## License
 [MIT](https://spdx.org/licenses/MIT.html)

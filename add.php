@@ -5,9 +5,9 @@
 ** | | __/ _ \ '_ ` _ \ / __| |/ _ \| | | |/ _` |
 ** | | ||  __/ | | | | | (__| | (_) | |_| | (_| |
 ** |_|\__\___|_| |_| |_|\___|_|\___/ \__,_|\__,_|
-**          ITEMCLOUD (LEMON) Version 1.0
+**          ITEMCLOUD (LEMON) Version 1.1
 **
-** Copyright (c) 2019, ITEMCLOUD http://www.itemcloud.org/
+** Copyright (c) 2019-2020, ITEMCLOUD http://www.itemcloud.org/
 ** All rights reserved.
 ** developers@itemcloud.org
 **
@@ -16,8 +16,8 @@
 ** Lemon is licensed under the terms of the MIT license.
 **
 ** @category   ITEMCLOUD (Lemon)
-** @package    Build Version 1.0
-** @copyright  Copyright (c) 2019 ITEMCLOUD (http://www.itemcloud.org)
+** @package    Build Version 1.1
+** @copyright  Copyright (c) 2019-2020 ITEMCLOUD (http://www.itemcloud.org)
 ** @license    https://spdx.org/licenses/MIT.html MIT License
 */
 
@@ -47,14 +47,16 @@ $itemManager->enableAddOns();
 
 $itemManager->meta['message'] = false;
 if (isset($_POST['itc_class_id'])) {
-	$item_id = $itemManager->handleItemUpload($client); 
-	if($itemManager->insertOk) {
-		$itemManager->insertUserItem($client->user_serial, $item_id, 3);
+	$message = $itemManager->handleItemUpload($client); 
+	if($itemManager->insertOk == 1 && isset($itemManager->item_id)) {
+		$itemManager->insertUserItem($client->user_serial, $itemManager->item_id, 3);
+		$itemManager->meta['message'] = "Another " . "<a href=\"./?id=" . $itemManager->item_id . "\">new item</a> has been added.";
+		
+		$client->closeConnection();
+		header("Location: ./?id=" . $itemManager->item_id);
+	} else {		
+		$itemManager->meta['message'] = $message;
 	}
-	$itemManager->meta['message'] = "Another " . "<a href=\"./?id=$item_id\">new item</a> has been added.";
-	
-	$client->closeConnection();
-	header("Location: ./?id=$item_id");
 }
 
 $client->closeConnection();

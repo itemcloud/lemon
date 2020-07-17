@@ -1,5 +1,5 @@
 //----------------------------------//
-//------ ITEMCLOUD Lemon 1.0 -------//
+//------ ITEMCLOUD Lemon 1.1 -------//
 //----------------------------------//
 //------ JS LIBRARY FUNCTIONS ------//
 //----------------------------------//
@@ -21,6 +21,14 @@ function showAlertBox(message) {
 function auto_expand(element) {
     element.style.height = "4px";
     element.style.height = (element.scrollHeight - 8)+"px";
+}
+
+function nl2br (str, is_xhtml) {
+    if (typeof str === 'undefined' || str === null) {
+        return '';
+    }
+    var breakTag = (is_xhtml || typeof is_xhtml === 'undefined') ? '<br />' : '<br>';
+    return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2');
 }
 
 //Display::User:functions
@@ -207,7 +215,7 @@ var OmniBox = class {
 		for (var i = 0; i < class_form.nodes.length; i++) {
 			var node = class_form.nodes[i];
 			
-			if(class_form['types'].length > 0 && node['node_name'] == "file") {
+			if(class_form['types'].length > 0 && node['node_name'] == 'link') {
 				var functions = this.functions_file();
 
 				var types = class_form['types'];
@@ -232,7 +240,7 @@ var OmniBox = class {
 				//Use temporary form values
 				var tmp_node_value = "";
 				var tmp_node_onfocus = "";				
-				if(node['node_name'] == 'file') {
+				if(node['node_name'] == 'link') {
 					tmp_node_value = "http://";
 					tmp_node_onfocus = " onfocus=\"if(this.value=='http://'){this.value='';}\"";	
 				} else if(domId(domid + '_txt' + this.str)) {
@@ -288,8 +296,8 @@ var OmniBox = class {
 
 class OmniLabelBox extends OmniBox {
 
-	set_active_label (label_id) {
-		this.label_id = label_id;
+	set_active_feed (feed_id) {
+		this.feed_id = feed_id;
 	}
 	
 	addItemButton () {
@@ -298,7 +306,7 @@ class OmniLabelBox extends OmniBox {
 	
 	form_input(class_id) { 
 		var hidden_input = "<input type=\"hidden\" name=\"itc_class_id\" value=\"" + class_id + "\"/>";
-			hidden_input += "<input type=\"hidden\" name=\"itc_add_item_label\" value=\"" + this.label_id + "\"/>";
+			hidden_input += "<input type=\"hidden\" name=\"itc_add_item_feed\" value=\"" + this.feed_id + "\"/>";
 			return hidden_input;
 	}
 	
@@ -315,7 +323,7 @@ class OmniCommentBox extends OmniLabelBox {
 	
 	form_input(class_id) { 
 		var hidden_input = "<input type=\"hidden\" name=\"itc_class_id\" value=\"" + class_id + "\"/>";
-			hidden_input += "<input type=\"hidden\" name=\"itc_add_item_comment\" value=\"" + this.label_id + "\"/>";
+			hidden_input += "<input type=\"hidden\" name=\"itc_add_item_comment\" value=\"" + this.feed_id + "\"/>";
 			hidden_input += "<input type=\"hidden\" name=\"itc_add_item_comment_id\" value=\"" + this.item_id + "\"/>";
 			return hidden_input;
 	}
@@ -363,7 +371,7 @@ class OmniEditBox extends OmniBox {
 		for (var i = 0; i < class_form.nodes.length; i++) {
 			var node = class_form.nodes[i];
 			
-			if(node['node_name'] == "file") {
+			if(node['node_name'] == 'link') {
 			    if(item[node['node_name']]) {
 				form_input += "<input class=\"item-tools\" name=\"itc_" + node['node_name'] + "\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" type=\"hidden\" value=\"" + item[node['node_name']] + "\"/>";
 				form_input += item[node['node_name']];

@@ -79,11 +79,11 @@ a {
 	cursor: pointer;
 }
 
-.nav_menu_links, .nav_label_links {
+.nav_menu_links, .nav_feed_links {
 	display: inline-block;
 }
 
-.nav_label_links {
+.nav_feed_links {
 margin-top: 6px;
 }
  
@@ -169,7 +169,7 @@ margin-top: 6px;
 	font-size: 2em;
 }
 
-.label-tools .item-tools_grey {
+.feed-tools .item-tools_grey {
 	border: 2px solid red;
 	padding: 0px;
 }
@@ -639,7 +639,7 @@ select.item-dropdown option {
 }
 
 /*ADD-ONS*/
-div.item_label_menu {
+div.item_feed_menu {
   display: inline-block;
   overflow: hidden;
   white-space: nowrap;
@@ -649,10 +649,10 @@ div.item_label_menu {
   min-width: 32px;
   padding: 0px;
 }
-div.item_label_menu:hover {
+div.item_feed_menu:hover {
 	max-width: 280px;
 }
-img.label-image { width: 28px; height: 28px; vertical-align: middle; margin: 2px; }
+img.feed-image { width: 28px; height: 28px; vertical-align: middle; margin: 2px; }
 div.item-tools_txt { height: 30px; width: 30px; font-size: 18px; text-align: center;  font-family: Georgia, serif; margin: auto; padding: 0px; display: table-cell; vertical-align: middle; }
 div.inline-name{
 	display: inline-block;
@@ -662,18 +662,18 @@ div.inline-name{
 	text-decoration: underline;
 }
 
-.browse-labels .item_label_menu {
+.browse-feeds .item_feed_menu {
   max-width: 52px;
   min-width: 52px;
   border-radius: 32px;
 }
-.browse-labels .item_label_menu:hover {
+.browse-feeds .item_feed_menu:hover {
 	max-width: 320px;
 }
-.browse-labels .label-image { width: 48px; height: 48px; }
-.browse-labels .item-tools_txt { height: 52px; width: 52px; font-size: 32px; margin: 0px; }
+.browse-feeds .feed-image { width: 48px; height: 48px; }
+.browse-feeds .item-tools_txt { height: 52px; width: 52px; font-size: 32px; margin: 0px; }
 
-.browse-labels .inline-name {
+.browse-feeds .inline-name {
 	margin: 0px 12px 0px 4px;
 	padding-top: 12px;
 }

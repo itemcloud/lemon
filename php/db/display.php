@@ -5,9 +5,9 @@
 ** | | __/ _ \ '_ ` _ \ / __| |/ _ \| | | |/ _` |
 ** | | ||  __/ | | | | | (__| | (_) | |_| | (_| |
 ** |_|\__\___|_| |_| |_|\___|_|\___/ \__,_|\__,_|
-**          ITEMCLOUD (LEMON) Version 1.0
+**          ITEMCLOUD (LEMON) Version 1.1
 **
-** Copyright (c) 2019, ITEMCLOUD http://www.itemcloud.org/
+** Copyright (c) 2019-2020, ITEMCLOUD http://www.itemcloud.org/
 ** All rights reserved.
 ** developers@itemcloud.org
 **
@@ -16,8 +16,8 @@
 ** Lemon is licensed under the terms of the MIT license.
 **
 ** @category   ITEMCLOUD (Lemon)
-** @package    Build Version 1.0
-** @copyright  Copyright (c) 2019 ITEMCLOUD (http://www.itemcloud.org)
+** @package    Build Version 1.1
+** @copyright  Copyright (c) 2019-2020 ITEMCLOUD (http://www.itemcloud.org)
 ** @license    https://spdx.org/licenses/MIT.html MIT License
 */
 
@@ -36,11 +36,14 @@ class Document {
 		 	$styles = (isset($styles)) ? $styles . '<link rel="stylesheet" type="text/css" href="' . $src . '">' : '<link rel="stylesheet" type="text/css" href="' . $src . '">';
 		}		
 
+		$title = $meta['title'];	
+		if (isset($this->meta['title'])) { $title = $meta['title'] . " | " . $this->meta['title']; }
+		
 		$header = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
 			 . '<html>'
 		 	 . '<head>'
 		 	 . '<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />'
-		 	 . '<title>' . $meta['title'] . '</title>'
+		 	 . '<title>' . $title . '</title>'
 		 	 . '<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">';
 		 	 
 		$header .= $styles;
@@ -113,7 +116,7 @@ class documentBanner {
 	}
 	
 	function pageBannerLogo () {
-		return "<div class=\"logo\" onClick=\"window.location='./'\">lemon</div>";	
+		return "<div class=\"logo\" onClick=\"window.location='./'\">i t e m c l o u d <small><sup>[lemon]</sup></small></div>";	
 	}
 	
 	function pageBannerUser() {
@@ -148,7 +151,7 @@ class pageManager extends Document {
 		$this->addOns = NULL;
 		$this->pageOutput = "";
 		$this->pageExtra = "";
-		$this->extraCSS = (empty($_GET) || isset($_GET['browse'])) ? " splash-page" : " page";
+		$this->displayClass = (empty($_GET) || isset($_GET['browse'])) ? " splash-page" : " page";
 		$this->uri_prefix = "?";
 	}
 	
@@ -159,10 +162,17 @@ class pageManager extends Document {
 		}
 	}
 	
+	function enableRSS () {			
+		if(isset($_GET['RSS'])) {
+			echo $this->handleXML($this->items);
+			exit();
+		}
+	}
+	
 	function displayPageItems () {
 		$itemsPage = $this->handlePageItems();
 		$itemsPage .= $this->pageExtra;
-		$pageDisplay = $this->displayWrapper('div', 'section', 'section_inner' . $this->extraCSS, $itemsPage);
+		$pageDisplay = $this->displayWrapper('div', 'section', 'section_inner' . $this->displayClass, $itemsPage);
 		$this->pageOutput .= $pageDisplay;
 		echo $this->pageOutput;
 	}
@@ -242,9 +252,14 @@ class pageManager extends Document {
 	}
 	
 	function displayItemXML() {
-		$item_JSON = json_encode($this->items);
+		//DEBUG: $item_JSON = json_encode($this->items);
 		$item_XML = $this->handleXML($this->items);
-		echo "<div class=\"clear\"></div></div><hr />JSON:<br/><textarea style=\"width:100%; height: 400px; resize: none;font-size: 16px\">" . $item_JSON . "</textarea>" . "XML<br /><textarea style=\"width:100%; height: 400px; resize: none;font-size: 16px\">" . $item_XML . "</textarea>"; 
+		
+		$feed_preview = "<div class=\"clear\"></div>";
+		if(isset($item_JSON)) { $feed_preview .= "<div style=\"margin: 40px 20%; height: 400px;\"><textarea style=\"color: #FFF; background-color: #222; width: 100%; height: 100%; font-size: 16px\">" . $item_JSON. "</textarea></div>"; }
+		$feed_preview .= "<div style=\"margin: 40px 20%; height: 400px;\"><textarea style=\"color: #FFF; background-color: #222; width: 100%; height: 100%; font-size: 16px\">" . $item_XML . "</textarea></div>"; 
+		
+		return $feed_preview;
 	}
 		
 	function displayItemGrid($maxcount) {
@@ -369,15 +384,30 @@ class pageManager extends Document {
 	}	
 		
 	function handleXML() {		
-		$item_html = "<xml><items>";
-		foreach($this->items as $i) {			
-			$item_html .= "<item type=\"" . $i['class_id'] . "\" date=\"" . $i['date'] . "\">"
-			   . "<title>" . $i['title'] . "</title>"
-			   . "<info>" . $i['info'] . "</info>"
-			   . "<file>" . $i['file'] . "</file>"
-			   . "</item>";
+		global $_ROOTweb;
+		
+		$nl = "\r\n";
+		$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+		$feed_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+		$item_html = "<xml version=\"1.0\" encoding\"UTF-8\" ?>$nl"
+			. "<rss version=\"2.0\">$nl"
+			. "<channel>$nl"
+			. " <title>" . $this->meta['title'] . "</title>$nl"
+			. " <link>" . $feed_url . "</link>$nl"
+			. " <description></description>$nl";
+		if($this->items){
+			foreach($this->items as $i) {			
+			$item_html .= "  <item type=\"" . $i['class_id'] . "\" date=\"" . $i['date'] . "\">$nl"
+			   . "    <title>" . $i['title'] . "</title>$nl"
+			   . "    <link>" . $_ROOTweb . "?id=" . $i['item_id'] . "</link>$nl"
+			   . "    <description>" . $i['description'] . "</description>$nl"
+			   . "  </item>$nl";
+			}
 		}
-		$item_html .= "</items></xml>";
+		$item_html .= "</channel>$nl"
+			. "</rss>$nl"
+			. "</xml>$nl";
 		return $item_html;
 	}
 			
@@ -462,8 +492,8 @@ class ItemDisplay {
 		$this->dateService = new DateService($item['date']);
 
 		$this->title = $item['title'];
-		$this->info = $item['info'];
-		$this->file = $item['file'];
+		$this->info = $item['description'];
+		$this->file = $item['link'];
 		
 		$this->info_limit = $info_limit;
 		$this->itemLink = ($prefix) ? $prefix . "id=" . $this->item_id : "";
@@ -577,8 +607,8 @@ class ItemDisplay {
 	}
 	
 	function photoOverride () {
-		$onlick = "onclick=\"window.location='" . $this->webroot . $this->itemLink . "'\"";
-		$file_display = "<div $onlick class=\"item-link\"><div class=\"image-cell\"><img src=\"" . $this->webroot . $this->file . "\" width=\"100%\"></div></div>";
+		$onclick = $this->onclick;
+		$file_display = "<div $onclick class=\"item-link\"><div class=\"image-cell\"><img src=\"" . $this->webroot . $this->file . "\" width=\"100%\"></div></div>";
 		return $file_display;
 	}
 	

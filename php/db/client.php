@@ -5,9 +5,9 @@
 ** | | __/ _ \ '_ ` _ \ / __| |/ _ \| | | |/ _` |
 ** | | ||  __/ | | | | | (__| | (_) | |_| | (_| |
 ** |_|\__\___|_| |_| |_|\___|_|\___/ \__,_|\__,_|
-**          ITEMCLOUD (LEMON) Version 1.0
+**          ITEMCLOUD (LEMON) Version 1.1
 **
-** Copyright (c) 2019, ITEMCLOUD http://www.itemcloud.org/
+** Copyright (c) 2019-2020, ITEMCLOUD http://www.itemcloud.org/
 ** All rights reserved.
 ** developers@itemcloud.org
 **
@@ -16,8 +16,8 @@
 ** Lemon is licensed under the terms of the MIT license.
 **
 ** @category   ITEMCLOUD (Lemon)
-** @package    Build Version 1.0
-** @copyright  Copyright (c) 2019 ITEMCLOUD (http://www.itemcloud.org)
+** @package    Build Version 1.1
+** @copyright  Copyright (c) 2019-2020 ITEMCLOUD (http://www.itemcloud.org)
 ** @license    https://spdx.org/licenses/MIT.html MIT License
 */
 
@@ -221,13 +221,14 @@ class itemManager {
 		} elseif(isset($_POST['itc_edit_item'])) {
 			global $message;
 			$message = "The item has been edited.";
-			$this->updateItem($_POST['itc_edit_item'], $_POST['itc_title'], $_POST['itc_info']);
+			$this->updateItem($_POST['itc_edit_item'], $_POST['itc_title'], $_POST['itc_description']);
 			$this->items = $this->getItemById($_POST['itc_edit_item']);
 		} else if(isset($_GET['id'])){
 			$this->items = $this->getItemById($_GET['id']);
+			$this->meta['title'] = $this->items[0]['title'];
 		} else if(isset($_GET['user'])){
 			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
-		} else if(empty($_GET) || $_GET['start']) {
+		} else if(empty($_GET) || isset($_GET['start'])) {
 			$this->items = $this->getAllItems($start, $count, $user_level);
 		} return $this->items;
 	}
@@ -237,7 +238,7 @@ class itemManager {
 
 		$title = $stream->real_escape_string($title);
 		$info = $stream->real_escape_string($info);
-		$quest = "INSERT INTO item (class_id, title, info, file)"
+		$quest = "INSERT INTO item (class_id, title, description, link)"
 				. " VALUES('$type', '$title', '$info', '$file')";
 		
 		$stream->query($quest);
@@ -265,7 +266,7 @@ class itemManager {
 		
 	function updateItem($item_id, $title, $info) {
 		$stream = $this->stream;
-		$set = "SET title='$title', info='$info'";
+		$set = "SET title='$title', description='$info'";
 		
 		$quest = "UPDATE item $set WHERE item_id='$item_id'";
 		$stream->query($quest);		
@@ -465,16 +466,16 @@ class itemManager {
 	function handleItemUpload($client) {
 		 if (isset($_POST['itc_class_id'])) {
 			global $_ROOTdir;
-			
+									
 			$folder = "files/";
-			$insertOk = "1";
+			$insertOk = 1;
 			$target_dir = $_ROOTdir . $folder;
 			$filesize = 10485760; //10MB
 			
 			$posted_class = $_POST['itc_class_id'];			
 			$title = (isset($_POST['itc_title'])) ? $_POST['itc_title'] : "";
-			$info = (isset($_POST['itc_info'])) ? $_POST['itc_info'] : "";
-			$file = (isset($_POST['itc_file'])) ? $_POST['itc_file'] : "";
+			$info = (isset($_POST['itc_description'])) ? $_POST['itc_description'] : "";
+			$file = (isset($_POST['itc_link'])) ? $_POST['itc_link'] : "";
 
 			$classes = $this->classes;
 			$class_form = $classes[$posted_class];
@@ -483,21 +484,22 @@ class itemManager {
 			//only handle the posted class
 			if($posted_class == $class_id) {
 				foreach($class_form['nodes'] as $nodes){					
-					if(isset($_FILES["itc_file"]) && $nodes['node_name'] == 'file') {
+					if(isset($_FILES["itc_link"]) && $nodes['node_name'] == 'link') {
 						if(count($class_form['ext'])) {
 							$file_extensions = $class_form['ext'];
 						}
 					} else if(!$_POST['itc_'.$nodes['node_name']] && $nodes['required'] != NULL){
-						//detect required nodes								
-						$message = "Sorry, your item could not be added.";	
-						$insertOk = "0"; return $message;
+						//detect required nodes	git add							
+						$message = "Sorry, some items have required info.";		
+						$this->insertOk = 0;
+						return $message;
 					}
 				}
 			}
 				
-			 if(isset($_FILES["itc_file"])) {
+			 if(isset($_FILES["itc_link"])) {
 				$tmp_file = new uploadManager(
-					$_FILES["itc_file"],
+					$_FILES["itc_link"],
 					$target_dir,
 					$filesize,
 					$file_extensions);
@@ -505,12 +507,12 @@ class itemManager {
 				$tmp_file->handleUploadRequest();
 				$tmp_file->uploadFile();
 				$file = $folder . $tmp_file->target_file_name;	
-				if($tmp_file->uploadOk == "0") {
-					$insertOk = "0";
+				if($tmp_file->uploadOk == 0) {
+					$insertOk = 0;
 				} $message = $tmp_file->errorStatus;
 
 				if($class_id != 4 && !$title) {
-				   $title = $_FILES["itc_file"]["name"];
+				   $title = $_FILES["itc_link"]["name"];
 				}
 			}
 
@@ -521,8 +523,9 @@ class itemManager {
 					$this->item_id = $id;
 				    return $id;
 				}
-			} else {
-				$this->insertOk = "0";
+			} else {							
+				$message = "Sorry, your item could not be added.";	
+				$this->insertOk = 0;
 				return $message;
 			}
 		}
@@ -592,6 +595,8 @@ class uploadManager {
 			$imageResource = imagecreatefrompng($filePath);
 		} else if ($this->imageFileType == 'gif') {
 			$imageResource = imagecreatefromgif($filePath);
+		} else {
+			return;
 		}
 		
 		$tmp_image = $imageResource;
