@@ -505,6 +505,7 @@ class ItemDisplay {
 		$this->metaOutput = $this->itemMetaLinks();
 		$this->userTools = $this->itemUserTools();
 		
+		$this->nodeOutput = $this->nodeOutputHTML();
 		$this->output = $this->displayHTML($info_limit);
 	}
 	
@@ -563,14 +564,20 @@ class ItemDisplay {
 		}
 	}	
 	
+	function nodeOutputHTML () {
+		$item_html = "";
+		if($this->title) { $item_html .= $this->titleOutput; }
+		if($this->file) { $item_html .= $this->fileOutput; }
+		if($this->info) { $item_html .= $this->infoOutput; }
+		return $item_html;
+	}
+	
 	function displayHTML() {
 		$item_html = "<div onmouseover=\"domId('userTools" . $this->item_id . "').style.display='inline-block';\" onmouseout=\"domId('userTools" . $this->item_id . "').style.display='none';\" class=\"" . $this->box_class . "\">";
 		$item_html .= "<div class='item-settings' style='position: relative'><div id='userTools" . $this->item_id . "' style='position: absolute; right: 0px; width: 120px; display: none'>" . $this->userTools . "</div></div>";
 		
 		$item_html .= "<div class='item-nodes'>";
-		if($this->title) { $item_html .= $this->titleOutput; }
-		if($this->file) { $item_html .= $this->fileOutput; }
-		if($this->info) { $item_html .= $this->infoOutput; }
+		$item_html .= $this->nodeOutput;
 		$item_html .= "</div>";
 		
 		$item_html .= "<div class='item-meta'>";

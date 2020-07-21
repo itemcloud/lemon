@@ -228,7 +228,7 @@ class itemManager {
 			$this->meta['title'] = $this->items[0]['title'];
 		} else if(isset($_GET['user'])){
 			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
-		} else if(empty($_GET) || isset($_GET['start'])) {
+		} else if(!$this->items && (empty($_GET) || isset($_GET['start']))) {
 			$this->items = $this->getAllItems($start, $count, $user_level);
 		} return $this->items;
 	}
@@ -365,7 +365,7 @@ class itemManager {
 		return $item_loot_array;
 	}
 	
-	function getItemsByClass($class_id, $limit, $start) {
+	function getItemsByClass($class_id, $limit, $start, $level) {
 		 		
 		$quest = "SELECT item.*, user_items.*"
 		       . " FROM item, user_items"
@@ -387,7 +387,7 @@ class itemManager {
 			foreach($this->addOns as $addOn) {
 				if(isset($addOn['item-request'])) { 
 					$addon_request = new $addOn['item-request']($this->stream, $item_loot_array);
-					$item_loot_array = $addon_request->getAddOnLoot();
+					$item_loot_array = $addon_request->getAddOnLoot($level);
 				}
 			}
 		}					
