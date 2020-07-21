@@ -291,7 +291,8 @@ input.item_tools_inactive:hover {
 
 .item-section {
      width: 820px;
-     margin: 20px auto 0px auto;; 
+     margin: 0px auto;
+     padding: 20px 0px;
 }
 
 .item-info, .item-link {
