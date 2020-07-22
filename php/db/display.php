@@ -390,24 +390,28 @@ class pageManager extends Document {
 		$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 		$feed_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
-		$item_html = "<xml version=\"1.0\" encoding=\"UTF-8\" ?>$nl"
-			. "<rss version=\"2.0\">$nl"
+		$item_html = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>$nl"
+			. "<rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\">$nl"
 			. "<channel>$nl"
-			. " <title>" . $this->meta['title'] . "</title>$nl"
-			. " <link>" . $feed_url . "</link>$nl"
-			. " <description></description>$nl";
+			. " <title>" . htmlspecialchars ($this->meta['title']) . "</title>$nl"
+			. " <link>" . htmlspecialchars ($feed_url) . "</link>$nl"
+			. " <description></description>$nl"
+			. " <atom:link href=\"" . htmlspecialchars ($feed_url) . "\" rel=\"self\" type=\"application/rss+xml\" />";
 		if($this->items){
 			foreach($this->items as $i) {			
-			$item_html .= "  <item type=\"" . $i['class_id'] . "\" date=\"" . $i['date'] . "\">$nl"
-			   . "    <title>" . $i['title'] . "</title>$nl"
-			   . "    <link>" . $_ROOTweb . "?id=" . $i['item_id'] . "</link>$nl"
-			   . "    <description>" . $i['description'] . "</description>$nl"
+			$item_html .= "  <item>$nl"
+			   . "    <title>" . htmlspecialchars ($i['title']) . "</title>$nl"
+			   . "    <link>" . htmlspecialchars ($_ROOTweb . "?id=" . $i['item_id']) . "</link>$nl"
+			   . "    <description>" . htmlspecialchars ($i['description']) . "</description>$nl"
+
+			   . "    <pubDate>" . date('r', strtotime($i['date']))  . "</pubDate>$nl"
+			   . "    <source url=\"http://itemcloud.org\">ItemCloud</source>$nl"
+			   . "    <guid>" . htmlspecialchars ($_ROOTweb . "?id=" . $i['item_id']) . "</guid>$nl"  
 			   . "  </item>$nl";
 			}
 		}
 		$item_html .= "</channel>$nl"
-			. "</rss>$nl"
-			. "</xml>$nl";
+			. "</rss>$nl";
 		return $item_html;
 	}
 			
