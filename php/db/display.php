@@ -390,7 +390,7 @@ class pageManager extends Document {
 		$protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 		$feed_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
-		$item_html = "<xml version=\"1.0\" encoding\"UTF-8\" ?>$nl"
+		$item_html = "<xml version=\"1.0\" encoding=\"UTF-8\" ?>$nl"
 			. "<rss version=\"2.0\">$nl"
 			. "<channel>$nl"
 			. " <title>" . $this->meta['title'] . "</title>$nl"
