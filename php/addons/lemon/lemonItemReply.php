@@ -173,7 +173,10 @@ class addonReplyPageDisplay {
 
 class addonItemReplyDisplay {
 	function updateOutputHTML($itemDisplay) {
-		
+
+		 if($itemDisplay->metaOutput == $itemDisplay->itemMetaLinks()) {
+		 	$itemDisplay->metaOutput = "";
+		 }
 		$itemDisplay->metaOutput .= "<div style=\"float: left; padding-left: 4px; font-size: 12px;\">";
 		if (isset($itemDisplay->item['item-parent'][0]) && $itemDisplay->item['item-parent'][0]['item_id'] != $itemDisplay->item_id) {
 			$name = ($itemDisplay->item['item-parent'][0]['title']) ? $itemDisplay->item['item-parent'][0]['title'] : "another item";
