@@ -213,33 +213,33 @@ class pageManager extends Document {
 					. "<div id=\"alertbox\" class=\"alertbox-show\">You are currently signed in.</div>"
 			    	. "</div>";
 		} else if(isset($_POST['delete'])) {
-				$page = "<div class=\"item-section\">"
+				$page = "<div class=\"item-section\"><page>"
 		       	    . $this->displayItemBlog()
-					. "</div>";	
+					. "</page></div>";	
 				if($this->meta['owner'] == true) {
 					$omniBox = $this->displayOmniBox();
 					$page = $omniBox . $page;
 				}		
 		} else if(isset($_POST['edit'])) {
-				$page = "<div class=\"item-section\">"
+				$page = "<div class=\"item-section\"><page>"
 		       	    . $this->displayOmniEditBox($_GET['id'])
-					. "</div>";	
+					. "</page></div>";	
 		} else if(isset($_GET['id'])) {	      	     
-				$page = "<div class=\"item-section\">"
+				$page = "<div class=\"item-section\"><page>"
 					. $this->displayItem()
-					. "</div>";
+					. "</page></div>";
 		} else if (isset($_GET['user'])) {
-				$page = "<div class=\"item-section\">"
+				$page = "<div class=\"item-section\"><page>"
 		       	    . $this->displayItemBlog()
-					. "</div>";
+					. "</page></div>";
 				if($this->meta['owner'] == true) {
 					$omniBox = $this->displayOmniBox();
 					$page = $omniBox . $page;
 				}					
 		} else if ($this->items) {
-				$page = "<div class=\"item-section\">"
+				$page = "<div class=\"item-section\"><page>"
 					. $this->displayItemBlog()
-					. "</div>";
+					. "</page></div>";
 		}
 		return $page;
 	}
@@ -260,6 +260,37 @@ class pageManager extends Document {
 		$feed_preview .= "<div style=\"margin: 40px 20%; height: 400px;\"><textarea style=\"color: #FFF; background-color: #222; width: 100%; height: 100%; font-size: 16px\">" . $item_XML . "</textarea></div>"; 
 		
 		return $feed_preview;
+	}
+
+	function displayItems($type, $limit) {
+		$box_class = "item-" . $type;
+		$info_limit = $limit;
+		$item_html = "";
+
+		if(!isset($this->items)){ return "<div class=\"clear\"></div>"; }
+
+		$count = 0;
+		foreach($this->items as $item) {
+			$item_html .= $this->handleItemType($item, $box_class, $info_limit, $count);
+			$count++;
+		}
+		
+		$post_extra = "";
+		$separator = "";
+		foreach($_GET as $key => $value) {
+			if($key != 'start') {
+				$post_extra .= $separator . "$key=" . $value;
+				$separator = "&";
+			}
+		}
+		
+		global $CONFIG;		
+		$start = (isset($_GET['start'])) ? $_GET['start'] : 0;
+		$count = $CONFIG['item_count'];
+		$total  = isset($this->items[0]['total']) ? $this->items[0]['total'] : count($this->items);
+		$item_html .= $this->pageItemBrowser($start, $count, $total, $post_extra);
+
+		return $item_html;
 	}
 		
 	function displayItemGrid($maxcount) {
@@ -287,9 +318,9 @@ class pageManager extends Document {
 			foreach($col_group as $column) {
 				$grid.= $column;
 			}
-		} return "<div id='photos'>" . $grid . "</div>";
+		} return "<div class='photos'>" . $grid . "</div>";
 		
-	}	
+	}
 
 	function displayItemBlog() {
 		$box_class = "item-page";
@@ -509,7 +540,8 @@ class ItemDisplay {
 		$this->metaOutput = $this->itemMetaLinks();
 		$this->userTools = $this->itemUserTools();
 		
-		$this->nodeOutput = $this->nodeOutputHTML();
+		//set $this->nodeOutput
+		$this->nodeOutputHTML();
 		$this->output = $this->displayHTML($info_limit);
 	}
 	
@@ -573,10 +605,12 @@ class ItemDisplay {
 		if($this->title) { $item_html .= $this->titleOutput; }
 		if($this->file) { $item_html .= $this->fileOutput; }
 		if($this->info) { $item_html .= $this->infoOutput; }
-		return $item_html;
+		$this->nodeOutput = $item_html;
 	}
 	
 	function displayHTML() {
+		$this->nodeOutputHTML();
+		
 		$item_html = "<div onmouseover=\"domId('userTools" . $this->item_id . "').style.display='inline-block';\" onmouseout=\"domId('userTools" . $this->item_id . "').style.display='none';\" class=\"" . $this->box_class . "\">";
 		$item_html .= "<div class='item-settings' style='position: relative'><div id='userTools" . $this->item_id . "' style='position: absolute; right: 0px; width: 120px; display: none'>" . $this->userTools . "</div></div>";
 		
