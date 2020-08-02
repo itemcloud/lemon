@@ -529,7 +529,7 @@ class addonLabelPageDisplay {
 			$feed_name = "<div style=\"font-size: 2em; cursor: pointer\" onclick=\"window.location='$_ROOTweb?feed_id=" . $feed['feed_id'] . "'\"><u>" . $feed['name'] . "</u></div>";
 			
 			$page = "<div class=\"item-section\" style=\"text-align: left;\">" . $feed_img . "<div style=\"display: inline-block; text-align: left;\">";
-			$page .= "<div id=\"itc_feed_name_form\" style=\"display: none;\"><form action=\"./?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "\" method=\"post\"><input type=\"hidden\" name=\"user_id\" value=\"" . $client->user_serial . "\"/><input class=\"form\" name=\"itc_feed_name\" value=\"" . $feed['name'] . "\"/><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"✅ SAVE\"></div>";
+			$page .= "<div id=\"itc_feed_name_form\" style=\"display: none;\"><form action=\"./?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "\" method=\"post\"><input type=\"hidden\" name=\"user_id\" value=\"" . $client->user_serial . "\"/><input class=\"form\" name=\"itc_feed_name\" value=\"" . $feed['name'] . "\"/><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"&#9989; SAVE\"></div>";
 			$page .= "<div id=\"itc_feed_name\" style=\"display: inline-block\">" . $feed_name;	
 										
 
@@ -545,9 +545,28 @@ class addonLabelPageDisplay {
 			$page .= "</div>";
 
 			if($feed_owner) {			
-				$page .= "<form enctype=\"multipart/form-data\" action=\"./?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "\" method=\"post\"><div style=\"display: none; margin-top: 4px;\" id=\"itc_feed_image_form\"><input type=\"hidden\" name=\"itc_feed_img\" value=\"change\"/><input type=\"hidden\" name=\"feed_id\" value=\"" . $_GET['feed_id'] . "\"/><input type=\"file\" class=\"item-tools\" name=\"itc_feed_upload\" accept=\"image/jpeg,image/png,image/gif\"><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"✅ SAVE NOW\"></div></form>";
+				$page .= "<form enctype=\"multipart/form-data\" action=\"./?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "\" method=\"post\"><div style=\"display: none; margin-top: 4px;\" id=\"itc_feed_image_form\"><input type=\"hidden\" name=\"itc_feed_img\" value=\"change\"/><input type=\"hidden\" name=\"feed_id\" value=\"" . $_GET['feed_id'] . "\"/><input type=\"file\" class=\"item-tools\" name=\"itc_feed_upload\" accept=\"image/jpeg,image/png,image/gif\"><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"&#9989; SAVE\"></div></form>";
 				$page .= "<div id=\"show-form-button\" class=\"item-tools_dark\" onclick=\"domId('itc_feed_image_form').style.display='inline-block'; this.style.display='none'\" style=\"margin: 4px 0px;\">" . "Change the feed image" . "</div>";
 			}	
+			
+			//Show update feed display form 			
+			if($feed_owner && isset($feed['display_class'])) {
+				$page .= "<div style=\"display: inline-block\"><form id='feedDisplayForm" . $feed['feed_id'] . "' action=\"?feed_id=" . $feed['feed_id'] . "\" method=\"post\">"
+					  .  "<input type='hidden' name='feed_id' value='" . $feed['feed_id'] . "'>"
+					  .  "<input type='hidden' name='name' value='" . $feed['name'] . "'>"					  
+					  .  "<input type='hidden' name='feed' value='display'>";					  
+								
+				$page .= "<div style=\"display: inline-block\">";
+				$page .= "<select id=\"display_id\" name=\"display_id\" class=\"item-dropdown\">";
+				foreach($feed['display_class'] as $display_class) {
+					$selected = ($display_class['display_id'] == $feed['display_id']) ? " selected" :  "";
+					$page .= "<option value=\"" . $display_class['display_id'] . "\"$selected>Feed as " . $display_class['name'] . "</option>";
+				}
+				$page .= "</select></div>";
+								
+				$page .= " <div onclick=\"domId('feedDisplayForm" . $feed['feed_id'] . "').submit()\" class=\"item-tools_dark\">&#9989; SAVE</div>";
+				$page .= "</form></div>";
+			}				
 			
 			if($feed_owner){
 				$userTools = new addonItemLabelDisplay();
@@ -569,12 +588,16 @@ class addonLabelPageDisplay {
 				$page .= "<div class=\"feed-tools\" style=\"float: right\">" . $related_feeds_browser->itemOutputHTML(NULL) . "</div>";
 			}
 			
+			$page .= "<div class=\"clear\"></div>";
 			if($feed_owner){
 				$omniBox = $this->displayOmniBox($pageManager, $pageManager->meta['feed'], $pageManager->items[0]['item_id']);
 				$page .= "<div>" . $omniBox . "</div>";
 			}			
-			$page .= $pageManager->displayItemBlog();
-			$page .= "</div>";
+			
+			$item_info_limit = 2800;
+			$page .= "<div class=\"feed-" . $feed['display_type'] . "\">" . $pageManager->displayItems($feed['display_type'], $item_info_limit) . "</" . $feed['display_type'] . ">";
+			$page .= "<div class=\"clear\"></div>";
+			$page .= "</div>";			
 			
 			return $page;
 		}
@@ -591,9 +614,11 @@ class addonLabelPageDisplay {
 		$javascript_omni_box = "<script>var OmniController = new OmniLabelBox(" . $class_js_array . ", 'itemOmniBox');\n OmniController.set_active_feed('" . $feed_id . "');\n OmniController.toggle('" . $class_id . "');\n</script>";
 		$message = (isset($pageManager->meta['message'])) ? "<center><div id=\"alertbox\" class=\"alertbox-show\">" . $pageManager->meta['message'] . "</div></center>" : "<center><div id=\"alertbox\" class=\"alertbox-hide\"></div></center>";
 		
-		$createForm  = "<div class=\"item-section\"><div style=\"display: none;\" class=\"item-page\" id=\"itemOmniBox\">" . "</div></div>"
+		$createForm  = "<div style=\"display: inline-block\">";
+		$createForm .= "<div class=\"item-section\"><div style=\"display: none;\" class=\"item-page\" id=\"itemOmniBox\">" . "</div></div>"
 			. "<div class=\"float-left\" style=\"display: inline: block\" onclick=\"domId('itemOmniBox').style.display='inline-block'; this.style.display='none'\" style=\"width: 640px; margin: 14px 0px; text-align: center; cursor: pointer\"><div class=\"item-tools\">+ <u>Add an Item</u></div></div>";
 		$createForm .= $javascript_omni_box;
+		$createForm .= "</div>";
 		return $message . $createForm;
 	}
 }
@@ -639,12 +664,12 @@ class addonPostLabelHandler {
 		$this->addOns = true;
 	}
 	
-	function handleAddOnPost ($itemManager) {	
+	function handleAddOnPost ($itemManager) {
 		global $CONFIG;
 		$start = (isset($_GET['start'])) ? $_GET['start'] : 0;
 		$count = $CONFIG['item_count'];
 		
-		global $client;	
+		global $client;
 		$user_id = $client->user_serial;
 		$user_level = $client->level;
 
@@ -670,6 +695,10 @@ class addonPostLabelHandler {
 					break;
 				case 'remove':
 					$this->removeItemLabel($user_id, $_POST['item_id'], $_POST['feed_id']);
+					break;
+				case 'display':
+					$feed_id = $this->updateLabelDisplay($_POST['display_id'], $_POST['feed_id']);
+					header("Location: ./?feed_id=" . $feed_id . "&name=" . $_POST['name']);
 					break;
 			}
 		} else if(isset($_POST['itc_add_item_feed'])){
@@ -697,9 +726,11 @@ class addonPostLabelHandler {
 			$itemManager->meta['feed'] = $this->getLabel($_GET['feed_id']);
 			$itemManager->meta['title'] = $itemManager->meta['feed']['name'];
 			$itemManager->meta['feed']['feed_item_class'] = $this->getAddonClasses($itemManager->meta['feed']['feed_id']);
-			$itemManager->meta['feed']['default_img'] = 
-			$itemManager->meta['feed_display'] = $this->getLabelDisplay($user_level);
-
+			$itemManager->meta['feed']['display_class'] = $this->getLabelDisplayClasses($user_level);
+			
+			$display_id = $itemManager->meta['feed']['display_id'];
+			$itemManager->meta['feed']['display_type'] = $itemManager->meta['feed']['display_class'][$display_id]['display_type'];
+						
 			// SHOULD BE USED BY OVERRIDE ONLY
 			if (isset($itemManager->meta['feed']['related'])) { 
 				$itemManager->meta['feed']['related'] = $this->getChildLabelItems($itemManager->meta['feed']['related'], 0, 5, $user_level);
@@ -718,6 +749,14 @@ class addonPostLabelHandler {
 		$stream = $this->stream;
 		$input = "UPDATE feed SET name='$new_name' WHERE feed_id='$feed_id'";
 		$query = $stream->query($input);
+	}
+
+	function updateLabelDisplay($display_id, $feed_id) {
+		$stream = $this->stream;
+		$input = "UPDATE feed SET display_id='$display_id' WHERE feed_id='$feed_id'";
+		$query = $stream->query($input);
+		
+		return $feed_id;
 	}
 	
 	function purgeLabel ($feed_id) {
@@ -908,16 +947,16 @@ class addonPostLabelHandler {
 		return $class_loot_array;
 	}
 			
-	function getLabelDisplay($level) {
+	function getLabelDisplayClasses($level) {
 		
-		$quest = "SELECT * FROM feed_display"
-			. " WHERE level >= $level";
+		$quest = "SELECT * FROM feed_display";
 			
 		$class_loot = mysqli_query($this->stream, $quest);
 		$class_loot_array = [];
 		if($class_loot && mysqli_num_rows($class_loot) > 0) {
 			while($loot = $class_loot->fetch_assoc()) {
-				$class_loot_array[] = $loot;
+				$display_id = $loot['display_id'];
+				$class_loot_array[$display_id] = $loot;
 			}
 			return $class_loot_array;
 		}
