@@ -294,7 +294,7 @@ var OmniBox = class {
 //------- EDIT ITEM: OMNIBOX --------//
 //----------------------------------//
 
-class OmniLabelBox extends OmniBox {
+class OmniFeedBox extends OmniBox {
 
 	set_active_feed (feed_id) {
 		this.feed_id = feed_id;
@@ -315,7 +315,7 @@ class OmniLabelBox extends OmniBox {
 	functions_file() { return " action=\"index.php\" method=\"post\" enctype=\"multipart/form-data\""; }
 }
 
-class OmniCommentBox extends OmniLabelBox {
+class OmniCommentBox extends OmniFeedBox {
 	
 	set_active_item_id (item_id) {
 		this.item_id = item_id;
@@ -330,7 +330,7 @@ class OmniCommentBox extends OmniLabelBox {
 }
 
 
-class OmniFirstCommentBox extends OmniLabelBox {
+class OmniFirstCommentBox extends OmniFeedBox {
 	
 	set_active_item_id (item_id) {
 		this.item_id = item_id;

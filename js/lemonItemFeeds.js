@@ -4,8 +4,7 @@
 //------- ITEM FEED FUNCTIONS ------//
 //----------------------------------//
 
-
-var itemLabelBrowser = [];
+var itemFeedBrowser = [];
 
 var feedBrowse = class {
 	constructor(feeds_array, index, user_id, parent_div) {
