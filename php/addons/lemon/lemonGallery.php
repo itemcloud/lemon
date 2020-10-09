@@ -29,18 +29,18 @@ class addonPostGalleryHandler {
 			$feed_id = isset($_POST['itc_gallery_add']) ? $_POST['itc_gallery_add'] : NULL;
 			
 			if($feed_id && $item_id) {
-				$postLabelHandler = new addonPostLabelHandler($this->stream);				
-				$postLabelHandler->addItemLabel($user_id, $item_id, $feed_id);
+				$postFeedHandler = new addonPostFeedHandler($this->stream);				
+				$postFeedHandler->addItemFeed($user_id, $item_id, $feed_id);
 			} else if($item_id) {
-				$feed_id = $this->addItemGalleryLabel($user_id, 'gallery', 'gallery.png', $item_id);
+				$feed_id = $this->addItemGalleryFeed($user_id, 'gallery', 'gallery.png', $item_id);
 				
-				$postLabelHandler = new addonPostLabelHandler($this->stream);				
-				$postLabelHandler->addItemLabel($user_id, $item_id, $feed_id);
+				$postFeedHandler = new addonPostFeedHandler($this->stream);				
+				$postFeedHandler->addItemFeed($user_id, $item_id, $feed_id);
 			}
 		}
 	}
 	
-	function addItemgalleryLabel ($owner_id, $name, $feed_img, $item_id) {
+	function addItemgalleryFeed ($owner_id, $name, $feed_img, $item_id) {
 			global $gallery_addon;
 		
 			//Check if item is already in a gallery feed
@@ -208,7 +208,7 @@ class addonItemGalleryRequest {
 					$tmp_loot['feed_class'] = $this->getAddOnClasses();
 					$feeds[] = $tmp_loot;
 				}		
-				$item = $this->mergeLabels($item, $feeds, $user_feeds);
+				$item = $this->mergeFeeds($item, $feeds, $user_feeds);
 			}
 
 			$tmp_loot_array[] = $item;
@@ -267,7 +267,7 @@ class addonItemGalleryRequest {
 		return $class_loot_array;
 	}
 	
-	function mergeLabels ($item, $feeds, $user_feeds){				
+	function mergeFeeds ($item, $feeds, $user_feeds){				
 		$item['gallery-feeds'] = $feeds;
 		$item['user-gallery-feeds'] = $user_feeds;
 		return $item;

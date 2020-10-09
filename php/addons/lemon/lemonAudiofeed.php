@@ -2,7 +2,7 @@
 $audiofeed_addon['addon_title'] = 'Lemon audiofeed';
 $audiofeed_addon['addon_name'] = 'lemon-audiofeed';
 $audiofeed_addon['addon-version'] = '1.0';
-$audiofeed_addon['collection_name'] = 'Audiofeed';
+$audiofeed_addon['collection_name'] = 'Playlist';
 $audiofeed_addon['item_name'] = 'Tracks';
 $audiofeed_addon['addon_id'] = '1005';
 
@@ -29,18 +29,20 @@ class addonPostaudiofeedHandler {
 			$feed_id = isset($_POST['itc_audiofeed_add']) ? $_POST['itc_audiofeed_add'] : NULL;
 			
 			if($feed_id && $item_id) {
-				$postLabelHandler = new addonPostLabelHandler($this->stream);				
-				$postLabelHandler->addItemLabel($user_id, $item_id, $feed_id);
+				$postFeedHandler = new addonPostFeedHandler($this->stream);				
+				$postFeedHandler->addItemFeed($user_id, $item_id, $feed_id);
 			} else if($item_id) {
-				$feed_id = $this->addItemaudiofeedLabel($user_id, 'audiofeed', 'audiofeed.png', $item_id);
+				global $audiofeed_addon;
+				$name = $audiofeed_addon['collection_name'];
+				$feed_id = $this->addItemaudiofeedFeed($user_id, $name, 'audiofeed.png', $item_id);
 				
-				$postLabelHandler = new addonPostLabelHandler($this->stream);				
-				$postLabelHandler->addItemLabel($user_id, $item_id, $feed_id);
+				$postFeedHandler = new addonPostFeedHandler($this->stream);				
+				$postFeedHandler->addItemFeed($user_id, $item_id, $feed_id);
 			}
 		}
 	}
 	
-	function addItemaudiofeedLabel ($owner_id, $name, $feed_img, $item_id) {
+	function addItemaudiofeedFeed ($owner_id, $name, $feed_img, $item_id) {
 			global $audiofeed_addon;
 			global $gallery_addon;
 			
@@ -136,7 +138,8 @@ class addonItemaudiofeedDisplay {
 				
 				$page_form = "itc_audiofeed_" . $itemDisplay->item['item_id'];
 				$link_submit = " onclick=\"domId('$page_form').submit()\"";
-				$audiofeedInput = " audiofeed";
+				
+				$audiofeedInput = " ";
 				if(isset($itemDisplay->item['user-audiofeed-feeds'])) { 
 					$audiofeedInput = " <select type=\"dropdown\" onchange=\"domId('$page_form').submit()\" onfocus=\"this.selectedIndex = -1\" name=\"itc_audiofeed_add\">";
 					foreach($itemDisplay->item['user-audiofeed-feeds'] as $tmp_feed) { 
@@ -148,8 +151,9 @@ class addonItemaudiofeedDisplay {
 					$audiofeedInput .= "</select>";
 				}
 				
+				global $audiofeed_addon;
 				$itemDisplay->metaOutput .= "<form id=\"$page_form\" action=\"$_ROOTweb?id=" . $itemDisplay->item['item_id'] . "\" method=\"post\"><input type=\"hidden\" id=\"itc_audiofeed\" name=\"itc_audiofeed\" value=\"" . $itemDisplay->item['item_id'] . "\"/>"
-					. "<a title=\"Add to audiofeed\"$link_submit>"				
+					. "<a title=\"Add to "  . $audiofeed_addon['collection_name'] . "\"$link_submit>"				
 					. "Add to "
 					. $audiofeedInput
 					. "</a>"
@@ -218,7 +222,7 @@ class addonItemaudiofeedRequest {
 					$tmp_loot['feed_class'] = $this->getAddOnClasses();
 					$feeds[] = $tmp_loot;
 				}		
-				$item = $this->mergeLabels($item, $feeds, $user_feeds);
+				$item = $this->mergeFeeds($item, $feeds, $user_feeds);
 			}
 
 			$tmp_loot_array[] = $item;
@@ -277,7 +281,7 @@ class addonItemaudiofeedRequest {
 		return $class_loot_array;
 	}
 	
-	function mergeLabels ($item, $feeds, $user_feeds){				
+	function mergeFeeds ($item, $feeds, $user_feeds){				
 		$item['audiofeed-feeds'] = $feeds;
 		$item['user-audiofeed-feeds'] = $user_feeds;
 		return $item;

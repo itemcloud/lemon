@@ -122,7 +122,7 @@ class addonPostProfileHandler {
 		if($profile_loot) {
 			$profile = $profile_loot->fetch_assoc();
 		
-			$feed_class = new addonProfileLabelRequest($this->stream, $profile, $user_id);
+			$feed_class = new addonProfileFeedRequest($this->stream, $profile, $user_id);
 			$profile = $feed_class->getAddOnLoot($profile['level']);
 		
 			return $profile;
