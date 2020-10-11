@@ -505,7 +505,21 @@ class addonItemFeedDisplay {
 }
 
 class addonFeedPageDisplay {
-	function addonPageItems($pageManager) {
+	
+	function __construct ($pageManager) {
+		$this->pageManager = $pageManager;
+		$this->bannerDisplay = $this->feedBanner();
+		$this->itemDisplay = $this->addonPageItems();
+		
+		$this->output = $this->bannerDisplay . $this->itemDisplay;
+	}
+	
+	function feedBanner() {
+		return;
+	}
+	
+	function addonPageItems() {
+		$pageManager = $this->pageManager;
 		if(isset($_GET['feed_id']) && !isset($pageManager->meta['active_page'])) {
 			global $client;
 			global $_ROOTweb;
@@ -514,7 +528,7 @@ class addonFeedPageDisplay {
 			
 			$feed = $pageManager->meta['feed'];
 			$feed_owner = ($feed['owner_id'] == $client->user_serial) ? $feed['owner_id'] : NULL;
-
+			
 			$folder = "files/feeds/";
 			$file_dir = $_ROOTweb . $folder;
 			
@@ -602,7 +616,7 @@ class addonFeedPageDisplay {
 			return $page;
 		}
 	}
-	
+
 	function displayOmniBox($pageManager, $feed, $item_id) {
 		if(!$pageManager->classes) { return; }
 		
@@ -708,7 +722,7 @@ class addonPostFeedHandler {
 					$itemManager->insertUserItem($client->user_serial, $item_id, 3);
 					$this->addItemFeed($user_id, $itemManager->item_id, $_POST['itc_add_item_feed']);
 				}
-				header("Location: ./?feed_id=" . $_POST['itc_add_item_feed']);
+				header("Location: ./?feed_id=" . $_POST['itc_add_item_feed'] . '&id=' . $item_id);
 		} else if(isset($_POST['itc_feed_edit'])){ 
 				$this->purgeFeed($_POST['feed_id']);
 				header("Location: ./");
@@ -737,7 +751,10 @@ class addonPostFeedHandler {
 			}
 			
 			if(!isset($_POST['page_id']) && !isset($itemManager->meta['feed']['feed_page'])) { 	
-				if(isset($_GET['id'])) { $itemManager->items = $itemManager->getItemById($_GET['id']); }
+				if(isset($_GET['id'])) { 
+					$itemManager->items = $itemManager->getItemById($_GET['id']);
+					$itemManager->meta['feed']['items'] = $this->getFeedItems($_GET['feed_id'], $start, $count, $user_level);
+				}
 				else { $itemManager->items = $this->getFeedItems($_GET['feed_id'], $start, $count, $user_level); }
 				return "active"; 
 			}
@@ -770,6 +787,9 @@ class addonPostFeedHandler {
 				
 		$feed = "DELETE FROM feed WHERE feed_id='$feed_id'";
 		mysqli_query($stream, $feed);
+
+		$feed = "DELETE FROM addon_feed WHERE feed_id='$feed_id'";
+		mysqli_query($stream, $feed);		
 	}
 	
 	function deleteItemFeed ($item_id) {
@@ -801,9 +821,17 @@ class addonPostFeedHandler {
 			$feed_loot['related'][] = $related_loot;
 		}
 
+		$feed_loot['feed_addon'] = $this->getAddonMatch($feed_id);
 		return $feed_loot;
 	}
 
+	function getAddonMatch($feed_id) {
+		$feed_quest = "SELECT * FROM addon_feed WHERE feed_id='$feed_id'";
+		$feed_loot_return = mysqli_query($this->stream, $feed_quest);
+		$feed_loot = $feed_loot_return->fetch_assoc();
+		return $feed_loot;
+	}
+	
 	function getChildFeeds($parent_id) {
 		$feed_quest = "SELECT * FROM feed WHERE parent_id='$parent_id'";
 		$feed_loot_return = mysqli_query($this->stream, $feed_quest);

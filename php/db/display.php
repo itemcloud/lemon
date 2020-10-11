@@ -200,8 +200,8 @@ class pageManager extends Document {
 		if($this->addOns) {
 			foreach($this->addOns as $addOn) {
 				if(isset($addOn['page-display'])) { 
-					$addonClass = new $addOn['page-display']();
-					$returnPage = $addonClass->addonPageItems($this);
+					$addonClass = new $addOn['page-display']($this);
+					$returnPage = $addonClass->output;
 					if($returnPage) { return $returnPage; }
 				}
 			}
