@@ -185,8 +185,8 @@ var OmniBox = class {
 	
 	form_input(class_id) { return "<input type=\"hidden\" name=\"itc_class_id\" value=\"" + class_id + "\"/>"; }
 	form_id() { return " id=\"itc_OmniBoxForm" + this.str + "\""; }
-	functions_str() { return " action=\"add.php\" method=\"post\""; }
-	functions_file() { return " action=\"add.php\" method=\"post\" enctype=\"multipart/form-data\""; }
+	functions_str() { return " action=\"index.php\" method=\"post\""; }
+	functions_file() { return " action=\"index.php\" method=\"post\" enctype=\"multipart/form-data\""; }
 	
     checkInput () {
 		var class_form = this.class_array[this.active_class];

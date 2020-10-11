@@ -218,7 +218,16 @@ class itemManager {
 			$message = "The item has been deleted.";
 			$this->deleteUserItem($_POST['delete']);
 			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
-		} elseif(isset($_POST['itc_edit_item'])) {
+		} else if (isset($_POST['itc_class_id'])) {
+			global $client;
+			$upload = $this->handleItemUpload($client); 
+			if($this->insertOk == 1 && isset($this->item_id)) {
+				$this->insertUserItem($client->user_serial, $this->item_id, 3);
+				$this->meta['message'] = "Another " . "<a href=\"./?id=" . ($this->item_id) . "\">new item</a> has been added.";
+			} else {
+				$this->meta['message'] = $message;
+			}
+		} else if(isset($_POST['itc_edit_item'])) {
 			global $message;
 			$message = "The item has been edited.";
 			$this->updateItem($_POST['itc_edit_item'], $_POST['itc_title'], $_POST['itc_description']);
