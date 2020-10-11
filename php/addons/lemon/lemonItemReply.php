@@ -1,7 +1,7 @@
 <?php //Add-On for reply display
 $reply_addon['addon_title'] = 'Lemon Item Reply (Comment Feeds)';
 $reply_addon['addon_name'] = 'lemon-reply';
-$reply_addon['addon-version'] = '1.0.1';
+$reply_addon['addon-version'] = '1.0.2';
 $reply_addon['collection_name'] = 'Comments';
 $reply_addon['item_name'] = 'Item';
 $reply_addon['addon_id'] = '1002';
@@ -30,12 +30,12 @@ class addonPostReplyHandler {
 			$item_id = $_POST['itc_add_item_comment_id'];
 			
 			if($item_id) {
-				$postLabelHandler = new addonPostLabelHandler($this->stream);
+				$postFeedHandler = new addonPostFeedHandler($this->stream);
 				$new_item_id = $itemManager->handleItemUpload($client);
 				$itemManager->insertUserItem($user_id, $new_item_id, 0);
 				
 				if($itemManager->insertOk == "1" && isset($itemManager->item_id)) {
-					$postLabelHandler->addItemLabel($user_id, $itemManager->item_id, $feed_id);
+					$postFeedHandler->addItemFeed($user_id, $itemManager->item_id, $feed_id);
 				}
 				header("Location: ./?id=" . $item_id);
 			}
@@ -43,22 +43,22 @@ class addonPostReplyHandler {
 			$item_id = $_POST['itc_add_item_comment_id'];
 			
 			if($item_id) {
-				$feed_id = $this->newItemCommentLabel($user_id, 'Comments', 'comments.png', $item_id);
+				$feed_id = $this->newItemCommentFeed($user_id, 'Comments', 'comments.png', $item_id);
 				
-				$postLabelHandler = new addonPostLabelHandler($this->stream);
+				$postFeedHandler = new addonPostFeedHandler($this->stream);
 				$new_item_id = $itemManager->handleItemUpload($client);
 				$itemManager->insertUserItem($user_id, $new_item_id, 0);
 				
 				if($itemManager->insertOk == "1" && isset($itemManager->item_id)) {
-					$postLabelHandler->addItemLabel($user_id, $item_id, $feed_id);
-					$postLabelHandler->addItemLabel($user_id, $itemManager->item_id, $feed_id);
+					$postFeedHandler->addItemFeed($user_id, $item_id, $feed_id);
+					$postFeedHandler->addItemFeed($user_id, $itemManager->item_id, $feed_id);
 				}
 				header("Location: ./?id=" . $item_id);
 			}
 		}
 	}
 	
-	function newItemCommentLabel ($owner_id, $name, $feed_img, $item_id) {
+	function newItemCommentFeed ($owner_id, $name, $feed_img, $item_id) {
 			global $reply_addon;
 			
 			$user_check = "SELECT addon_feed.*, feed_items.item_id"
@@ -86,7 +86,11 @@ class addonPostReplyHandler {
 }
 
 class addonReplyPageDisplay {
-	function addonPageItems($pageManager) {	 
+	function __construct ($pageManager) {
+		$this->pageManager = $pageManager;
+		$this->output = $this->addonPageItems();
+	}
+	function addonPageItems() {	 
 		global $client;
 		$page = "";
 		$createForm = "";
@@ -94,7 +98,8 @@ class addonReplyPageDisplay {
 		$box_class = "item-box";
 		$info_limit = 240;
 		$count = 0;
-
+		
+		$pageManager = $this->pageManager;
 		if(isset($pageManager->items[0]['addon-feeds'][0]['feed_id'])) {
 			
 			if($client->auth == true && $pageManager->items[0]['addon-classes']) {
@@ -256,7 +261,7 @@ class addonItemReplyRequest {
 				}
 			}
 			$reply_addon['addon_id'];
-			$tmp_loot_array[] = $this->mergeLabels($feeds, $item, $item_parent);
+			$tmp_loot_array[] = $this->mergeFeeds($feeds, $item, $item_parent);
 		} }
 		$this->item_loot = $tmp_loot_array;
 		return $this->item_loot;
@@ -312,7 +317,7 @@ class addonItemReplyRequest {
 		return $class_loot_array;
 	}
 	
-	function mergeLabels ($feeds, $item, $item_parent){
+	function mergeFeeds ($feeds, $item, $item_parent){
 		$item['addon-feeds'] = $feeds;
 		$item['addon-classes'] = $this->getAddOnClasses();
 		$item['item-parent'] = $item_parent;
