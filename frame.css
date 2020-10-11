@@ -259,7 +259,6 @@ input.item_tools_inactive:hover {
 }
 .alertbox-show {
     display: block;
-    width: 800px;
     background-color: #444;
     padding: 24px 0px;
     margin-bottom: 12px
@@ -309,7 +308,7 @@ input.item_tools_inactive:hover {
 }
 
 .item-section {
-     width: 820px;
+     width: 720px;
      margin: 0px auto;
      padding: 20px 0px;
 }
@@ -354,6 +353,10 @@ input.item_tools_inactive:hover {
 .item-date {
 	color: #aaa;
 	font-size: 11px;
+}
+
+.feed-page .item-page {
+	padding: 0px;
 }
 
 /*item page*/
