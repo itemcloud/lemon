@@ -146,7 +146,7 @@ class addonBannerDisplay {
 		$user_links = '<div class="user_links">';
 		$user = $this->user;
 		if($this->auth) {
-			  $user_links .= '+ <a href="./add.php"><u>New</u></a>' . ' &nbsp;';
+			  $user_links .= '+ <a href="./index.php?add=new"><u>New</u></a>' . ' &nbsp;';
 			  $user_links .= '<a href="./?user=' . $user->user_serial . '"><u>Profile</u></a>';
 			  if(!isset($user->profile)) { $user_links .= ' &nbsp;<a onclick="logout()"><u>Sign Out</u></a><form id="logoutForm" action="./?connect=1&logout=1" method="post"><input name="logout" type="hidden"/></form>'; }
 		}
