@@ -149,6 +149,7 @@ class pageManager extends Document {
 		$this->classes = $itemData->classes;
 		$this->ROOTweb = $ROOTweb;
 		$this->addOns = NULL;
+		$this->pageBannerExtra = "";
 		$this->pageOutput = "";
 		$this->pageExtra = "";
 		$this->displayClass = (empty($_GET) || isset($_GET['browse'])) ? " splash-page" : " page";
@@ -170,7 +171,9 @@ class pageManager extends Document {
 	}
 	
 	function displayPageItems () {
-		$itemsPage = $this->handlePageItems();
+		$items = $this->handlePageItems();
+		$itemsPage = $this->pageBannerExtra;
+		$itemsPage .= $items;
 		$itemsPage .= $this->pageExtra;
 		$pageDisplay = $this->displayWrapper('div', 'section', 'section_inner' . $this->displayClass, $itemsPage);
 		$this->pageOutput .= $pageDisplay;
@@ -181,9 +184,13 @@ class pageManager extends Document {
 		echo $this->pageExtra;
 	}
 	
+	function displayPageBannerExtra () {
+		echo $this->pageBannerExtra;
+	}
+		
 	function displayPageOmniBox () {
 		$omniBox = $this->displayOmniBox($this->classes);
-		$omniBox = "<div style=\"margin: 80px auto;\"><h1>Add to Profile</h1>" . $omniBox . "</div>";
+		$omniBox = "<div style=\"padding: 80px\"><h1>Add to Profile</h1>" . $omniBox . "</div>";
 		$this->pageOutput = $this->displayWrapper('div', 'section', 'section_inner', $omniBox);
 		echo $this->pageOutput;
 	}

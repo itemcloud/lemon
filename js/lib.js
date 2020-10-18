@@ -254,7 +254,7 @@ var OmniBox = class {
 				
 				form_input += "<div id=\"" + domid_add + "" + this.str + "\" style=\"" + link_display + "\" onclick=\"" + show + "\"><a>+ <u>Add " + node['node_name'] + "</u></a></div>";
 				form_input += "<div id=\"" + domid + "" + this.str + "\" style=\"" + input_display + "\"><textarea id=\"" + domid + "_txt" + this.str + "\" class=\"form wider\" name=\"itc_" + node['node_name'] + "\""
-					+ "onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\"" + tmp_node_onfocus + ">";			
+					+ "onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\"" + tmp_node_onfocus + " placeholder=\"Write something here\">";			
 				form_input += tmp_node_value;
 				form_input += "</textarea>";
 				
