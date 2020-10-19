@@ -4,19 +4,19 @@ $feeds_addon['addon_name'] = 'lemon-feeds';
 $feeds_addon['addon-version'] = '1.0.2';
 $feeds_addon['default_img'] = 'default.png';
 
-$feeds_addon['post-handler'] = 'addonPostLabelHandler';
-$feeds_addon['page-display'] = 'addonLabelPageDisplay';
-$feeds_addon['profile-request'] = 'addonProfileLabelRequest';
-$feeds_addon['page-banner-display'] = 'addonProfileLabelDisplay';
-$feeds_addon['item-display'] = 'addonItemLabelDisplay';
-$feeds_addon['item-request'] = 'addonItemLabelRequest';
-$feeds_addon['banner-display'] = 'addonBannerLabelsDisplay';
+$feeds_addon['post-handler'] = 'addonPostFeedHandler';
+$feeds_addon['page-display'] = 'addonFeedPageDisplay';
+$feeds_addon['profile-request'] = 'addonProfileFeedRequest';
+$feeds_addon['page-banner-display'] = 'addonProfileFeedDisplay';
+$feeds_addon['item-display'] = 'addonItemFeedDisplay';
+$feeds_addon['item-request'] = 'addonItemFeedRequest';
+$feeds_addon['banner-display'] = 'addonBannerFeedsDisplay';
 $feeds_addon['add-new'] = true;
 
 //Add to global $addOns variable
 //$addOns[] = $feeds_addon;
 
-class addonBannerLabelsDisplay {
+class addonBannerFeedsDisplay {
 	function __construct ($user, $auth, $pageManager) { 
 		$this->user = $user;
 		$this->auth = $auth;
@@ -116,7 +116,7 @@ class feedBrowse {
 		$links .= "</select>";
 		$links .= "</div></form>";
 		
-		return "<div class=\"nav_links\">" . $links ."</div>";
+		return "<div class=\"nav_links\" style=\"float: right\">" . $links ."</div>";
 	}
 	
 	function itemOutputHTML ($index) {
@@ -130,14 +130,14 @@ class feedBrowse {
 		$user_id = ($client->user_serial) ? $client->user_serial : 0;
 		
 		$feeds_js_array = json_encode($this->feeds);
-		$javascript_feed_browser = "<script>itemLabelBrowser['$index'] = new feedBrowse(" . $feeds_js_array . ", '$index', $user_id, 'feed_browse_$index');\n </script>";
+		$javascript_feed_browser = "<script>itemFeedBrowser['$index'] = new feedBrowse(" . $feeds_js_array . ", '$index', $user_id, 'feed_browse_$index');\n </script>";
 		$feedMenu = "<div style=\"display: inline-block\" id=\"feed_browse_$index\">";
 			
 		$start = $this->start;		
 		$new_start = $this->start - $this->max;
 		
 		if($new_start >= 0) {
-			$feedMenu .= "<div onclick=\"itemLabelBrowser['$index'].update(" . $new_start . ")\" class=\"item-tools_grey item_feed_menu\">"
+			$feedMenu .= "<div onclick=\"itemFeedBrowser['$index'].update(" . $new_start . ")\" class=\"item-tools_grey item_feed_menu\">"
 					. "<div class=\"item-tools_txt\">" . "&#8943;" . "</div>"
 					. "</div>";
 		}
@@ -182,11 +182,11 @@ class feedBrowse {
 		}
 		
 
-		if($this->start + $this->max <= count($this->feeds)) {
-			$feedMenu .= "<div id=\"browse-feeds-button" . $i . $index . "\" style=\"display: none;\" onclick=\"itemLabelBrowser['$index'].update(" . ($this->start + $this->max) . ")\"  class=\"item-tools_grey item_feed_menu\">"
+		if($this->start + $this->max < count($this->feeds)) {
+			$feedMenu .= "<div id=\"browse-feeds-button" . $i . $index . "\" style=\"display: none;\" onclick=\"itemFeedBrowser['$index'].update(" . ($this->start + $this->max) . ")\"  class=\"item-tools_grey item_feed_menu\">"
 					. "<div class=\"item-tools_txt\">" . "&#8943;" . "</div>"
 					. "</div>";
-			$feedMenu .= "<script>itemLabelBrowser['$index']; domId('browse-feeds-button" . $i . $index . "').style.display='inline-block';</script>";
+			$feedMenu .= "<script>itemFeedBrowser['$index']; domId('browse-feeds-button" . $i . $index . "').style.display='inline-block';</script>";
 		}
 		
 		$feedMenu .= "</div>";
@@ -202,13 +202,16 @@ class feedBrowse {
 			return;
 		}
 		$user_id = ($client->user_serial) ? $client->user_serial : 0;
-	
+		
+		$feeds_js_array = json_encode($this->feeds);
+		$javascript_feed_browser = "<script>itemFeedBrowser['$index'] = new feedBrowse(" . $feeds_js_array . ", '$index', $user_id, 'feed_browse_$index');\n itemFeedBrowser['$index'].class_text=\"\"</script>";
+
 		$feedMenu = "<div style=\"display: inline-block\" id=\"feed_browse_$index\">";
 			
 		$start = $this->start;		
 		$new_start = $this->start - $this->max;	
 		if($new_start >= 0) {
-			$feedMenu .= "<div onclick=\"itemLabelBrowser['$index'].update(" . $new_start . ")\" class=\"\">"
+			$feedMenu .= "<div onclick=\"itemFeedBrowser['$index'].update(" . $new_start . ")\" class=\"\">"
 					. "<div class=\"\">" . "&#8943;" . "</div>"
 					. "</div>";
 		}
@@ -218,7 +221,7 @@ class feedBrowse {
 		for($i = $start; $i < $total; $i++) {	
 			$feed = $this->feeds[$i];
 			
-			$feed_img_src = ($feed['feed_img']) ? "files/feeds/" . $feed['feed_img'] : "files/feeds" . 'default.png';
+			$feed_img_src = ($feed['feed_img']) ? "files/feeds/" . $feed['feed_img'] : "files/feeds/" . 'default.png';
 			
 			$feed_img = "<a href=\"?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "\">" 
 					. "<img class=\"feed-image\" src='" . $feed_img_src . "'/>" 
@@ -244,7 +247,7 @@ class feedBrowse {
 			$feed_name .= "<div onclick=\"$feed_window_launch\" class=\"inline-name\">" . $feed['name'] . "</div>";
 			$feed_name .= "</div>";
 
-			$feed_wrapper = "<div class=\"\" >";
+			$feed_wrapper = "<div>";
 			$feed_wrapper .= $feed_img;			
 			$feed_wrapper .= $feed_name;
 			$feed_wrapper .= "</div>";
@@ -254,47 +257,61 @@ class feedBrowse {
 		}
 		
 
-		if($this->start + $this->max <= count($this->feeds)) {
-			$feedMenu .= "<div id=\"browse-feeds-button" . $i . $index . "\" style=\"display: none;\" onclick=\"itemLabelBrowser['$index'].update(" . ($this->start + $this->max) . ")\"  class=\"item-tools_grey item_feed_menu\">"
+		if($this->start + $this->max < count($this->feeds)) {
+			$feedMenu .= "<div id=\"browse-feeds-button" . $i . $index . "\" style=\"display: none;\" onclick=\"itemFeedBrowser['$index'].update(" . ($this->start + $this->max) . ")\"  class=\"\">"
 					. "<div class=\"item-tools_txt\">" . "&#8943;" . "</div>"
 					. "</div>";
-			$feedMenu .= "<script>itemLabelBrowser['$index']; domId('browse-feeds-button" . $i . $index . "').style.display='inline-block';</script>";
+			$feedMenu .= "<script>itemFeedBrowser['$index']; domId('browse-feeds-button" . $i . $index . "').style.display='inline-block';</script>";
 		}
 		
 		$feedMenu .= "</div>";
+		$feedMenu .= $javascript_feed_browser;
 		return $feedMenu; 
 	}
 }
 
-class addonProfileLabelDisplay {
+class addonProfileFeedDisplay {
 	function __construct ($pageManager) {
 		$this->profile = (isset($pageManager->meta['profile'])) ? $pageManager->meta['profile'] : NULL;
-		$this->feeds = $this->setLabels($this->profile);
+		$this->feeds = $this->setFeeds($this->profile);
 	}
 	
-	function setLabels($profile) {
+	function setFeeds($profile) {
 		if(isset($profile['feeds'])) { return $profile['feeds']; }
 		return;
 	}
 	
 	function updateOutputHTML ($pageManager) {
 		if(isset($this->profile)) { 
-			$profileLabels = "";
+			$profileFeeds = "";
 			
 			$start = 0;
 			$max = 6;
 			$total = count($this->profile['feeds']);
 			$profile_feeds_browser = new feedBrowse($this->profile['feeds'], $start, $max, $total);
-			$profile_feeds = $profile_feeds_browser->itemOutputHTML(NULL);
+			$profile_feeds = $profile_feeds_browser->listOutputHTML(0);
 		
-			$profileLabels = $profile_feeds;
-			$banner = $pageManager->displayWrapper('div', 'section', 'section_inner browse-feeds', $profileLabels);
-			$pageManager->pageOutput .= $banner;
+			if($profile_feeds) {
+				$profileFeeds = "<div style=\"width: 220px; overflow: hidden\"><div class=\"browse-feeds\" style=\"width: auto; margin: 0px 20px; overflow: hidden\">" . "<h2 style=\"margin-left: 8px\">Feeds</h2>" . "<div class=\"browse-feeds\">" . $profile_feeds . "</div></div></div>";
+				$banner = $pageManager->displayWrapper('div', 'float-left', 'inline-block', $profileFeeds);
+			}
+			
+			$message = "<div style=\"width: 220px; overflow: hidden\"><div style=\"width: auto; margin: 0px 10px; overflow: hidden\">" . "<h2 style=\"margin-left: 8px\"></h2>" . "<div class=\"browse-feeds\"><center></center></div></div></div>";
+			$banner .= $pageManager->displayWrapper('div', 'float-right', 'inline-block', $message);	
+			
+			$date = new DateService($this->profile['date']); $n = "\n";
+			$user_name = ($this->profile['user_name']) ? $this->profile['user_name'] : "New Member (" . chopString($this->profile['date'], 4, '') . ")";
+			$member_since = "<div style=\"margin: 20px;\" onclick=\"document.body.scrollTop = 0; document.documentElement.scrollTop = 0;\"><h2 title=\"Back to Top\">" . $user_name . "</h2><small>MEMBER SINCE</small><br />" . $date->date_time . "</div>$n";
+			$member_since = $pageManager->displayWrapper('div', 'section-inner clear', 'item-tools_dark ', $member_since);	
+			
+			$pageManager->displayClass = " feed-profile";
+			$pageManager->pageBannerExtra .= $banner;
+			//$pageManager->pageExtra .= $member_since;
 		}
 	}
 }
 
-class addonItemLabelDisplay {
+class addonItemFeedDisplay {
 
 	function mergeRemove ($profile_feeds, $item_feeds) {	
 		$tmp_feeds = array(); 
@@ -309,27 +326,27 @@ class addonItemLabelDisplay {
 		return $tmp_feeds;
 	}
 
-	function addRelatedLabelTools ($parent_id, $_id) {
+	function addRelatedFeedTools ($parent_id, $_id) {
 		global $feeds_addon;
 		if($feeds_addon['add-new'] == false) {
 			return "";
 		}
 		
-		$chooseLabel = ""; //"<div class='item-tools_dark' style='width: 120px'>+ New</div>";
-		$newLabel = "<div id='feedAddNewLabel" . $_id . "' style='position: relative; display: block'><input name='name' class='form' autofocus></div>";
-		$newLabel .= "<input id='feedParentLabel" . $_id . "' type='hidden' name='parent-feed' value='$parent_id'>"; //PARENT LABEL
+		$chooseFeed = ""; //"<div class='item-tools_dark' style='width: 120px'>+ New</div>";
+		$newFeed = "<div id='feedAddNewFeed" . $_id . "' style='position: relative; display: block'><input id='feedPostName" . $_id . "' name='name' class='form' autofocus></div>";
+		$newFeed .= "<input id='feedParentFeed" . $_id . "' type='hidden' name='parent-feed' value='$parent_id'>"; //PARENT Feed
 		
-		$newLabel .= "<input id='feedPostLabel" . $_id . "' type='hidden' name='feed' value='new-child'>"; //DEFAULT: POSTING TO 'NEW' LABEL IN POST
+		$newFeed .= "<input id='feedPostFeed" . $_id . "' type='hidden' name='feed' value='new-child'>"; //DEFAULT: POSTING TO 'NEW' Feed IN POST
 		
 		$tools = "<div style='float: right'>" 
 			. "<div id='feedAdd" . $_id . "' " . " onClick=\"this.style.display='none'; domId('feedAddForm" . $_id . "').style.display='inline-block'\" class=\"item-tools_grey\"><div class=\"item-tools_txt\">&#43;</div></div>"
 			. "<div id='feedAddForm" . $_id . "' style='display: none'>"
-				. "<form id='feedLabelForm" . $_id . "' action=\"?id=" . $_id . "\" method=\"post\">"
+				. "<form id='feedFeedForm" . $_id . "' action=\"?id=" . $_id . "\" method=\"post\">"
 				. "<input type='hidden' name='parent_id' value='" . $parent_id . "'>"
-				. "<div style=\"float: left\" onClick=\"domId('feedAdd" . $_id . "').style.display='inline-block'; domId('feedAddForm" . $_id . "').style.display='none'\" class=\"item-tools_grey\"><div class=\"item-tools_txt\">&#8722;</div></div>"				
-				. "<div style='display: inline-block; width: 120px; margin-right: 4px'>" . $chooseLabel . "</div>"
-				. "<div onclick=\"domId('feedLabelForm" . $_id . "').submit()\" style=\"display: inline-block; font-size: 12px;\" class=\"item-tools_dark\">&#9989; SAVE</div>"		
-				. $newLabel
+				. "<div onClick=\" domId('feedAdd" . $_id . "').style.display='inline-block'; domId('feedAddForm" . $_id . "').style.display='none'\" class=\"item-tools_grey inline-block\"><div class=\"item-tools_txt\">&#8722;</div></div>"				
+				. "<div style='display: inline-block; width: 12px; margin-right: 4px'>" . $chooseFeed . "</div>"	
+				. $newFeed
+				. "<div onclick=\"if(domId('feedPostName" . $_id . "').value) { domId('feedFeedForm" . $_id . "').submit(); } else { domId('feedPostName" . $_id . "').focus(); }\" style=\"font-size: 12px;\" class=\"item-tools_dark\">&#9989; SAVE</div>"	
 				. "</form>"
 			. "</div>" 
 			. "</div>";
@@ -337,26 +354,26 @@ class addonItemLabelDisplay {
 		return $tools;
 	}
 
-	function addRelatedLabelTools_small ($parent_id, $_id) {
+	function addRelatedFeedTools_small ($parent_id, $_id) {
 		global $feeds_addon;
 		if($feeds_addon['add-new'] == false) {
 			return "";
 		}
 		
-		$chooseLabel = "";
-		$newLabel = "<div id='feedAddNewLabel" . $_id . "' style='position: relative; display: block'><input name='name' class='form_small' autofocus></div>";
-		$newLabel .= "<input id='feedParentLabel" . $_id . "' type='hidden' name='parent-feed' value='$parent_id'>"; //PARENT LABEL
-		$newLabel .= "<input id='feedPostLabel" . $_id . "' type='hidden' name='feed' value='new-child'>"; //DEFAULT: POSTING TO 'NEW' LABEL IN POST
+		$chooseFeed = "";
+		$newFeed = "<div id='feedAddNewFeed" . $_id . "' style='position: relative; display: block'><input name='name' class='form_small' autofocus></div>";
+		$newFeed .= "<input id='feedParentFeed" . $_id . "' type='hidden' name='parent-feed' value='$parent_id'>"; //PARENT Feed
+		$newFeed .= "<input id='feedPostFeed" . $_id . "' type='hidden' name='feed' value='new-child'>"; //DEFAULT: POSTING TO 'NEW' Feed IN POST
 		
 		$tools = "<div style='display: inline-block'>" 
 			. "<div id='feedAdd" . $_id . "' " . " onClick=\"this.style.display='none'; domId('feedAddForm" . $_id . "').style.display='inline-block'\"><div class=\"item-tools_txt\">&#43;</div></div>"
 			. "<div id='feedAddForm" . $_id . "' style='display: none'>"
-				. "<form id='feedLabelForm" . $_id . "' action=\"?id=" . $_id . "\" method=\"post\">"
+				. "<form id='feedFeedForm" . $_id . "' action=\"?id=" . $_id . "\" method=\"post\">"
 				. "<input type='hidden' name='parent_id' value='" . $parent_id . "'>"
 				. "<div style=\"float: left\" onClick=\"domId('feedAdd" . $_id . "').style.display='inline-block'; domId('feedAddForm" . $_id . "').style.display='none'\"><div class=\"item-tools_txt\">&#8722;</div></div>"				
-				. "<div style='display: inline-block; width: 120px; margin-right: 4px'>" . $chooseLabel . "</div>"
-				. "<div onclick=\"domId('feedLabelForm" . $_id . "').submit()\" style=\"display: inline-block; font-size: 12px;\" class=\"item-tools_dark\">&#9989; SAVE</div>"		
-				. $newLabel
+				. "<div style='display: inline-block; width: 12px; margin-right: 4px'>" . $chooseFeed . "</div>"
+				. "<div onclick=\"domId('feedFeedForm" . $_id . "').submit()\" style=\"display: inline-block; font-size: 12px;\" class=\"item-tools_dark\">&#9989; SAVE</div>"		
+				. $newFeed
 				. "</form>"
 			. "</div>" 
 			. "</div>";
@@ -364,46 +381,46 @@ class addonItemLabelDisplay {
 		return $tools . "<div class=\"clear\"></div>";
 	}
 		
-	function userLabelTools ($profile_feeds, $item_id, $dom_id) {
+	function userFeedTools ($profile_feeds, $item_id, $dom_id) {
 		global $feeds_addon;
 		if($feeds_addon['add-new'] == false && !$profile_feeds) {
 			return "";
 		}
 		
-		if($profile_feeds) { //CHECK FOR USER PROFILE LABELS
-			$chooseLabel = "<select onchange=\"if(!this.value){"
-			. " domId('itemAddNewLabel" . $dom_id. "').style.display='block';"
-			. " domId('itemPostLabel" . $dom_id . "').value = 'new';"
-			. " domId('itemAddNewLabel" . $dom_id . "').focus();"
+		if($profile_feeds) { //CHECK FOR USER PROFILE FeedS
+			$chooseFeed = "<select onchange=\"if(!this.value){"
+			. " domId('itemAddNewFeed" . $dom_id. "').style.display='block';"
+			. " domId('itemPostFeed" . $dom_id . "').value = 'new';"
+			. " domId('itemAddNewFeed" . $dom_id . "').focus();"
 			. " } else { "
-			. " domId('itemAddNewLabel" . $dom_id . "').style.display='none';"
-			. " domId('itemPostLabel" . $dom_id . "').value = 'add'; }"
+			. " domId('itemAddNewFeed" . $dom_id . "').style.display='none';"
+			. " domId('itemPostFeed" . $dom_id . "').value = 'add'; }"
 			. "\" name=\"feed_id\" class=\"item-dropdown\">";
 					
 			foreach($profile_feeds as $feed) {
-				$chooseLabel .= "<option value='". $feed['feed_id'] . "'>". $feed['name'] . "</option>";
+				$chooseFeed .= "<option value='". $feed['feed_id'] . "'>". $feed['name'] . "</option>";
 			}
 			if($feeds_addon['add-new'] != false) {
-				$chooseLabel .= "<option value=''>+ New</option>";
+				$chooseFeed .= "<option value=''>+ New</option>";
 			}
-			$chooseLabel .= "</select>";
-			$newLabel = "<div id='itemAddNewLabel" . $dom_id . "' style='position: relative; display: none'><input name='name' class='form' autofocus></div>";	
-			$newLabel .= "<input id='itemPostLabel" . $dom_id . "' type='hidden' name='feed' value='add'>"; //DEFAULT: POSTING TO 'ADD' LABEL IN POST
+			$chooseFeed .= "</select>";
+			$newFeed = "<div id='itemAddNewFeed" . $dom_id . "' style='position: relative; display: none'><input name='name' class='form' autofocus></div>";	
+			$newFeed .= "<input id='itemPostFeed" . $dom_id . "' type='hidden' name='feed' value='add'>"; //DEFAULT: POSTING TO 'ADD' Feed IN POST
 		} else {
-			$chooseLabel = "<div class='item-tools_dark' style='width: 120px'>+ New</div>";
-			$newLabel = "<div id='itemAddNewLabel" . $dom_id . "' style='position: relative; display: block'><input name='name' class='form' autofocus></div>";	
-			$newLabel .= "<input id='itemPostLabel" . $dom_id . "' type='hidden' name='feed' value='new'>"; //DEFAULT: POSTING TO 'NEW' LABEL IN POST
+			$chooseFeed = "<div class='item-tools_dark' style='width: 120px'>+ New</div>";
+			$newFeed = "<div id='itemAddNewFeed" . $dom_id . "' style='position: relative; display: block'><input name='name' class='form' autofocus></div>";	
+			$newFeed .= "<input id='itemPostFeed" . $dom_id . "' type='hidden' name='feed' value='new'>"; //DEFAULT: POSTING TO 'NEW' Feed IN POST
 		}
 		
 		$tools = "<div style='float: right'>" 
 			. "<div id='itemAdd" . $dom_id . "' " . " onClick=\"this.style.display='none'; domId('itemAddForm" . $dom_id . "').style.display='inline-block'\" class=\"item-tools_grey\"><div class=\"item-tools_txt\">&#43;</div></div>"
 			. "<div id='itemAddForm" . $dom_id. "' style='display: none'>"
-				. "<form id='itemLabelForm" . $dom_id . "' action=\"?id=" . $item_id . "\" method=\"post\">"
+				. "<form id='itemFeedForm" . $dom_id . "' action=\"?id=" . $item_id . "\" method=\"post\">"
 				. "<input type='hidden' name='id' value='" . $item_id . "'>"
 				. "<div style=\"float: left\" onClick=\"domId('itemAdd" . $dom_id . "').style.display='inline-block'; domId('itemAddForm" . $dom_id . "').style.display='none'\" class=\"item-tools_grey\"><div class=\"item-tools_txt\">&#8722;</div></div>"				
-				. "<div style='display: inline-block; width: 140px; margin-right: 4px'>" . $chooseLabel . "</div>"
-				. "<div onclick=\"domId('itemLabelForm" . $dom_id . "').submit()\" style=\"display: inline-block; font-size: 12px;\" class=\"item-tools_dark\">&#9989; SAVE</div>"		
-				. $newLabel
+				. "<div style='display: inline-block; width: 140px; margin-right: 4px'>" . $chooseFeed . "</div>"
+				. "<div onclick=\"domId('itemFeedForm" . $dom_id . "').submit()\" style=\"display: inline-block; font-size: 12px;\" class=\"item-tools_dark\">&#9989; SAVE</div>"		
+				. $newFeed
 				. "</form>"
 			. "</div>" 
 			. "</div>";
@@ -433,7 +450,7 @@ class addonItemLabelDisplay {
 					. "</div>";
 				
 				//Link (Remove button)
-				$feed_link = "<div id=\"removeItemLabel" . $index . $item_id . "\" style='display: none'>"
+				$feed_link = "<div id=\"removeItemFeed" . $index . $item_id . "\" style='display: none'>"
 					. "<form id='removeForm" . $index . $item_id . "' action='?id=" . $item_id. "' method='post'>" 
 					. "<input type='hidden' name='item_id' value='" . $item_id . "'/>" 
 					. "<input type='hidden' name='feed_id' value='" . $feed['feed_id'] . "'/>" 
@@ -452,10 +469,10 @@ class addonItemLabelDisplay {
 				$feed_link .= "</form>";
 				$feed_link .= "</div>";
 				
-				//Label output
+				//Feed output
 				$feed_output = "<div class=\"item-tools_grey\" style=\"border-radius: 24px; padding: 2px\""
-					. " onmouseover=\"domId('removeItemLabel" . $index . $item_id . "').style.display='inline-block'\""
-					. " onmouseout=\"domId('removeItemLabel" . $index . $item_id . "').style.display='none'\""
+					. " onmouseover=\"domId('removeItemFeed" . $index . $item_id . "').style.display='inline-block'\""
+					. " onmouseout=\"domId('removeItemFeed" . $index . $item_id . "').style.display='none'\""
 					. " style=\"padding: 0px; display: inline-block\">";					
 				$feed_output .= $feed_image;
 				$feed_output .= $feed_link;
@@ -473,7 +490,7 @@ class addonItemLabelDisplay {
 			$item_feed_output = $profile_feeds_browser->set_active_user_id($client->user_serial);
 			
 			$item_feed_output = $profile_feeds_browser->itemOutputHTML($index);
-			$item_feed_output .= "<script>try { itemLabelBrowser['" . $index . "'].set_active_item_id(" . $itemDisplay->item['item_id'] . "); } catch (e) { }</script>";
+			$item_feed_output .= "<script>try { itemFeedBrowser['" . $index . "'].set_active_item_id(" . $itemDisplay->item['item_id'] . "); } catch (e) { }</script>";
 		}
 		
 		$tool_output = "";
@@ -483,7 +500,7 @@ class addonItemLabelDisplay {
 					$profile_feeds = $this->mergeRemove($profile_feeds, $itemDisplay->item['feeds']); 
 				}
 				$dom_id = $item_id . "_" . rand(10, 100);
-				$tool_output = $this->userLabelTools($profile_feeds, $item_id, $dom_id);
+				$tool_output = $this->userFeedTools($profile_feeds, $item_id, $dom_id);
 				$item_feed_output .= $tool_output;
 		}
 		$metaOutput = "<div style='float: right'>" . $item_feed_output . "</div>";
@@ -504,8 +521,22 @@ class addonItemLabelDisplay {
 	}
 }
 
-class addonLabelPageDisplay {
-	function addonPageItems($pageManager) {
+class addonFeedPageDisplay {
+	
+	function __construct ($pageManager) {
+		$this->pageManager = $pageManager;
+		$this->bannerDisplay = $this->feedBanner();
+		$this->itemDisplay = $this->addonPageItems();
+		
+		$this->output = $this->bannerDisplay . $this->itemDisplay;
+	}
+	
+	function feedBanner() {
+		return;
+	}
+	
+	function addonPageItems() {
+		$pageManager = $this->pageManager;
 		if(isset($_GET['feed_id']) && !isset($pageManager->meta['active_page'])) {
 			global $client;
 			global $_ROOTweb;
@@ -514,7 +545,7 @@ class addonLabelPageDisplay {
 			
 			$feed = $pageManager->meta['feed'];
 			$feed_owner = ($feed['owner_id'] == $client->user_serial) ? $feed['owner_id'] : NULL;
-
+			
 			$folder = "files/feeds/";
 			$file_dir = $_ROOTweb . $folder;
 			
@@ -523,12 +554,12 @@ class addonLabelPageDisplay {
 			$imageRollover = "changeImageRollover";
 			$feed_img = "<div class='item-user'";
 			if($feed_owner) { $feed_img .= " onmouseover=\"domId('$imageRollover').style.display='block';\" onmouseout=\"domId('$imageRollover').style.display='none'\""; }
-			$feed_img .= " style='width: 100px; height: 100px; margin: 0px 20px 20px 20px; background-image: url(" . $feed_img_src  . ")'>";
+			$feed_img .= " style='margin: 0px 20px 20px 0px; background-image: url(" . $feed_img_src  . ")'>";
 			if($feed_owner) { $feed_img .= "<div id=\"$imageRollover\" onclick=\"domId('itc_feed_image_form').style.display='inline-block'; domId('show-form-button').style.display='none'\" style=\"display: none; width: 100%; height: 100%; opacity: 0.5; font-size: 80px; text-align: center;\">&#8853;</div>"; }
 			$feed_img .= "</div>";
 			$feed_name = "<div style=\"font-size: 2em; cursor: pointer\" onclick=\"window.location='$_ROOTweb?feed_id=" . $feed['feed_id'] . "'\"><u>" . $feed['name'] . "</u></div>";
 			
-			$page = "<div class=\"item-section\" style=\"text-align: left;\">" . $feed_img . "<div style=\"display: inline-block; text-align: left;\">";
+			$page = "<div class=\"feed-page-banner\" style=\"text-align: left;\">" . $feed_img . "<div style=\"display: inline-block; text-align: left;\">";
 			$page .= "<div id=\"itc_feed_name_form\" style=\"display: none;\"><form action=\"./?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "\" method=\"post\"><input type=\"hidden\" name=\"user_id\" value=\"" . $client->user_serial . "\"/><input class=\"form\" name=\"itc_feed_name\" value=\"" . $feed['name'] . "\"/><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"&#9989; SAVE\"></div>";
 			$page .= "<div id=\"itc_feed_name\" style=\"display: inline-block\">" . $feed_name;	
 										
@@ -543,6 +574,20 @@ class addonLabelPageDisplay {
 			}
 			
 			$page .= "</div>";
+			
+					
+			
+			if($feed_owner){
+				$userTools = new addonItemFeedDisplay();
+				$tmp_feeds[] = $feed;
+				if(isset($profile_feeds) && isset($feed)) { 
+					$profile_feeds = $userTools->mergeRemove($profile_feeds, $tmp_feeds); 
+				}	
+				
+				$related = $userTools->addRelatedFeedTools($feed['feed_id'], 0);
+				//$related = $userTools->addRelatedFeedTools($profile_feeds, $feed['feed_id'], $feed['feed_id']);
+				$page .= "<div class=\"feed-tools\" style=\"float: right\">" . $related . "</div>";
+			}	
 
 			if($feed_owner) {			
 				$page .= "<form enctype=\"multipart/form-data\" action=\"./?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "\" method=\"post\"><div style=\"display: none; margin-top: 4px;\" id=\"itc_feed_image_form\"><input type=\"hidden\" name=\"itc_feed_img\" value=\"change\"/><input type=\"hidden\" name=\"feed_id\" value=\"" . $_GET['feed_id'] . "\"/><input type=\"file\" class=\"item-tools\" name=\"itc_feed_upload\" accept=\"image/jpeg,image/png,image/gif\"><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"&#9989; SAVE\"></div></form>";
@@ -566,19 +611,7 @@ class addonLabelPageDisplay {
 								
 				$page .= " <div onclick=\"domId('feedDisplayForm" . $feed['feed_id'] . "').submit()\" class=\"item-tools_dark\">&#9989; SAVE</div>";
 				$page .= "</form></div>";
-			}				
-			
-			if($feed_owner){
-				$userTools = new addonItemLabelDisplay();
-				$tmp_feeds[] = $feed;
-				if(isset($profile_feeds) && isset($feed)) { 
-					$profile_feeds = $userTools->mergeRemove($profile_feeds, $tmp_feeds); 
-				}	
-				
-				$related = $userTools->addRelatedLabelTools($feed['feed_id'], 0);
-				//$related = $userTools->addRelatedLabelTools($profile_feeds, $feed['feed_id'], $feed['feed_id']);
-				$page .= "<div class=\"feed-tools\" style=\"float: right\">" . $related . "</div>";
-			}			
+			}		
 						
 			$start = 0;
 			$max = 6;
@@ -589,20 +622,25 @@ class addonLabelPageDisplay {
 			}
 			
 			$page .= "<div class=\"clear\"></div>";
+			$page .= "</div><div class=\"item-section\" style=\"text-align: center\">";
+			
 			if($feed_owner){
 				$omniBox = $this->displayOmniBox($pageManager, $pageManager->meta['feed'], $pageManager->items[0]['item_id']);
 				$page .= "<div>" . $omniBox . "</div>";
 			}			
 			
 			$item_info_limit = 2800;
-			$page .= "<div class=\"feed-" . $feed['display_type'] . "\">" . $pageManager->displayItems($feed['display_type'], $item_info_limit) . "</" . $feed['display_type'] . ">";
+			if($feed['display_type']  == 'box' || $feed['display_type']  == 'box' || $feed['display_type']  == 'box') {
+				$item_info_limit = 140;				
+			}
+			$page .= "<div class=\"feed-" . $feed['display_type'] . "\">" . $pageManager->displayItems($feed['display_type'], $item_info_limit);
 			$page .= "<div class=\"clear\"></div>";
-			$page .= "</div>";			
+			$page .= "</div></div>";
 			
 			return $page;
 		}
 	}
-	
+
 	function displayOmniBox($pageManager, $feed, $item_id) {
 		if(!$pageManager->classes) { return; }
 		
@@ -611,19 +649,19 @@ class addonLabelPageDisplay {
 		$class_js_array = json_encode($classes);
 		$class_id = (isset($_POST['itc_class_id'])) ? $_POST['itc_class_id'] : key($classes);
 		
-		$javascript_omni_box = "<script>var OmniController = new OmniLabelBox(" . $class_js_array . ", 'itemOmniBox');\n OmniController.set_active_feed('" . $feed_id . "');\n OmniController.toggle('" . $class_id . "');\n</script>";
+		$javascript_omni_box = "<script>var OmniController = new OmniFeedBox(" . $class_js_array . ", 'itemOmniBox');\n OmniController.set_active_feed('" . $feed_id . "');\n OmniController.toggle('" . $class_id . "');\n</script>";
 		$message = (isset($pageManager->meta['message'])) ? "<center><div id=\"alertbox\" class=\"alertbox-show\">" . $pageManager->meta['message'] . "</div></center>" : "<center><div id=\"alertbox\" class=\"alertbox-hide\"></div></center>";
 		
 		$createForm  = "<div style=\"display: inline-block\">";
 		$createForm .= "<div class=\"item-section\"><div style=\"display: none;\" class=\"item-page\" id=\"itemOmniBox\">" . "</div></div>"
-			. "<div class=\"float-left\" style=\"display: inline: block\" onclick=\"domId('itemOmniBox').style.display='inline-block'; this.style.display='none'\" style=\"width: 640px; margin: 14px 0px; text-align: center; cursor: pointer\"><div class=\"item-tools\">+ <u>Add an Item</u></div></div>";
+			. "<div class=\"inline-block\" style=\"display: inline: block\" onclick=\"domId('itemOmniBox').style.display='inline-block'; this.style.display='none'\" style=\"width: 640px; margin: 14px 0px; text-align: center; cursor: pointer\"><div class=\"item-tools\">+ <u>Add an Item</u></div></div>";
 		$createForm .= $javascript_omni_box;
 		$createForm .= "</div>";
 		return $message . $createForm;
 	}
 }
 
-class addonItemLabelRequest {
+class addonItemFeedRequest {
 	function __construct ($stream, $items) {
 		$this->stream = $stream;
 		$this->item_loot = $items;
@@ -644,19 +682,19 @@ class addonItemLabelRequest {
 			if($feed_loot) {
 				while($loot=$feed_loot->fetch_assoc()) { $feeds[] = $loot; }
 			}
-			$tmp_loot_array[] = $this->mergeLabels($feeds, $item);
+			$tmp_loot_array[] = $this->mergeFeeds($feeds, $item);
 		} }
 		$this->item_loot = $tmp_loot_array;
 		return $this->item_loot;
 	}
 	
-	function mergeLabels ($feeds, $item){
+	function mergeFeeds ($feeds, $item){
 		$item['feeds'] = $feeds;
 		return $item;
 	}
 }
 
-class addonPostLabelHandler {
+class addonPostFeedHandler {
 	function __construct ($stream) {
 		$this->stream = $stream;
 		$this->DEFAULT_USER_LEVEL = 3;
@@ -674,30 +712,30 @@ class addonPostLabelHandler {
 		$user_level = $client->level;
 
 		if(isset($_POST['delete'])) {
-			$this->deleteItemLabel($_POST['delete']);
+			$this->deleteItemFeed($_POST['delete']);
 		}
 		
 		$active = isset($_POST['feed']);
 		if($active) {
 				switch ($_POST['feed']) {
 				case 'new':
-					$feed_id = $this->newLabel($user_id, $_POST['name'], "", 3, NULL);
-					$this->addItemLabel($user_id, $_POST['id'], $feed_id);	
+					$feed_id = $this->newFeed($user_id, $_POST['name'], "", 3, NULL);
+					$this->addItemFeed($user_id, $_POST['id'], $feed_id);	
 					header("Location: ./?feed_id=" . $feed_id . "&name=" . $_POST['name']);
 					break;
 				case 'add':
-					$this->addItemLabel($user_id, $_POST['id'], $_POST['feed_id']);
+					$this->addItemFeed($user_id, $_POST['id'], $_POST['feed_id']);
 					header("Location: ./?id=" . $_POST['id']);
 					break;
 				case 'new-child':
-					$feed_id = $this->newLabel($user_id, $_POST['name'], "", 3, $_POST['parent-feed']);
+					$feed_id = $this->newFeed($user_id, $_POST['name'], "", 3, $_POST['parent-feed']);
 					header("Location: ./?feed_id=" . $feed_id . "&name=" . $_POST['name']);
 					break;
 				case 'remove':
-					$this->removeItemLabel($user_id, $_POST['item_id'], $_POST['feed_id']);
+					$this->removeItemFeed($user_id, $_POST['item_id'], $_POST['feed_id']);
 					break;
 				case 'display':
-					$feed_id = $this->updateLabelDisplay($_POST['display_id'], $_POST['feed_id']);
+					$feed_id = $this->updateFeedDisplay($_POST['display_id'], $_POST['feed_id']);
 					header("Location: ./?feed_id=" . $feed_id . "&name=" . $_POST['name']);
 					break;
 			}
@@ -706,52 +744,56 @@ class addonPostLabelHandler {
 				
 				if($itemManager->insertOk == "1" && isset($item_id)) {
 					$itemManager->insertUserItem($client->user_serial, $item_id, 3);
-					$this->addItemLabel($user_id, $itemManager->item_id, $_POST['itc_add_item_feed']);
+					$this->addItemFeed($user_id, $itemManager->item_id, $_POST['itc_add_item_feed']);
 				}
-				header("Location: ./?feed_id=" . $_POST['itc_add_item_feed']);
+				header("Location: ./?feed_id=" . $_POST['itc_add_item_feed'] . '&id=' . $item_id);
 		} else if(isset($_POST['itc_feed_edit'])){ 
-				$this->purgeLabel($_POST['feed_id']);
+				$this->purgeFeed($_POST['feed_id']);
 				header("Location: ./");
 		} else if(isset($_POST['itc_feed_img'])){
-				$this->handleLabelUpload($client);
+				$this->handleFeedUpload($client);
 				header("Location: ./?feed_id=" . $_GET['feed_id']);
 		} else if (isset($_GET['feed_id'])){
 			if(isset($_POST['itc_feed_name'])) {
 				$owner = ($_POST['user_id'] == $user_id) ? $user_id : false;	
-				if($owner) { $this->changeLabelName($_POST['itc_feed_name'], $_GET['feed_id']);
+				if($owner) { $this->changeFeedName($_POST['itc_feed_name'], $_GET['feed_id']);
 						header("Location: ./?feed_id=" . $_GET['feed_id'] . "&name=" .  $_POST['itc_feed_name']);
 				}		
 			} 
 
-			$itemManager->meta['feed'] = $this->getLabel($_GET['feed_id']);
-			$itemManager->meta['title'] = $itemManager->meta['feed']['name'];
-			$itemManager->meta['feed']['feed_item_class'] = $this->getAddonClasses($itemManager->meta['feed']['feed_id']);
-			$itemManager->meta['feed']['display_class'] = $this->getLabelDisplayClasses($user_level);
-			
-			$display_id = $itemManager->meta['feed']['display_id'];
-			$itemManager->meta['feed']['display_type'] = $itemManager->meta['feed']['display_class'][$display_id]['display_type'];
-						
-			// SHOULD BE USED BY OVERRIDE ONLY
-			if (isset($itemManager->meta['feed']['related'])) { 
-				$itemManager->meta['feed']['related'] = $this->getChildLabelItems($itemManager->meta['feed']['related'], 0, 5, $user_level);
-			}
-			
-			if(!isset($_POST['page_id']) && !isset($itemManager->meta['feed']['feed_page'])) { 	
-				if(isset($_GET['id'])) { $itemManager->items = $itemManager->getItemById($_GET['id']); }
-				else { $itemManager->items = $this->getLabelItems($_GET['feed_id'], $start, $count, $user_level); }
-				return "active"; 
+			$itemManager->meta['feed'] = $this->getFeed($_GET['feed_id']);
+			if($itemManager->meta['feed']) {
+				$itemManager->meta['title'] = $itemManager->meta['feed']['name'];
+				$itemManager->meta['feed']['feed_item_class'] = $this->getAddonClasses($itemManager->meta['feed']['feed_id']);
+				$itemManager->meta['feed']['display_class'] = $this->getFeedDisplayClasses($user_level);
+				
+				$display_id = $itemManager->meta['feed']['display_id'];
+				$itemManager->meta['feed']['display_type'] = $itemManager->meta['feed']['display_class'][$display_id]['display_type'];
+							
+				// SHOULD BE USED BY OVERRIDE ONLY
+				if (isset($itemManager->meta['feed']['related'])) { 
+					$itemManager->meta['feed']['related'] = $this->getChildFeedItems($itemManager->meta['feed']['related'], 0, 5, $user_level);
+				}
+				
+				if(!isset($_POST['page_id']) && !isset($itemManager->meta['feed']['feed_page'])) { 	
+					if(isset($_GET['id'])) { 
+						$itemManager->items = $itemManager->getItemById($_GET['id']);
+						$itemManager->meta['feed']['items'] = $this->getFeedItems($_GET['feed_id'], $start, $count, $user_level);
+					}
+					else { $itemManager->items = $this->getFeedItems($_GET['feed_id'], $start, $count, $user_level); }
+					return "active"; 
+				}
 			}
 		}
-		
 	}
 		
-	function changeLabelName ($new_name, $feed_id) {
+	function changeFeedName ($new_name, $feed_id) {
 		$stream = $this->stream;
 		$input = "UPDATE feed SET name='$new_name' WHERE feed_id='$feed_id'";
 		$query = $stream->query($input);
 	}
 
-	function updateLabelDisplay($display_id, $feed_id) {
+	function updateFeedDisplay($display_id, $feed_id) {
 		$stream = $this->stream;
 		$input = "UPDATE feed SET display_id='$display_id' WHERE feed_id='$feed_id'";
 		$query = $stream->query($input);
@@ -759,7 +801,7 @@ class addonPostLabelHandler {
 		return $feed_id;
 	}
 	
-	function purgeLabel ($feed_id) {
+	function purgeFeed ($feed_id) {
 		$stream = $this->stream;
 		
 		$user_feeds = "DELETE FROM user_feeds WHERE feed_id='$feed_id'";
@@ -770,19 +812,25 @@ class addonPostLabelHandler {
 				
 		$feed = "DELETE FROM feed WHERE feed_id='$feed_id'";
 		mysqli_query($stream, $feed);
+
+		$feed = "DELETE FROM addon_feed WHERE feed_id='$feed_id'";
+		mysqli_query($stream, $feed);		
 	}
 	
-	function deleteItemLabel ($item_id) {
+	function deleteItemFeed ($item_id) {
 		$stream = $this->stream;
 
 		$item_feeds = "DELETE FROM feed_items WHERE item_id='$item_id'";
 		mysqli_query($stream, $item_feeds);
 	}
 	
-	function getLabel($feed_id) {
+	function getFeed($feed_id) {
 		$feed_quest = "SELECT feed.* FROM feed WHERE feed_id='$feed_id'";
 		$feed_loot_return = mysqli_query($this->stream, $feed_quest);	
 		$feed_loot = $feed_loot_return->fetch_assoc();
+		if(!$feed_loot) {
+				return;
+		}
 		
 		$count_quest = mysqli_query($this->stream, "SELECT * FROM feed_items WHERE feed_id='$feed_id'");
 		$feed_loot['total'] = mysqli_num_rows($count_quest);
@@ -801,10 +849,18 @@ class addonPostLabelHandler {
 			$feed_loot['related'][] = $related_loot;
 		}
 
+		$feed_loot['feed_addon'] = $this->getAddonMatch($feed_id);
 		return $feed_loot;
 	}
 
-	function getChildLabels($parent_id) {
+	function getAddonMatch($feed_id) {
+		$feed_quest = "SELECT * FROM addon_feed WHERE feed_id='$feed_id'";
+		$feed_loot_return = mysqli_query($this->stream, $feed_quest);
+		$feed_loot = $feed_loot_return->fetch_assoc();
+		return $feed_loot;
+	}
+	
+	function getChildFeeds($parent_id) {
 		$feed_quest = "SELECT * FROM feed WHERE parent_id='$parent_id'";
 		$feed_loot_return = mysqli_query($this->stream, $feed_quest);
 		while($feed_loot = $feed_loot_return->fetch_assoc()) {
@@ -825,7 +881,7 @@ class addonPostLabelHandler {
 		return $feeds_array;
 	}
 	
-	function getChildLabelItems($feeds, $start, $count, $level) {
+	function getChildFeedItems($feeds, $start, $count, $level) {
 		if(!$feeds) { return; }
 			
 		$feeds_array = NULL;
@@ -848,7 +904,7 @@ class addonPostLabelHandler {
 				$addon_class = new addonItemProfileRequest($this->stream, $feed['items']);
 				$feed['items'] = $addon_class->getAddOnLoot();
 			}
-			$addon_request = new addonItemLabelRequest($this->stream, $feed['items']);
+			$addon_request = new addonItemFeedRequest($this->stream, $feed['items']);
 			$feed['items'] = $addon_request->getAddOnLoot($level);
 			
 			$feeds_array[] = $feed;
@@ -857,7 +913,7 @@ class addonPostLabelHandler {
 	}
 		
 		
-	function getLabelItems($feed_id, $start, $count, $level) {
+	function getFeedItems($feed_id, $start, $count, $level) {
 		if(!$feed_id) { return; }
 		
 		$feed_quest = "SELECT feed.* FROM feed WHERE feed_id='$feed_id' AND feed.level > $level";
@@ -883,7 +939,7 @@ class addonPostLabelHandler {
 			$item_loot_array = $addon_class->getAddOnLoot();
 		}
 							
-		$addon_request = new addonItemLabelRequest($this->stream, $item_loot_array);
+		$addon_request = new addonItemFeedRequest($this->stream, $item_loot_array);
 		$item_loot_array = $addon_request->getAddOnLoot($level);
 		
 		$addon_request = new addonItemReplyRequest($this->stream, $item_loot_array);
@@ -947,7 +1003,7 @@ class addonPostLabelHandler {
 		return $class_loot_array;
 	}
 			
-	function getLabelDisplayClasses($level) {
+	function getFeedDisplayClasses($level) {
 		
 		$quest = "SELECT * FROM feed_display";
 			
@@ -962,7 +1018,7 @@ class addonPostLabelHandler {
 		}
 	}
 	
-	function newLabel ($owner_id, $name, $feed_img, $level, $parent_id) {
+	function newFeed ($owner_id, $name, $feed_img, $level, $parent_id) {
 		if($name) {
 			$quest = "INSERT INTO feed (owner_id, name, feed_img, parent_id, level) VALUES('$owner_id', '$name', '$feed_img', '$parent_id', '$level')";
 			$success = mysqli_query($this->stream, $quest);
@@ -975,7 +1031,7 @@ class addonPostLabelHandler {
 		}
 	}
 		
-	function addItemLabel ($user_id, $item_id, $feed_id) {
+	function addItemFeed ($user_id, $item_id, $feed_id) {
 		$check_quest = "SELECT feed_items.* FROM feed_items WHERE item_id='$item_id' AND feed_id='$feed_id'";
 		$match = mysqli_query($this->stream, $check_quest);
 		if(!$match->fetch_assoc()) {
@@ -984,18 +1040,18 @@ class addonPostLabelHandler {
 		}
 	}
 		
-	function removeItemLabel ($user_id, $item_id, $feed_id) {
+	function removeItemFeed ($user_id, $item_id, $feed_id) {
 		$quest = "DELETE FROM feed_items WHERE item_id='$item_id' AND feed_id='$feed_id' AND user_id='$user_id'";
 		$success = mysqli_query($this->stream, $quest);
 	}
 
-	function changeLabelImage ($new_image, $feed_id) {
+	function changeFeedImage ($new_image, $feed_id) {
 		$stream = $this->stream;
 		$input = "UPDATE feed SET feed_img='$new_image' WHERE feed_id='$feed_id'";
 		$query = $stream->query($input);
 	}
 	
-	function handleLabelUpload($client) {
+	function handleFeedUpload($client) {
 		 if (isset($_POST['itc_feed_img'])) {
 			$insertOk = "1";
 			$target_dir = "files/feeds/";
@@ -1020,17 +1076,18 @@ class addonPostLabelHandler {
 			}
 
 			if($insertOk && isset($_POST['feed_id'])) {
-				$this->changeLabelImage($file, $_POST['feed_id']);
+				$this->changeFeedImage($file, $_POST['feed_id']);
 			}
 		}
 	}
 }
 
-class addonProfileLabelRequest {
+class addonProfileFeedRequest {
 	function __construct ($stream, $profile, $user_id) {
 		$this->stream = $stream;
 		$this->profile_loot = $profile;
 		$this->user_id = $user_id;
+		$this->hide_child = false;
 	}
 	
 	function getAddOnLoot ($user_level){
@@ -1038,9 +1095,9 @@ class addonProfileLabelRequest {
 		$quest = "SELECT SQL_CALC_FOUND_ROWS user_feeds.*, feed.*"
 		 . " FROM user_feeds, feed"
 		 . " WHERE user_feeds.user_id='" . $this->user_id . "'"
-		 . " AND feed.feed_id=user_feeds.feed_id"
-		 //. " AND feed.parent_id=''"
-		 . " AND feed.level >'$user_level'";
+		 . " AND feed.feed_id=user_feeds.feed_id";
+		if($this->hide_child) { $quest .= " AND feed.parent_id=''"; }
+		$quest .= " AND feed.level >='$user_level'";
 		 
 		$feed_loot = mysqli_query($this->stream, $quest);		
 		$feeds = NULL;	

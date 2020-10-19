@@ -197,9 +197,12 @@ a {
 }
 
 .section_inner {
+    text-align: center;
     width: 1240px;
     margin: 0px auto; 
-    text-align: center; 
+}
+
+.section_inner, textarea {
     color: #ccc;
     font-size: 1em;
 }
@@ -222,6 +225,8 @@ textarea.form {
     overflow: hidden;
     min-height: 34px;
     max-height: 340px;
+    background: transparent;
+    border: none;
 }
 input.form, textarea.form {
 	width: 80%;
@@ -230,7 +235,12 @@ input.form, textarea.form {
 	font-size: 22px;
 	padding: 4px;
 }
-input.wider, textarea.form {
+
+textarea.wider {
+	width: 380px;
+}
+
+input.wider {
     max-width: auto;
 }
 
@@ -297,12 +307,15 @@ input.item_tools_inactive:hover {
 	float: right;
 }
 
+.inline-block {
+	display: inline-block;
+}
+
 .alertbox-show a {
 	color: #FFF;
 }
 .alertbox-show {
     display: block;
-    width: 800px;
     background-color: #444;
     padding: 24px 0px;
     margin-bottom: 12px
@@ -313,6 +326,29 @@ input.item_tools_inactive:hover {
 	width: 120px;
 	height: 120px;
 	margin: 20px 0px 0px 40px;
+}
+
+.feed-box {
+	width: 90%;
+	position: relative;
+  display: inline-grid;
+  grid-template-columns: auto auto auto;
+	margin: 0px auto;
+}
+
+.item-list { display: inline; }
+.feed-list .item-nodes .item-title, .feed-list .item-nodes .item-info { 
+	display: inline;
+	border-bottom: 0px;
+	padding: 0px;
+}
+
+.feed-list .item-nodes .item-link, .feed-list .item-nodes .item-info, .feed-list .item-meta {
+	display: none;
+}
+
+.audiofeed .item-page .item-title {
+	display: none;
 }
 
 /* Display items */
@@ -336,9 +372,9 @@ input.item_tools_inactive:hover {
 }
 
 .item-section {
-     width: 880px;
-     margin: 0px auto 0px auto;
-     padding-top: 20px;
+     width: 100%;
+     margin: 0px auto;
+     padding: 20px 0px;
 }
 
 .item-info, .item-link {
@@ -383,6 +419,28 @@ input.item_tools_inactive:hover {
 	font-size: 1em;
 }
 
+.feed-page .item-page {
+	padding: 0px;
+}
+
+.feed-page, .feed-list, .feed-card, .feed-banner {
+	width: 720px;
+	margin: 0px auto;
+}
+
+.feed-page-banner, .profile-banner_inner {
+	background-image: linear-gradient(rgba(255,255,255,0), rgba(100,100,100, 1));
+	width: auto
+}
+
+.feed-page-banner {
+	padding: 20px;
+}
+
+.feed-profile .item-section {
+	width: 720px;
+}
+
 /*item page*/
 .item-page {
     width: 100%;
@@ -415,9 +473,26 @@ input.item_tools_inactive:hover {
 	clear: both;
 }
 
+.gallery {
+	margin: 10px;
+}
+
+.gallery.feed-box .item-box {
+	padding: 0px;
+}
+
+.gallery.feed-box .item-box .item-nodes .item-title, 
+.gallery.feed-box .item-box .item-nodes .item-info,
+.gallery.feed-box .item-box .item-meta {
+	display: none;
+}
+
+.gallery.feed-box .item-box .item-nodes .item-link .image-cell img {
+	width: 100%;
+}
+
 /*item box*/
 .item-box {
-	min-width: 380px;
 	width: auto;
 	overflow: hidden;
 	display: inline-block;
@@ -429,9 +504,15 @@ input.item_tools_inactive:hover {
 	color: #333;
 }
 
-.item-box .item-nodes .item-link .image-cell {
-	max-height: 380px;
+.item-box .item-nodes .item-link .image-cell  {
 	overflow: hidden;
+}
+
+.item-box .item-nodes .item-link .image-cell img {
+	max-height: 380px;
+	display: block;
+	width: 100%;
+	object-fit: cover;
 }
 
 .item-box .item-nodes .item-title {
@@ -519,6 +600,11 @@ input.item_tools_inactive:hover {
 .item-banner .item-nodes {
  padding: 80px 0px;
  margin: 0px auto;
+ background-image: linear-gradient(#333, #444);	 
+}
+
+.item-banner .item-nodes {
+ padding: 80px 20%;
 }
 
 .item-banner .item-nodes .item-title, .item-banner .item-nodes .item-info{
@@ -612,6 +698,10 @@ input.item_tools_inactive:hover {
 .banner .item-title {
 	color: #FFF;
 }
+.page {
+	margin: 0px auto;
+	min-height: 540px;
+}
 
 .box, .feed-box{  
 	display: grid;
@@ -690,7 +780,7 @@ input.item_tools_inactive:hover {
 
 .item-meta .item-tools_grey { padding: 0px; }
 .item-meta .item-tools_grey div { margin-right: 4px; }
-.item-tools img, .item-tools_grey img, .item-tools_dark  img{
+.item-tools img, .item-tools_grey img, .item-tools_dark  img, .browse-feeds img{
 	width: 28px;
 	height: 28px;
 	vertical-align: middle;
@@ -721,6 +811,7 @@ input.item_tools_inactive:hover {
  
 div.inline-name {
 	text-decoration: underline;
+	cursor: pointer;
 }
 
 div.inline-name, div.inline-remove {
@@ -777,6 +868,10 @@ div.inline-name{
 	text-decoration: underline;
 }
 
+.browse-feeds {
+	text-align: left;
+}
+
 .browse-feeds .item_feed_menu {
   max-width: 52px;
   min-width: 52px;
@@ -794,9 +889,16 @@ div.inline-name{
 	padding-top: 12px;
 }
 
+.profile-banner {
+	width: 100%;
+}
+
 .profile-banner .avatar { margin: 20px 40px; width: 120px; height: 120px; }
 .profile-banner .item-tools_dark { margin: 0px; font-size: .8em; }
 
+.profile-name {
+	cursor: pointer;
+}
 
 .item_reply div[id^='itemAdd'] {
     display: none;

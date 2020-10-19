@@ -185,8 +185,8 @@ var OmniBox = class {
 	
 	form_input(class_id) { return "<input type=\"hidden\" name=\"itc_class_id\" value=\"" + class_id + "\"/>"; }
 	form_id() { return " id=\"itc_OmniBoxForm" + this.str + "\""; }
-	functions_str() { return " action=\"add.php\" method=\"post\""; }
-	functions_file() { return " action=\"add.php\" method=\"post\" enctype=\"multipart/form-data\""; }
+	functions_str() { return " action=\"index.php\" method=\"post\""; }
+	functions_file() { return " action=\"index.php\" method=\"post\" enctype=\"multipart/form-data\""; }
 	
     checkInput () {
 		var class_form = this.class_array[this.active_class];
@@ -254,7 +254,7 @@ var OmniBox = class {
 				
 				form_input += "<div id=\"" + domid_add + "" + this.str + "\" style=\"" + link_display + "\" onclick=\"" + show + "\"><a>+ <u>Add " + node['node_name'] + "</u></a></div>";
 				form_input += "<div id=\"" + domid + "" + this.str + "\" style=\"" + input_display + "\"><textarea id=\"" + domid + "_txt" + this.str + "\" class=\"form wider\" name=\"itc_" + node['node_name'] + "\""
-					+ "onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\"" + tmp_node_onfocus + ">";			
+					+ "onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\"" + tmp_node_onfocus + " placeholder=\"Write something here\">";			
 				form_input += tmp_node_value;
 				form_input += "</textarea>";
 				
@@ -294,7 +294,7 @@ var OmniBox = class {
 //------- EDIT ITEM: OMNIBOX --------//
 //----------------------------------//
 
-class OmniLabelBox extends OmniBox {
+class OmniFeedBox extends OmniBox {
 
 	set_active_feed (feed_id) {
 		this.feed_id = feed_id;
@@ -315,7 +315,7 @@ class OmniLabelBox extends OmniBox {
 	functions_file() { return " action=\"index.php\" method=\"post\" enctype=\"multipart/form-data\""; }
 }
 
-class OmniCommentBox extends OmniLabelBox {
+class OmniCommentBox extends OmniFeedBox {
 	
 	set_active_item_id (item_id) {
 		this.item_id = item_id;
@@ -330,7 +330,7 @@ class OmniCommentBox extends OmniLabelBox {
 }
 
 
-class OmniFirstCommentBox extends OmniLabelBox {
+class OmniFirstCommentBox extends OmniFeedBox {
 	
 	set_active_item_id (item_id) {
 		this.item_id = item_id;

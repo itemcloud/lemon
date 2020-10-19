@@ -122,7 +122,7 @@ class documentBanner {
 	function pageBannerUser() {
 		$user_links = '<div class="user_links">';
 		if($this->auth) {
-			  $user_links .= '+ <a href="add.php">New</a>' . ' &nbsp;'
+			  $user_links .= '+ <a href="index.php?add=new">New</a>' . ' &nbsp;'
 			  	      . '<a onclick="logout()"><u>Sign Out</u></a><form id="logoutForm" action="./?connect=1&logout=1" method="post"><input name="logout" type="hidden"/></form>';
 		}
 		else { $user_links .=  '<a href="./?connect=1">Sign In</a>'; }
@@ -149,6 +149,7 @@ class pageManager extends Document {
 		$this->classes = $itemData->classes;
 		$this->ROOTweb = $ROOTweb;
 		$this->addOns = NULL;
+		$this->pageBannerExtra = "";
 		$this->pageOutput = "";
 		$this->pageExtra = "";
 		$this->displayClass = (empty($_GET) || isset($_GET['browse'])) ? " splash-page" : " page";
@@ -170,7 +171,9 @@ class pageManager extends Document {
 	}
 	
 	function displayPageItems () {
-		$itemsPage = $this->handlePageItems();
+		$items = $this->handlePageItems();
+		$itemsPage = $this->pageBannerExtra;
+		$itemsPage .= $items;
 		$itemsPage .= $this->pageExtra;
 		$pageDisplay = $this->displayWrapper('div', 'section', 'section_inner' . $this->displayClass, $itemsPage);
 		$this->pageOutput .= $pageDisplay;
@@ -181,9 +184,14 @@ class pageManager extends Document {
 		echo $this->pageExtra;
 	}
 	
+	function displayPageBannerExtra () {
+		echo $this->pageBannerExtra;
+	}
+		
 	function displayPageOmniBox () {
 		$omniBox = $this->displayOmniBox($this->classes);
-		$this->pageOutput .= $this->displayWrapper('div', 'section', 'section_inner page', $omniBox);
+		$omniBox = "<div style=\"padding: 80px\"><h1>Add to Profile</h1>" . $omniBox . "</div>";
+		$this->pageOutput = $this->displayWrapper('div', 'section', 'section_inner', $omniBox);
 		echo $this->pageOutput;
 	}
 		
@@ -200,8 +208,8 @@ class pageManager extends Document {
 		if($this->addOns) {
 			foreach($this->addOns as $addOn) {
 				if(isset($addOn['page-display'])) { 
-					$addonClass = new $addOn['page-display']();
-					$returnPage = $addonClass->addonPageItems($this);
+					$addonClass = new $addOn['page-display']($this);
+					$returnPage = $addonClass->output;
 					if($returnPage) { return $returnPage; }
 				}
 			}
@@ -212,6 +220,10 @@ class pageManager extends Document {
 				$page = "<div class=\"item-section\">"
 					. "<div id=\"alertbox\" class=\"alertbox-show\">You are currently signed in.</div>"
 			    	. "</div>";
+		} else if (isset($_POST['itc_class_id'])) {
+				$omniBox = $this->displayOmniBox();
+				$omniBox = "<div style=\"margin: 80px auto;\"><h1>Add to Profile</h1>" . $omniBox . "</div>";
+				$page = $this->displayWrapper('div', 'section', 'section_inner', $omniBox);
 		} else if(isset($_POST['delete'])) {
 				$page = "<div class=\"item-section\"><page>"
 		       	    . $this->displayItemBlog()
@@ -393,7 +405,7 @@ class pageManager extends Document {
 		$javascript_omni_box = "<script>var OmniController = new OmniBox(" . $class_js_array . ", 'itemOmniBox');\n OmniController.toggle('" . $class_id . "');\n</script>";
 		$message = (isset($this->meta['message'])) ? "<center><div id=\"alertbox\" class=\"alertbox-show\">" . $this->meta['message'] . "</div></center>" : "<center><div id=\"alertbox\" class=\"alertbox-hide\"></div></center>";
 		
-		$createForm  = "<div class=\"item-section\"><div class=\"item-page\" id=\"itemOmniBox\">" . "</div></div>";
+		$createForm  = "<div class=\"item-section\"><div class=\"item-page\" style=\"margin: 0px auto; width: auto;\" id=\"itemOmniBox\">" . "</div></div>";
 		$createForm .= $javascript_omni_box;
 		return $message . $createForm . $javascript_omni_box;
 	}	

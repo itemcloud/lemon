@@ -4,8 +4,7 @@
 //------- ITEM FEED FUNCTIONS ------//
 //----------------------------------//
 
-
-var itemLabelBrowser = [];
+var itemFeedBrowser = [];
 
 var feedBrowse = class {
 	constructor(feeds_array, index, user_id, parent_div) {
@@ -15,6 +14,7 @@ var feedBrowse = class {
 		this.start = 0;
 		this.max = 6;
 		this.parent_div = parent_div;
+		this.class_text = "item-tools_grey item_feed_menu";
 	}
 	
 	update (start) {
@@ -36,7 +36,7 @@ var feedBrowse = class {
 		
 		var feedMenu = "";
 		if(new_start >= 0) {
-			feedMenu += "<div onclick=\"itemLabelBrowser['" + this.index + "'].update(" + new_start + ")\" class=\"item-tools_grey item_feed_menu\">"
+			feedMenu += "<div onclick=\"itemFeedBrowser['" + this.index + "'].update(" + new_start + ")\" class=\"" + this.class_text + "\">"
 					+ "<div class=\"item-tools_txt\">" + "&#8943;" + "</div>"
 					+ "</div>";
 		}
@@ -46,8 +46,9 @@ var feedBrowse = class {
 		for(var i = start; i < total; i++) {	
 			var feed = this.feeds[i];
 			
+			var feed_src = (feed['feed_img']) ? feed['feed_img'] : 'default.png';
 			var feed_img = "<a href=\"?feed_id=" + feed['feed_id'] + "&name=" + feed['name'] + "\">" 
-					+ "<img class=\"feed-image\" src='files/feeds/" + feed['feed_img'] + "'/>" 
+					+ "<img class=\"feed-image\" src='files/feeds/" + feed_src + "'/>" 
 					+ "</a>";
 
 			var feed_name = "<div style=\"display: inline-block;\">";					
@@ -70,7 +71,7 @@ var feedBrowse = class {
 
 			var feed_window_launch = "window.location='./?feed_id=" + feed['feed_id'] + "&name=" + feed['name'] + "'; ";
 						
-			var feed_wrapper = "<div onclick=\"" + feed_window_launch + "\" class=\"item-tools_grey item_feed_menu\" >";
+			var feed_wrapper = "<div onclick=\"" + feed_window_launch + "\"  class=\"" + this.class_text + "\">";
 			feed_wrapper += feed_img;			
 			feed_wrapper += feed_name;
 			feed_wrapper += "</div>";
@@ -80,7 +81,7 @@ var feedBrowse = class {
 				
 		if(this.start + this.max < this.feeds.length) { 
 			var end_link = "";
-			feedMenu += "<div onclick=\"itemLabelBrowser['" + this.index + "'].update(" + (this.start + this.max) + ")\" '\"  class=\"item-tools_grey item_feed_menu\">"
+			feedMenu += "<div onclick=\"itemFeedBrowser['" + this.index + "'].update(" + (this.start + this.max) + ")\" '\"  class=\"" + this.class_text + "\">"
 					+ "<div class=\"item-tools_txt\">" + "&#8943;" + "</div>"
 					+ "</div>";
 		}

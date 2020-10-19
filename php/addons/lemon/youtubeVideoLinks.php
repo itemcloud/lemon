@@ -41,11 +41,19 @@ class youtubeVideoLinks {
 		$raw_input = ($item->fileOutput == $item->linkOverride()) ? $item->file : NULL;
 		
 		//check for youtube links (rough development version) yikes!
-		if($raw_input && strpos($item->file, 'youtube.com') && $this->getYoutubeIdFromUrl($item->file)) { 
+		if($raw_input && strpos($item->file, 'youtube.com') && $this->getYoutubeIdFromUrl($item->file) && $item->box_class != "item-card" && $item->box_class != "item-box" && $item->box_class != "item-banner") { 
 
 			$youtube_ID = $this->getYoutubeIdFromUrl($item->file); 
 			$ytFrame = '<iframe width="100%" height="446" src="https://www.youtube.com/embed/' . $youtube_ID . '" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
 			$item->fileOutput = $ytFrame;
+		}  else if ($raw_input && strpos($item->file, 'youtube.com') && $this->getYoutubeIdFromUrl($item->file) && ($item->box_class == "item-card" OR $item->box_class == "item-box" OR $item->box_class == "item-banner")) { 			
+			$youtube_ID = $this->getYoutubeIdFromUrl($item->file); 
+			$youtube_file = 'http://i3.ytimg.com/vi/' . $youtube_ID . '/hqdefault.jpg';
+
+			$onlick = "onclick=\"window.location='" . $item->webroot . $item->itemLink . "'\"";
+			$file_display = "<div $onlick class=\"item-link\"><div class=\"image-cell\"><img src=\"" . $youtube_file . "\" width=\"100%\"></div></div>";		
+			
+			$item->fileOutput = $file_display;
 		}
 	}
 	

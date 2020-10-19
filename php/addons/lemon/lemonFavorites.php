@@ -29,15 +29,15 @@ class addonPostFavoriteHandler {
 			$item_id = $_POST['itc_favorite'];
 			
 			if($item_id) {
-				$feed_id = $this->addItemFavoriteLabel($user_id, 'Favorites', 'favorite.png', $item_id);
+				$feed_id = $this->addItemFavoriteFeed($user_id, 'Favorites', 'favorite.png', $item_id);
 				
-				$postLabelHandler = new addonPostLabelHandler($this->stream);				
-				$postLabelHandler->addItemLabel($user_id, $item_id, $feed_id);
+				$postFeedHandler = new addonPostFeedHandler($this->stream);				
+				$postFeedHandler->addItemFeed($user_id, $item_id, $feed_id);
 			}
 		}
 	}
 	
-	function addItemFavoriteLabel ($owner_id, $name, $feed_img, $item_id) {
+	function addItemFavoriteFeed ($owner_id, $name, $feed_img, $item_id) {
 			global $favorite_addon;
 		
 			//Check if 'default' favorite feed has been created
@@ -218,7 +218,7 @@ class addonItemFavoriteRequest {
 		return $this->item_loot;
 	}
 	
-	function mergeLabels ($feeds, $item, $item_parent){
+	function mergeFeeds ($feeds, $item, $item_parent){
 		$item['favorite-feeds'] = $feeds;
 		return $item;
 	}	
