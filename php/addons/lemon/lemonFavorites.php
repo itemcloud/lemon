@@ -89,7 +89,7 @@ class addonItemFavoriteDisplay {
 			  $feed_img_src = "files/feeds/" . $feed['feed_img'];
 			
 			  $feed_img = "<a href=\"?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "\">" 
-					. "<img class=\"feed-image\" src=\"" . $feed_img_src . "\"/>" 
+					. "<img class=\"pinned feed-image\" src=\"" . $feed_img_src . "\"/>" 
 					. "</a>" . $itemDisplay->item['favorite-count'];
 					
 				$index = $itemDisplay->item['item_id'];
@@ -112,7 +112,7 @@ class addonItemFavoriteDisplay {
 			}
 		} else if($client->user_serial) {
 
-			$feed_img = "<img class=\"feed-image\" src='files/feeds/favorite-add.png'/>";			
+			$feed_img = "<img class=\"pinned feed-image\" src='files/feeds/favorite-add.png'/>";			
 			$count_text = (isset($itemDisplay->item['favorite-count'])) ? $itemDisplay->item['favorite-count'] : "";
 			
 			$page_form = "itc_fav_" . $itemDisplay->item['item_id'];

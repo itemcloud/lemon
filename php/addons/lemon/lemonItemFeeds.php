@@ -116,7 +116,7 @@ class feedBrowse {
 		$links .= "</select>";
 		$links .= "</div></form>";
 		
-		return "<div class=\"nav_links\" style=\"float: right\">" . $links ."</div>";
+		return "<div class=\"nav_links\" style=\"float: right; width: auto\">" . $links ."</div>";
 	}
 	
 	function itemOutputHTML ($index) {
