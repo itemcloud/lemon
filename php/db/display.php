@@ -36,8 +36,8 @@ class Document {
 		 	$styles = (isset($styles)) ? $styles . '<link rel="stylesheet" type="text/css" href="' . $src . '">' : '<link rel="stylesheet" type="text/css" href="' . $src . '">';
 		}		
 
-		$title = $meta['title'];	
-		if (isset($this->meta['title'])) { $title = $meta['title'] . " | " . $this->meta['title']; }
+		$title = $meta['title'];
+		if (isset($this->meta['title'])) { $title = $this->meta['title'] ? $meta['title'] . " / " . $this->meta['title'] : $title; }
 		
 		$header = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
 			 . '<html>'
@@ -45,6 +45,11 @@ class Document {
 		 	 . '<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />'
 		 	 . '<title>' . $title . '</title>'
 		 	 . '<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">';
+		 	 
+		$header .= '<meta property="og:title" content="' . $title . '">';
+		if (isset($this->meta['active_img'])) { 
+			$header .= '<meta property="og:image" content="' . $this->meta['active_img'] . '">';
+		}	 
 		 	 
 		$header .= $styles;
 		$header .= $scripts;
@@ -116,7 +121,7 @@ class documentBanner {
 	}
 	
 	function pageBannerLogo () {
-		return "<div class=\"logo\" onClick=\"window.location='./'\">i t e m c l o u d <small><sup>[lemon]</sup></small></div>";	
+		return "<div class=\"logo\" onClick=\"window.location='./'\">lemon</small></div>";	
 	}
 	
 	function pageBannerUser() {

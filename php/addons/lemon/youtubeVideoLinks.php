@@ -57,6 +57,16 @@ class youtubeVideoLinks {
 		}
 	}
 	
+	function returnImageURL ($file) {	
+		//check for youtube links (rough development version) yikes!
+		if (strpos($file, 'youtube.com') && $this->getYoutubeIdFromUrl($file)) { 			
+			$youtube_ID = $this->getYoutubeIdFromUrl($file); 
+			$youtube_file = 'http://i3.ytimg.com/vi/' . $youtube_ID . '/hqdefault.jpg';
+
+			return $youtube_file;
+		} return $raw_input;
+	}
+	
 	function getYoutubeIdFromUrl($url) {
 		$parts = parse_url($url);
 		if(isset($parts['query'])){

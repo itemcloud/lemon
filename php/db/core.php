@@ -163,7 +163,7 @@ Class DateService {
 ** -------------------------------------------------------- */
 
 function chopString($str, $length, $extra) {
-  $text = $str;
+  $text = strip_tags($str);
   if(strlen($text)>$length) {
     $text = substr($text, 0, $length);
 	$text .= (isset($extra)) ? $extra : "";

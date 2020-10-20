@@ -234,7 +234,12 @@ class itemManager {
 			$this->items = $this->getItemById($_POST['itc_edit_item']);
 		} else if(isset($_GET['id'])){
 			$this->items = $this->getItemById($_GET['id']);
-			$this->meta['title'] = $this->items[0]['title'];
+			$this->meta['title'] = $this->items[0]['title'];		
+			if($this->items[0]['class_id']==4) { $this->meta['active_img'] = $CONFIG['ROOTweb'] . $this->items[0]['link']; }
+			else if(isset($yt_video_links_addon) && $this->items[0]['class_id']==2) { 
+				$ytVideoImage = new youtubeVideoLinks();
+				$this->meta['active_img'] = $ytVideoImage->returnImageURL($this->items[0]['link']);
+			}
 		} else if(isset($_GET['user'])){
 			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
 		} else if(!$this->items && (empty($_GET) || isset($_GET['start']))) {
