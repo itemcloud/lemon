@@ -154,9 +154,9 @@ class pageManager extends Document {
 		$this->classes = $itemData->classes;
 		$this->ROOTweb = $ROOTweb;
 		$this->addOns = NULL;
-		$this->pageBannerExtra = "";
+		$this->pageBannerExtra = "<div class='left-col'></div>";
 		$this->pageOutput = "";
-		$this->pageExtra = "";
+		$this->pageExtra = "<div class='right-col'></div>";
 		$this->displayClass = (empty($_GET) || isset($_GET['browse'])) ? " splash-page" : " page";
 		$this->uri_prefix = "?";
 	}

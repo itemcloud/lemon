@@ -366,6 +366,13 @@ input.item_tools_inactive:hover {
 	display: none;
 }
 
+
+.left-col {
+}
+
+.right-col {
+}
+
 /* Display items */
 .item-link img {
 	cursor: pointer;
@@ -387,7 +394,7 @@ input.item_tools_inactive:hover {
 }
 
 .item-section {
-     width: 100%;
+     width: 820px;
      margin: 0px auto;
      padding: 20px 0px;
 }
