@@ -268,6 +268,81 @@ class feedBrowse {
 		$feedMenu .= $javascript_feed_browser;
 		return $feedMenu; 
 	}
+
+	function menuOutputHTML ($index) {
+		global $client;	
+		global $_ROOTweb;	
+		global $feeds_addon;
+		if(!$this->feeds) {
+			return;
+		}
+		$user_id = ($client->user_serial) ? $client->user_serial : 0;
+		
+		$feeds_js_array = json_encode($this->feeds);
+		$javascript_feed_browser = "<script>itemFeedBrowser['$index'] = new feedBrowse(" . $feeds_js_array . ", '$index', $user_id, 'feed_browse_$index');\n itemFeedBrowser['$index'].class_text=\"\"</script>";
+
+		$feedMenu = "<div style=\"display: none\" id=\"feed_browse_$index\">";
+			
+		$start = $this->start;		
+		$new_start = $this->start - $this->max;	
+		if($new_start >= 0) {
+			$feedMenu .= "<div onclick=\"itemFeedBrowser['$index'].update(" . $new_start . ")\" class=\"\">"
+					. "<div class=\"\">" . "&#8943;" . "</div>"
+					. "</div>";
+		}
+		
+		$total = (count($this->feeds) <= ($this->start + $this->max)) ? count($this->feeds) : ($this->start + $this->max);	
+		
+		for($i = $start; $i < $total; $i++) {	
+			$feed = $this->feeds[$i];
+			
+			$feed_img_src = ($feed['feed_img']) ? "files/feeds/" . $feed['feed_img'] : "files/feeds/" . 'default.png';
+			
+			$feed_img = "<a href=\"?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "\">" 
+					. "<img class=\"feed-image\" src='" . $feed_img_src . "'/>" 
+					. "</a>";
+					
+			$feed_name = "<div style=\"display: inline-block;\">";					
+			if(($feed['owner_id'] == $user_id) && $index) {
+				//remove feed from item if owner
+				$remove_button = "<div style='display: inline-block'><form id='removeForm" . $i . $index . "' action='?id=" . $index. "' method='post'>"
+				. "<input type='hidden' name='item_id' value='" . $index . "'/>"
+				. "<input type='hidden' name='feed_id' value='" . $feed['feed_id'] . "'/>"
+				. "<input type='hidden' name='feed' value='remove'/>"		
+				. "<div class='inline-remove'>";
+
+				$remove_button .= " <a onclick=\"domId('removeForm" . $i . $index . "').submit()\">x</a>";	
+				$remove_button .= "</div>";
+				$remove_button .= "</form></div>";
+				
+				$feed_name .= $remove_button;
+			}				
+			$feed_window_launch = "window.location='" . $_ROOTweb . "?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "'; ";
+			
+			$feed_name .= "<div onclick=\"$feed_window_launch\" class=\"inline-name\">" . $feed['name'] . "</div>";
+			$feed_name .= "</div>";
+
+			$feed_wrapper = "<div style=\"display: inline-block; border-left: 1px solid #DCDCDC\">";
+			//$feed_wrapper .= $feed_img;			
+			$feed_wrapper .= $feed_name;
+			$feed_wrapper .= "</div>";
+			
+			
+			$feedMenu .= $feed_wrapper;
+		}
+		
+
+		if($this->start + $this->max < count($this->feeds)) {
+			$feedMenu .= "<div id=\"browse-feeds-button" . $i . $index . "\" style=\"display: none;\" onclick=\"itemFeedBrowser['$index'].update(" . ($this->start + $this->max) . ")\"  class=\"\">"
+					. "<div class=\"item-tools_txt\">" . "&#8943;" . "</div>"
+					. "</div>";
+			$feedMenu .= "<script>itemFeedBrowser['$index']; domId('browse-feeds-button" . $i . $index . "').style.display='inline-block';</script>";
+		}
+		
+		$feedMenu .= "</div>";
+		$feedMenu .= $javascript_feed_browser;
+		return $feedMenu; 
+	}	
 }
 
 class addonProfileFeedDisplay {
@@ -284,19 +359,25 @@ class addonProfileFeedDisplay {
 	function updateOutputHTML ($pageManager) {
 		if(isset($this->profile)) { 
 			$profileFeeds = "";
-			
+			$id = '0';
 			$start = 0;
 			$max = 6;
 			$total = count($this->profile['feeds']);
 			$profile_feeds_browser = new feedBrowse($this->profile['feeds'], $start, $max, $total);
-			$profile_feeds = $profile_feeds_browser->listOutputHTML(0);
+			$profile_feeds = $profile_feeds_browser->listOutputHTML($id);
 		
 			if($profile_feeds) {
-				$profileFeeds = "<div style=\"width: 220px; overflow: hidden\"><div class=\"browse-feeds\" style=\"width: auto; margin: 0px 20px; overflow: hidden\">" . "<h2 style=\"margin-left: 8px\">Feeds</h2>" . "<div class=\"browse-feeds\">" . $profile_feeds . "</div></div></div>";
+				$profileFeeds = "<div id=\"profile_menu\" style=\"width: 820px; border-bottom: 1px solid #CCC;\"><div class=\"browse-feeds\" style=\"width: auto; margin: 0px 20px;\">" 
+				. "<div onClick=\"window.location='./?user=" . $this->profile['user_id'] . "'\" style=\"margin-left: 8px; margin: 8px 20px; font-weight: bold; display: inline-block; cursor: pointer\">Recent</div>" 
+				. "<div style=\"display: inline-block;\" onMouseOver=\"domId('feed_browse_wrapper_$id').style.display='inline-block'\" onMouseOut=\"domId('feed_browse_wrapper_$id').style.display='none'\">" 
+				. "<div style=\"margin-left: 18px; padding: 20px; border-left: 1px solid #CCC; font-weight: bold; display: inline-block\">Feeds</div>" 
+				. "<div style=\"position: relative; left: 18px;\"><div id=\"feed_browse_wrapper_$id\" class=\"browse-feeds\" style=\"display: none; position: absolute; width: 240px; background-color: #FFF; padding: 8px; border: 1px solid #DCDCDC;\">" . $profile_feeds . "</div></div>"
+				
+				. "</div></div></div>";
 				$banner = $pageManager->displayWrapper('div', 'float-left', 'inline-block', $profileFeeds);
 			}
 			
-			$message = "<div style=\"width: 220px; overflow: hidden\"><div style=\"width: auto; margin: 0px 10px; overflow: hidden\">" . "<h2 style=\"margin-left: 8px\"></h2>" . "<div class=\"browse-feeds\"><center></center></div></div></div>";
+			$message = "<div style=\"width: auto; overflow: hidden\"><div style=\"width: auto; margin: 0px 10px; overflow: hidden\">" . "<h2 style=\"margin-left: 8px\"></h2>" . "<div class=\"browse-feeds\"><center></center></div></div></div>";
 			$banner .= $pageManager->displayWrapper('div', 'float-right', 'inline-block', $message);	
 			
 			$date = new DateService($this->profile['date']); $n = "\n";
@@ -559,10 +640,12 @@ class addonFeedPageDisplay {
 			$feed_img .= "</div>";
 			$feed_name = "<div style=\"font-size: 2em; cursor: pointer\" onclick=\"window.location='$_ROOTweb?feed_id=" . $feed['feed_id'] . "'\"><u>" . $feed['name'] . "</u></div>";
 			
+			$parent = "<a href=\"./\">Home</a> / ";
+			if(isset($feed['parent'])) { $parent = "<a href=\"./?feed_id=" . $feed['parent']['feed_id'] . "\">" . $feed['parent']['name'] . "</a> / "; }
+			
 			$page = "<div class=\"feed-page-banner\" style=\"text-align: left;\">" . $feed_img . "<div style=\"display: inline-block; text-align: left;\">";
 			$page .= "<div id=\"itc_feed_name_form\" style=\"display: none;\"><form action=\"./?feed_id=" . $feed['feed_id'] . "&name=" . $feed['name'] . "\" method=\"post\"><input type=\"hidden\" name=\"user_id\" value=\"" . $client->user_serial . "\"/><input class=\"form\" name=\"itc_feed_name\" value=\"" . $feed['name'] . "\"/><input class=\"item-tools\" type=\"submit\" name=\"submit\" value=\"&#9989; SAVE\"></div>";
-			$page .= "<div id=\"itc_feed_name\" style=\"display: inline-block\">" . $feed_name;	
-										
+			$page .= $parent . "<div id=\"itc_feed_name\" style=\"display: inline-block\">" . $feed_name;
 
 			$page .= "</form></div>";
 			
@@ -622,7 +705,7 @@ class addonFeedPageDisplay {
 			}
 			
 			$page .= "<div class=\"clear\"></div>";
-			$page .= "</div><div class=\"item-section\" style=\"text-align: center\">";
+			$page .= "</div><div class=\"item-section " . $feed['display_type'] . "-section\" style=\"text-align: center\">";
 			
 			if($feed_owner){
 				$omniBox = $this->displayOmniBox($pageManager, $pageManager->meta['feed'], $pageManager->items[0]['item_id']);
@@ -630,12 +713,36 @@ class addonFeedPageDisplay {
 			}			
 			
 			$item_info_limit = 2800;
-			if($feed['display_type']  == 'box' || $feed['display_type']  == 'box' || $feed['display_type']  == 'box') {
+			if($feed['display_type']  == 'box' || $feed['display_type']  == 'card' || $feed['display_type']  == 'slides') {
 				$item_info_limit = 140;				
 			}
-			$page .= "<div class=\"feed-" . $feed['display_type'] . "\">" . $pageManager->displayItems($feed['display_type'], $item_info_limit);
-			$page .= "<div class=\"clear\"></div>";
-			$page .= "</div></div>";
+
+			if ($feed['display_type'] == 'list') {	
+				$box_class = "item-page";
+				$tmp_items = $pageManager->items;
+				$pageManager->uri_prefix = "?feed_id=" . $feed['feed_id'] . "&";
+				$page .= "<div class=\"item-wrapper\" style=\"margin: auto\">" . $pageManager->handleItemType(reset($pageManager->items), $box_class, null, 0);	
+				$page .= "</div>";
+				$tmp_items = (isset($pageManager->meta['feed']['items'])) ? $pageManager->meta['feed']['items'] : $pageManager->items;
+				$pageManager->items = $tmp_items;
+				$page .= "<div style=\"float: left; width: 280px; overflow: hidden; margin: 0px 20px; text-align: left\" class=\"feed-" . $feed['display_type'] . "\">" . $pageManager->displayItems($feed['display_type'], $item_info_limit) . "</div>";
+			} else if ($feed['display_type'] == 'topics') {	
+				$box_class = "item-page";
+				$tmp_items = $pageManager->items;
+				$pageManager->uri_prefix = "?feed_id=" . $feed['feed_id'] . "&";
+				$page .= "<div class=\"item-wrapper\" style=\"margin: auto\">" . $pageManager->handleItemType(reset($pageManager->items), $box_class, null, 0);	
+				$page .= "</div>";
+				$tmp_items = (isset($pageManager->meta['feed']['items'])) ? $pageManager->meta['feed']['items'] : $pageManager->items;
+				$pageManager->items = $tmp_items;
+				$page .= "<div style=\"width: 720px; overflow: hidden; margin: 0px auto; text-align: left\" class=\"feed-" . $feed['display_type'] . "\"><h2>Topics</h2>" . $pageManager->displayItems($feed['display_type'], $item_info_limit) . "</div>";
+			} else {			
+				$page .= "<div class=\"feed-" . $feed['display_type'] . "\">" . $pageManager->displayItems($feed['display_type'], $item_info_limit);
+				$page .= "<div class=\"clear\"></div>";
+				$page .= "</div>";
+			}
+			
+				$page .= "<div class=\"clear\"></div>";
+			$page .= "</div>";
 			
 			return $page;
 		}
@@ -747,6 +854,7 @@ class addonPostFeedHandler {
 					$this->addItemFeed($user_id, $itemManager->item_id, $_POST['itc_add_item_feed']);
 				}
 				header("Location: ./?feed_id=" . $_POST['itc_add_item_feed'] . '&id=' . $item_id);
+				return "active"; 
 		} else if(isset($_POST['itc_feed_edit'])){ 
 				$this->purgeFeed($_POST['feed_id']);
 				header("Location: ./");

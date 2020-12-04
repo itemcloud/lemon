@@ -59,12 +59,12 @@ class Document {
 	}
 
 	function displayDocumentFooter($links) {
-		$left = '<div style="float: left; font-size: 14px; padding: 2px;">'
+		$left = '<div style="float: left; font-size: .5em;">'
 		       . $links['copyleft']
 		       . '</div>';
 			
 		$right = '<div style="float: right; font-size: 1em">'
-			. '<div class="clear" style="font-size: .8em;">'
+			. '<div class="clear" style="font-size: .5em;">'
 			. $links['copyright']
 			. '</div>'
 			. '</div>';
@@ -221,11 +221,7 @@ class pageManager extends Document {
 		}
 		
 		$page = "";
-		if(isset($_GET['connect'])) {
-				$page = "<div class=\"item-section\">"
-					. "<div id=\"alertbox\" class=\"alertbox-show\">You are currently signed in.</div>"
-			    	. "</div>";
-		} else if (isset($_POST['itc_class_id'])) {
+		if (isset($_POST['itc_class_id'])) {
 				$omniBox = $this->displayOmniBox();
 				$omniBox = "<div style=\"margin: 80px auto;\"><h1>Add to Profile</h1>" . $omniBox . "</div>";
 				$page = $this->displayWrapper('div', 'section', 'section_inner', $omniBox);
@@ -507,18 +503,23 @@ class pageManager extends Document {
 		return $itemDisplay->output;
 	}
 
-	function displayJoinForm () {
-		$joinForm = $this->joinForm();
-		
+	function displayJoinForm ($auth) {
 		global $message;
-		if($message) { $this->meta['message'] = $message; }	
+		if(!$auth && $message) { $this->meta['message'] = $message; }	
+		else if ($auth) { $message = "You are currently signed in."; }
 		
-		$message = ($this->meta['message']) ? "<center><div id=\"alertbox\" class=\"alertbox-show\">" . $this->meta['message'] . "</div></center>" : "<center><div id=\"alertbox\" class=\"alertbox-hide\"></div></center>";
+		$message = ($message) ? "<center><div id=\"alertbox\" class=\"alertbox-show\">" . $message . "</div></center>" : "<center><div id=\"alertbox\" class=\"alertbox-hide\"></div></center>";
 		$messageBlock =  "<div class=\"item-section\">"
 			. $message
 			. "</div>";
+			
+		if(!$auth) {
+			$messageBlock .= $this->joinForm();
+		} else {
+			$messageBlock .= "<div class=\"item-section\"><h1>Add to Profile</h1></div>" . $this->displayOmniBox($this->classes);
+		}
 		
-		$this->pageOutput = $this->displayWrapper('div', 'section', 'section_inner page', $messageBlock . $joinForm);
+		$this->pageOutput = $this->displayWrapper('div', 'section', 'section_inner page', $messageBlock);
 		echo $this->pageOutput;
 	}
 }
@@ -605,14 +606,14 @@ class ItemDisplay {
 
 	function itemUserTools() {
 		if($this->owner) { 
-			$edit_button = "<form id=\"itemEditForm" . $this->item_id . "\" action=\"./?id=" . $this->item_id . "\" method=\"post\">"
+			$edit_button = "<form id=\"itemEditForm" . $this->box_class . $this->item_id . "\" action=\"./?id=" . $this->item_id . "\" method=\"post\">"
 			. "<input type=\"hidden\" name=\"edit\" value=\"" . $this->item_id ."\"/>"
-			. "<div class=\"item-tools_grey float-right\" onclick=\"domId('itemEditForm" . $this->item_id . "').submit()\">edit </div>"
+			. "<div class=\"item-tools_grey float-right\" onclick=\"domId('itemEditForm" . $this->box_class . $this->item_id . "').submit()\">edit </div>"
 			. "</form>";
 			
-			return "<form id=\"itemForm" . $this->item_id . "\" action=\"./?user=" . $this->item_user_id . "\" method=\"post\">"
+			return "<form id=\"itemForm" . $this->box_class . $this->item_id . "\" action=\"./?user=" . $this->item_user_id . "\" method=\"post\">"
 			. "<input type=\"hidden\" name=\"delete\" value=\"" . $this->item_id ."\"/>"
-			. "<div class=\"item-tools_grey float-right\" onclick=\"domId('itemForm" . $this->item_id . "').submit()\">delete</div>"
+			. "<div class=\"item-tools_grey float-right\" onclick=\"domId('itemForm" . $this->box_class . $this->item_id . "').submit()\">delete</div>"
 			. "</form>" . $edit_button; 
 		}
 	}	
@@ -620,6 +621,12 @@ class ItemDisplay {
 	function nodeOutputHTML () {
 		$item_html = "";
 		if($this->title) { $item_html .= $this->titleOutput; }
+
+		$item_html .= "<div class='item-meta'>";
+		$item_html .= $this->metaOutput;
+		$item_html .= "<div class=\"clear\"></div>";	
+		$item_html .= "</div>";		
+		
 		if($this->file) { $item_html .= $this->fileOutput; }
 		if($this->info) { $item_html .= $this->infoOutput; }
 		$this->nodeOutput = $item_html;
@@ -628,15 +635,15 @@ class ItemDisplay {
 	function displayHTML() {
 		$this->nodeOutputHTML();
 		
-		$item_html = "<div onmouseover=\"domId('userTools" . $this->item_id . "').style.display='inline-block';\" onmouseout=\"domId('userTools" . $this->item_id . "').style.display='none';\" class=\"" . $this->box_class . "\">";
-		$item_html .= "<div class='item-settings' style='position: relative'><div id='userTools" . $this->item_id . "' style='position: absolute; right: 0px; width: 120px; display: none'>" . $this->userTools . "</div></div>";
+		$item_html = "<div onmouseover=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='inline-block';\" onmouseout=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='none';\" class=\"" . $this->box_class . " class_" . $this->item['class_id'] . "\">";
+		$item_html .= "<div class='item-settings' style='position: relative'><div id='userTools" . $this->box_class . $this->item_id . "' style='position: absolute; right: 0px; width: 120px; display: none'>" . $this->userTools . "</div></div>";
 		
 		$item_html .= "<div class='item-nodes'>";
 		$item_html .= $this->nodeOutput;
+		$item_html .= "<div class='clear'></div>";
 		$item_html .= "</div>";
-		
-		$item_html .= "<div class='item-meta'>";
-		$item_html .= $this->metaOutput;
+
+		$item_html .= "<div class='item-toolbar'>";
 		$item_html .= "</div>";
 		
 		$item_html .= "<div class='clear'></div>";

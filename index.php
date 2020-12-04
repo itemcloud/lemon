@@ -63,8 +63,8 @@ $pageManager->displayDocumentHeader([
 ]);
 
 $pageManager->displayPageBanner($client, $auth);
-if (!$auth && isset($_GET['connect'])) { $pageManager->displayJoinform(); }
-if ($auth && isset($_GET['add'])) { $pageManager->displayPageOmniBox (); }
+if (isset($_GET['connect'])) { $pageManager->displayJoinform($auth); }
+else if ($auth && isset($_GET['add'])) { $pageManager->displayPageOmniBox(); }
 else { $pageManager->displayPageItems(); }
 
 $pageManager->displayDocumentFooter([

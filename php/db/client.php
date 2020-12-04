@@ -209,6 +209,7 @@ class itemManager {
 					//POST ADDONS
 					$addonClass = new $addOn['post-handler']($this->stream);					
 					$addonReturn = $addonClass->handleAddOnPost($this);
+					if($addonReturn == "active") { return $this->items; }
 				}
 			}
 		}
@@ -218,6 +219,11 @@ class itemManager {
 			$message = "The item has been deleted.";
 			$this->deleteUserItem($_POST['delete']);
 			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
+		} else if(isset($_POST['itc_edit_item'])) {
+			global $message;
+			$message = "The item has been edited.";
+			$this->updateItem($_POST['itc_edit_item'], $_POST['itc_title'], $_POST['itc_description']);
+			$this->items = $this->getItemById($_POST['itc_edit_item']);
 		} else if (isset($_POST['itc_class_id'])) {
 			global $client;
 			$upload = $this->handleItemUpload($client); 
@@ -227,11 +233,6 @@ class itemManager {
 			} else {
 				$this->meta['message'] = $message;
 			}
-		} else if(isset($_POST['itc_edit_item'])) {
-			global $message;
-			$message = "The item has been edited.";
-			$this->updateItem($_POST['itc_edit_item'], $_POST['itc_title'], $_POST['itc_description']);
-			$this->items = $this->getItemById($_POST['itc_edit_item']);
 		} else if(isset($_GET['id'])){
 			$this->items = $this->getItemById($_GET['id']);
 			$this->meta['title'] = $this->items[0]['title'];		
