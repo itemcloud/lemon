@@ -4,6 +4,9 @@
 //------ JS WELCOME FUNCTIONS ------//
 //----------------------------------//
 
+//Config::Variables
+var allow_signup = false;
+
 //Client::Login
 var sendLoginForm = function (go) {
 	var email = document.getElementById('LOGIN_email').value;
@@ -68,13 +71,13 @@ function joinForm (div) {
 	email = domId('joinEmail').value;
     }
 	
-    var login_form = "<div style='float: left; width: 540px;'>";
+    var login_form = "<div style='display: inline-block; width: 540px;'>";
     login_form += "<div style='text-align: left; color: #999; margin: 70px 70px'>";
 	
     login_form += "<div style='font-size: 32px; margin-bottom: 20px; width: 100%'>Sign In</div>";
     login_form += "<form id=\"sendForm\" action=\"./index.php?connect=1\" method=\"post\"><div>Email</div><div><input id='LOGIN_email' name='e' class='form' value=''/></div>";
     login_form += "<div>Passcode</div><div><input id='LOGIN_pass' name='p' type='password' class='form' value=''/></div>";
-	login_form += "<div><a>Forgot passcode?</a></div>";
+	login_form += "<div><a title='Forgot passcode?'></a></div>";
 	login_form += "<div><input name='REG_signin' type='hidden' value='1'/></div>";	
 	login_form += "<div><input class='form_button' type=\"button\" onClick=\"sendLoginForm('./')\" value=\"CONNECT\"/></div></form>";
 	login_form += "<div style='width: 80px; text-align: center; color: #DCDCDC; font-size: 10px; margin: 0 auto; padding-top: 20px'></div><div class='arrow-down' style='margin: 0 auto'></div>";
@@ -83,7 +86,7 @@ function joinForm (div) {
 	login_form += "</div>";
 	login_form += "</div>";
 	
-	var join_form = "<div style='float: left; width: 540px;'>";
+	var join_form = "<div style='display: inline-block; width: 540px;'>";
 	join_form += "<div style='text-align: left; color: #999; margin: 70px 70px;'>";
 
 	join_form += "<div style='font-size: 32px; margin-bottom: 20px; width: 100%'>Create an Account</div><small>Get connected! Add notes, links, files, photos, audio to your profile and keep track of your favorite things. Thank you.</small><br /><br />";
@@ -104,5 +107,7 @@ function joinForm (div) {
 	join_form += "</div>";
 	join_form += "</div>";
 	
-	domId(div).innerHTML = login_form + join_form + "<div style='clear: both'></div>";
+	if(allow_signup) { login_form += join_form; }
+	
+	domId(div).innerHTML = login_form  + "<div style='clear: both'></div>";
 }
