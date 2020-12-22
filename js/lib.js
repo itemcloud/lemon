@@ -6,6 +6,46 @@
 
 var md5_stamp;
 
+var auto_more = true;
+var reached_bottom = false;
+var more_count = 10;
+var more_start = 10;
+var feed_id = 0;
+
+window.onscroll = function(ev) {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !reached_bottom && auto_more == true) {
+	setTimeout(display_more_items('more-items', more_count, more_start, feed_id), 5000);
+    }
+};
+
+// JavaScript Document
+function display_more_items(element, count, start, feed_id) {
+
+    var callback = function (x) {
+	document.getElementById(element).innerHTML += x.responseText;
+	more_start += count;
+	reached_bottom = false;    
+    }
+
+    var XObj;
+    try { XObj = new XMLHttpRequest(); }
+    catch(e) { XObj = new ActiveXObject(Microsoft.XMLHTTP); }
+    
+    XObj.onreadystatechange = function () {
+	if(XObj.readyState == 4) {
+	    if(callback) {
+		callback(XObj);
+	    }
+	}
+    }
+    
+    if(document.getElementById(element)) {
+		XObj.open('POST','php/db/api.php?count=' + count + '&start=' + start + '&feed_id=' + feed_id, true);
+		XObj.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+		XObj.send(null);
+	}
+}
+
 //Display::functions
 var domId = function (id) {
 	return document.getElementById(id);

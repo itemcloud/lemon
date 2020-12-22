@@ -37,12 +37,13 @@ class Document {
 		}		
 
 		$title = $meta['title'];
-		if (isset($this->meta['title'])) { $title = $this->meta['title'] ? $meta['title'] . " / " . $this->meta['title'] : $title; }
+		if (isset($this->meta['title'])) { $title = $this->meta['title'] ? $meta['title'] . " | " . $this->meta['title'] : $title; }
 		
 		$header = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
 			 . '<html>'
 		 	 . '<head>'
 		 	 . '<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />'
+		 	 . '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
 		 	 . '<title>' . $title . '</title>'
 		 	 . '<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">';
 		 	 
@@ -154,11 +155,14 @@ class pageManager extends Document {
 		$this->classes = $itemData->classes;
 		$this->ROOTweb = $ROOTweb;
 		$this->addOns = NULL;
-		$this->pageBannerExtra = "<div class='left-col'></div>";
-		$this->pageOutput = "";
-		$this->pageExtra = "<div class='right-col'></div>";
 		$this->displayClass = (empty($_GET) || isset($_GET['browse'])) ? " splash-page" : " page";
 		$this->uri_prefix = "?";
+		
+		//Binds page section to item request
+		$this->top_section = "<div class='left-col'></div>";
+		$this->item_section = "";
+		$this->bottom_section = "<div class='right-col'></div>";
+		$this->pageOutput = "";
 	}
 	
 	function enableAddOns () {
@@ -176,21 +180,23 @@ class pageManager extends Document {
 	}
 	
 	function displayPageItems () {
-		$items = $this->handlePageItems();
-		$itemsPage = $this->pageBannerExtra;
-		$itemsPage .= $items;
-		$itemsPage .= $this->pageExtra;
+		$this->item_section = $this->handlePageItems();
+		
+		$itemsPage = $this->top_section;
+		$itemsPage .= $this->item_section;
+		$itemsPage .= $this->bottom_section;
 		$pageDisplay = $this->displayWrapper('div', 'section', 'section_inner' . $this->displayClass, $itemsPage);
 		$this->pageOutput .= $pageDisplay;
+		
 		echo $this->pageOutput;
 	}
 	
-	function displayPageExtra () {
-		echo $this->pageExtra;
+	function displayPageTop () {
+		echo $this->top_section;
 	}
 	
-	function displayPageBannerExtra () {
-		echo $this->pageBannerExtra;
+	function displayPageBottom () {
+		echo $this->bottom_section;
 	}
 		
 	function displayPageOmniBox () {
@@ -244,15 +250,18 @@ class pageManager extends Document {
 		} else if (isset($_GET['user'])) {
 				$page = "<div class=\"item-section\"><page>"
 		       	    . $this->displayItemBlog()
-					. "</page></div>";
+					. "</page>";
+				$page .= $this->handleItemBrowser('limit');	
+				$page .= "</div>";
 				if($this->meta['owner'] == true) {
 					$omniBox = $this->displayOmniBox();
 					$page = $omniBox . $page;
-				}					
+				}			
 		} else if ($this->items) {
 				$page = "<div class=\"item-section\"><page>"
 					. $this->displayItemBlog()
 					. "</page></div>";
+				$page .= "<div id=\"more-items\" class=\"item-section\"></div>";
 		}
 		return $page;
 	}
@@ -287,26 +296,11 @@ class pageManager extends Document {
 			$item_html .= $this->handleItemType($item, $box_class, $info_limit, $count);
 			$count++;
 		}
-		
-		$post_extra = "";
-		$separator = "";
-		foreach($_GET as $key => $value) {
-			if($key != 'start') {
-				$post_extra .= $separator . "$key=" . $value;
-				$separator = "&";
-			}
-		}
-		
-		global $CONFIG;		
-		$start = (isset($_GET['start'])) ? $_GET['start'] : 0;
-		$count = $CONFIG['item_count'];
-		$total  = isset($this->items[0]['total']) ? $this->items[0]['total'] : count($this->items);
-		$item_html .= $this->pageItemBrowser($start, $count, $total, $post_extra);
 
 		return $item_html;
 	}
 		
-	function displayItemGrid($maxcount) {
+	function displayItemGrid($items, $maxcount) {
 		$box_class = "item-box";
 		$info_limit = 240;
 		
@@ -318,7 +312,7 @@ class pageManager extends Document {
 		if(!isset($this->items)){ return "<div class=\"clear\">No items were found.</div>"; }
 		
 		$count = 0;
-		foreach($this->items as $i) {			
+		foreach($items as $i) {			
 			if($num > $col_max) { $num = $start; }
 			$item_html = $this->handleItemType($i, $box_class, $info_limit, $count);
 			$col_holder[$num][] = $item_html;
@@ -347,7 +341,11 @@ class pageManager extends Document {
 			$item_html .= $this->handleItemType($item, $box_class, $info_limit, $count);
 			$count++;
 		}
-		
+
+		return $item_html;
+	}
+
+	function handleItemBrowser() {	
 		$post_extra = "";
 		$separator = "";
 		foreach($_GET as $key => $value) {
@@ -357,13 +355,15 @@ class pageManager extends Document {
 			}
 		}
 		
-		global $CONFIG;		
-		$start = (isset($_GET['start'])) ? $_GET['start'] : 0;
-		$count = $CONFIG['item_count'];
-		$total  = isset($this->items[0]['total']) ? $this->items[0]['total'] : count($this->items);
-		$item_html .= $this->pageItemBrowser($start, $count, $total, $post_extra);
-
-		return $item_html;
+		global $CONFIG;	
+		if($CONFIG['limit_items'] == true) {	
+			$start = (isset($_GET['start'])) ? $_GET['start'] : 0;
+			$count = $CONFIG['item_count'];
+			$total  = isset($this->items[0]['total']) ? $this->items[0]['total'] : count($this->items);
+			$browser = $this->pageItemBrowser($start, $count, $total, $post_extra);
+			
+			return $this->displayWrapper('div', 'clear', '', $browser);
+		}
 	}
 
 	function pageItemBrowser($start, $count, $total, $post_extra) {
@@ -406,7 +406,7 @@ class pageManager extends Document {
 		$javascript_omni_box = "<script>var OmniController = new OmniBox(" . $class_js_array . ", 'itemOmniBox');\n OmniController.toggle('" . $class_id . "');\n</script>";
 		$message = (isset($this->meta['message'])) ? "<center><div id=\"alertbox\" class=\"alertbox-show\">" . $this->meta['message'] . "</div></center>" : "<center><div id=\"alertbox\" class=\"alertbox-hide\"></div></center>";
 		
-		$createForm  = "<div class=\"item-section\"><div class=\"item-page\" style=\"margin: 0px auto; width: auto;\" id=\"itemOmniBox\">" . "</div></div>";
+		$createForm  = "<div class=\"item-section\"><div class=\"item-page\" style=\"margin: 20px; width: auto;\" id=\"itemOmniBox\">" . "</div></div>";
 		$createForm .= $javascript_omni_box;
 		return $message . $createForm . $javascript_omni_box;
 	}	
@@ -635,17 +635,20 @@ class ItemDisplay {
 	function displayHTML() {
 		$this->nodeOutputHTML();
 		
-		$item_html = "<div onmouseover=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='inline-block';\" onmouseout=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='none';\" class=\"" . $this->box_class . " class_" . $this->item['class_id'] . "\">";
-		$item_html .= "<div class='item-settings' style='position: relative'><div id='userTools" . $this->box_class . $this->item_id . "' style='position: absolute; right: 0px; width: 120px; display: none'>" . $this->userTools . "</div></div>";
-		
+		$item_html = "<div class=\"" . $this->box_class . " class_" . $this->item['class_id'] . "\">";
+
 		$item_html .= "<div class='item-nodes'>";
 		$item_html .= $this->nodeOutput;
 		$item_html .= "<div class='clear'></div>";
 		$item_html .= "</div>";
 
-		$item_html .= "<div class='item-toolbar'>";
-		$item_html .= "</div>";
+		$item_html .= "<div class='item-toolbar'>";		
 		
+		if($this->owner) { $item_html .= "<div onmouseover=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='inline-block';\" onmouseout=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='none';\"><div class='item-settings item-tools_grey float-left' style='position: relative; padding: 8px 9px; margin: 0px'>&#8942;<div id='userTools" . $this->box_class . $this->item_id . "' style='position: absolute; width: 100px; display: none'>" . $this->userTools . "</div></div></div>"; }
+	
+		$item_html .= "</div>";
+
+			
 		$item_html .= "<div class='clear'></div>";
 		$item_html .= "</div>";
 		return $item_html;

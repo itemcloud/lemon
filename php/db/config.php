@@ -9,4 +9,5 @@ $CONFIG['ROOTdir'] = $_ROOTdir;
 $CONFIG['ROOTweb'] = $_ROOTweb;
 
 $CONFIG['item_count'] = 10;
+$CONFIG['limit_items'] = true;
 ?>
