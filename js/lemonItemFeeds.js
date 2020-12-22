@@ -36,7 +36,7 @@ var feedBrowse = class {
 		
 		var feedMenu = "";
 		if(new_start >= 0) {
-			feedMenu += "<div onclick=\"itemFeedBrowser['" + this.index + "'].update(" + new_start + ")\" class=\"" + this.class_text + "\">"
+			feedMenu += "<div onclick=\"itemFeedBrowser['" + this.index + "'].update(" + new_start + ")\" class=\"float-left " + this.class_text + "\">"
 					+ "<div class=\"item-tools_txt\">" + "&#8943;" + "</div>"
 					+ "</div>";
 		}
@@ -51,7 +51,8 @@ var feedBrowse = class {
 					+ "<img class=\"feed-image\" src='files/feeds/" + feed_src + "'/>" 
 					+ "</a>";
 
-			var feed_name = "<div style=\"display: inline-block;\">";					
+			var feed_name = "<div style=\"display: inline-block;\">";
+			feed_name += "<div style=\"margin: 0px 8px 8px 8px\" class=\"inline-name\">" + feed['name'] + "</div>";					
 			if((feed['owner_id'] == this.user_id) && this.item_id) {			
 				//Link (Remove button)
 				var remove_button = "<div style='display: inline-block'><form id='removeForm" + i + this.index + "' action='?id=" + this.item_id + "' method='post'>"
@@ -60,20 +61,23 @@ var feedBrowse = class {
 				+ "<input type='hidden' name='feed' value='remove'/>"		
 				+ "<div class='inline-remove'>";
 
-				remove_button += " <a onclick=\"domId('removeForm" + i + this.index + "').submit()\" style=\"font-size: 10px; padding: 4px; color: #333;\">X</a>";	
+				remove_button += " <a onclick=\"domId('removeForm" + i + this.index + "').submit()\" style=\"font-size: 10px; padding: 4px; \">x</a>";	
 				remove_button += "</div>";
 				remove_button += "</form></div>";
 				
 				feed_name += remove_button;
 			}
-			feed_name += "<div class=\"inline-name\">" + feed['name'] + "</div>";
 			feed_name += "</div>";
 
-			var feed_window_launch = "window.location='./?feed_id=" + feed['feed_id'] + "&name=" + feed['name'] + "'; ";
-						
-			var feed_wrapper = "<div onclick=\"" + feed_window_launch + "\"  class=\"" + this.class_text + "\">";
-			feed_wrapper += feed_img;			
+			var feed_window_launch = "window.location='./?feed_id=" + feed['feed_id'] + "&name=" + feed['name'] + "'; ";		
+					
+			var feed_wrapper = "<div onclick=\"" + feed_window_launch + "\" class=\"" + this.class_text + "\">";
+			feed_wrapper += feed_img;
+			feed_wrapper += "<div class=\"feed_name_wrapper\"/>";
+			feed_wrapper += "<div class=\"feed_name\"/>";			
 			feed_wrapper += feed_name;
+			feed_wrapper += "</div>";
+			feed_wrapper += "</div>";
 			feed_wrapper += "</div>";
 			
 			feedMenu += feed_wrapper;
@@ -81,7 +85,7 @@ var feedBrowse = class {
 				
 		if(this.start + this.max < this.feeds.length) { 
 			var end_link = "";
-			feedMenu += "<div onclick=\"itemFeedBrowser['" + this.index + "'].update(" + (this.start + this.max) + ")\" '\"  class=\"" + this.class_text + "\">"
+			feedMenu += "<div onclick=\"itemFeedBrowser['" + this.index + "'].update(" + (this.start + this.max) + ")\" '\"  class=\"float-right " + this.class_text + "\">"
 					+ "<div class=\"item-tools_txt\">" + "&#8943;" + "</div>"
 					+ "</div>";
 		}

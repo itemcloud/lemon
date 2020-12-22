@@ -184,7 +184,7 @@ class addonProfileDisplay {
 				  
 		//RSS Feed: Link Generator
 		$feed_url = $rootFiles . "?user=" . $profile['user_id'] . "&RSS=2.0";		
-		$pop_up = "<div id=\"RSS_popup\" style=\"display: none; background-color: #222; opacity: 0.8; position: absolute; z-index: 100; left: 0px; width: 100%; min-height: 60%\">" 
+		$pop_up = "<div id=\"RSS_popup\" style=\"color: #FFF; display: none; background-color: #222; opacity: 0.8; position: absolute; z-index: 100; left: 0px; width: 100%; min-height: 60%\">" 
 			. "<div onClick=\"domId('RSS_popup').style.display='none'\" style=\"float: right; margin: 10px 28px 10px 10px; font-size: 14px\">" . "&#10005; Close"  . "</div>"
 			. "<div style=\"margin: 40px 20%;\"><h2>" . $profile['user_name'] . " Feed (RSS)</h2></div>"		
 			. "<div style=\"margin: 40px 20%;\">Feed Url: <input class=\"wider\" value=\"" . $feed_url . "\"/></div>"
@@ -198,7 +198,7 @@ class addonProfileDisplay {
 		if($this->owner) { $image_html .= " onmouseover=\"domId('$imageRollover').style.display='block'\" onmouseout=\"domId('$imageRollover').style.display='none'\""; }
 		$image_html .= " style=\"background-image: url('" . $user_banner_html . "')\">";
 					
-		if($this->owner) { $image_html .= "<div id=\"$imageRollover\" onclick=\"domId('itc_banner_image_form').style.display='inline-block'; domId('show-form-button').style.display='none'\" style=\"display: none; width: 100%; height: 100%; opacity: 0.5; font-size: 92px\">&#8853;</div>"; }
+		if($this->owner) { $image_html .= "<div id=\"$imageRollover\" onclick=\"domId('itc_banner_image_form').style.display='inline-block'; domId('show-form-button').style.display='none'\" style=\"display: none; width: auto; text-align: center; opacity: 0.5; font-size: 92px\">&#8853;</div>"; }
 		$image_html .= "</div>";
 		$image_html .= "</div>$n";
 		
