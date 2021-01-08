@@ -108,22 +108,24 @@ class addonReplyPageDisplay {
 			}
 			
 			if(isset($pageManager->items[0]['addon-feeds'][0]['items'])) {
-				$page .= "<div class=\"item_reply\">"; 
+				$page .= "<div class=\"item-section\"><div class=\"item_reply\">"; 
 				foreach($pageManager->items[0]['addon-feeds'][0]['items'] as $item) {
 					$page .= $pageManager->handleItemType($item, $box_class, $info_limit, $count);
 					$count++;
 				} 
 				$page .= "<div class=\"clear\"></div>";
 				$page .= "</div>";
+				$page .= "</div>";
 			}
 		} else {
 			$classes = (isset($pageManager->items[0]['addon-classes'])) ? $pageManager->items[0]['addon-classes'] : [];
 			if($client->auth == true) {
 				$createForm = $this->displayOmniFirstCommentBox($pageManager, $pageManager->items[0]['item_id'], $classes);
-				$page .= "<div class=\"item_reply\">";
+				$page .= "<div class=\"item-section\"><div class=\"item_reply\">";
 				if($pageManager->items[0]['level'] > 0) {
 					$page .= $createForm;
 					$page .= "<div class=\"clear\"></div>";
+					$page .= "</div>";	
 					$page .= "</div>";		
 				}
 			}

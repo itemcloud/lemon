@@ -13,18 +13,21 @@ var more_start = 10;
 var feed_id = 0;
 
 window.onscroll = function(ev) {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !reached_bottom && auto_more == true) {
+    if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight && !reached_bottom && auto_more == true) {
 	setTimeout(display_more_items('more-items', more_count, more_start, feed_id), 5000);
     }
 };
 
 // JavaScript Document
 function display_more_items(element, count, start, feed_id) {
-
+	reached_bottom = true;
+	
     var callback = function (x) {
-	document.getElementById(element).innerHTML += x.responseText;
-	more_start += count;
-	reached_bottom = false;    
+	if(x.responseText != "empty") {
+		document.getElementById(element).innerHTML += x.responseText;
+		more_start += count;
+		reached_bottom = false;    
+	}
     }
 
     var XObj;

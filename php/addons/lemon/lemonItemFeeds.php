@@ -594,12 +594,12 @@ class addonItemFeedDisplay {
 				$tool_output = $this->userFeedTools($profile_feeds, $item_id, $dom_id);
 				$item_feed_output .= $tool_output;
 		}
-		$metaOutput = "<div style='float: right'>" . $item_feed_output . "</div>";
+		$metaOutput = "<div class='float-right'>" . $item_feed_output . "</div>";
 		
 		//Only add tools 
-		if($itemDisplay->metaOutput == $itemDisplay->itemMetaLinks()) { $metaOutput = $metaOutput;  }
-		else {  $metaOutput = $itemDisplay->metaOutput . $metaOutput; }
-		$itemDisplay->metaOutput = $metaOutput;		
+		if($itemDisplay->userTools == $itemDisplay->itemUserTools()) { $metaOutput = $metaOutput;  }
+		else {  $metaOutput = $itemDisplay->userTools . $metaOutput; }
+		$itemDisplay->userTools = $metaOutput;	
 		
 		if(isset($_GET['banner-feeds'])) { $itemDisplay->itemLink .= "&banner-feeds=" . $_GET['banner-feeds']; }
 		$itemDisplay->titleOutput = $itemDisplay->titleDisplayHTML();
@@ -742,7 +742,7 @@ class addonFeedPageDisplay {
 				$page .= "</div>";
 				$tmp_items = (isset($pageManager->meta['feed']['items'])) ? $pageManager->meta['feed']['items'] : $pageManager->items;
 				$pageManager->items = $tmp_items;
-				$page .= "<div style=\"float: left; width: 280px; overflow: hidden; margin: 0px 20px; text-align: left\" class=\"feed-" . $feed['display_type'] . "\">" . $pageManager->displayItems($feed['display_type'], $item_info_limit) . "</div>";
+				$page .= "<div style=\"float: left; width: 280px; overflow: hidden; text-align: left\" class=\"feed-" . $feed['display_type'] . "\">" . $pageManager->displayItems($feed['display_type'], $item_info_limit) . "</div>";
 			} else if ($feed['display_type'] == 'topics') {	
 				$box_class = "item-page";
 				$tmp_items = $pageManager->items;

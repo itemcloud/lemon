@@ -54,7 +54,7 @@ $client->closeConnection();
 $pageManager = new pageManager($itemManager, $_ROOTweb);
 $pageManager->enableAddOns();
 
-if ($items) { echo $pageManager->handlePageItems(); }
+if ($items) { echo $pageManager->handlePageItems(); } else { echo "empty"; }
 
 }
 ?>

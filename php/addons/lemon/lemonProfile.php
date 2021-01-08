@@ -38,6 +38,7 @@ class addonPostProfileHandler {
 	function handleAddOnPost ($itemManager) {
 		global $client;
 		$level = $this->DEFAULT_USER_LEVEL;
+		$user_id = $client->user_serial;				
 		
 		if(isset($_POST['itc_profile_name'])) {
 			$this->changeProfileName($_POST['itc_profile_name'], $client->user_serial);
@@ -54,7 +55,7 @@ class addonPostProfileHandler {
 		$itemManager->meta['title'] = $user_name;
 			
 		//Create a new profile if empty (when owner requests profile)
-		if($itemManager->meta['owner'] && !isset($itemManager->meta['profile']['user_id'])) {
+		if($user_id && $itemManager->meta['owner'] && !isset($itemManager->meta['profile']['user_id'])) {
 			$profile_insert = "INSERT INTO user_profile (user_id) VALUES('" . $client->user_serial . "')";
 			$new_profile = mysqli_query($this->stream, $profile_insert);
 			
@@ -267,7 +268,7 @@ class addonItemProfileDisplay {
 		$item_link_html = '<div class="item-user-link"><a href="./?user=' . $itemDisplay->item_user_id . '">' . $user_name . '</a></div>';
 		$date_html = '<div class="item-date">' . $itemDisplay->dateService->date_time . '</div>';
 		
-		$metaOutput = $item_user_html . "<div style='float: left;'>" . $item_link_html . $date_html . "</div>";
+		$metaOutput = $item_user_html . "<div class='meta-links float-left'>" . $item_link_html . $date_html . "</div>";
 
 		//Only replace metaOutput if set to default value	
 		if($itemDisplay->metaOutput != $itemDisplay->itemMetaLinks()) { $metaOutput = $metaOutput . $itemDisplay->metaOutput;  }
