@@ -1096,6 +1096,9 @@ class addonPostFeedHandler {
 				
 		$addon_request = new addonItemAudiofeedRequest($this->stream, $item_loot_array);
 		$item_loot_array = $addon_request->getAddOnLoot($level);
+				
+		$addon_request = new addonItemPlaylistRequest($this->stream, $item_loot_array);
+		$item_loot_array = $addon_request->getAddOnLoot($level);			
 		return $item_loot_array;
 	}
 		
