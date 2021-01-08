@@ -397,13 +397,16 @@ input.item_tools_inactive:hover {
 
 .item-section, .more-items {
      width: 820px;
-     padding: 20px 0px;
-     
 }
 
 .item-link, .item-info {
 	padding-top: 8px;
 	border-top: 2px solid #EEE;
+}
+ 
+.item-info .inline-image {
+	width: auto;
+	margin: 8px 0px;
 }
 
 .item-meta {
@@ -432,7 +435,6 @@ input.item_tools_inactive:hover {
 
 .item-page .item-info {
 	margin-top: 8px;
-	min-height: 60px;
 }
 
 .item-user-link {
@@ -520,6 +522,13 @@ input.item_tools_inactive:hover {
 .gallery.feed-box .item-box .item-nodes .item-title, 
 .gallery.feed-box .item-box .item-nodes .item-info,
 .gallery.feed-box .item-box .item-meta {
+	display: none;
+}
+
+.playlist.feed-list .item-box .item-nodes .item-title, 
+.playlist.feed-list .item-box .item-nodes .item-info,
+.playlist.feed-list .item-box .item-nodes .item-link,
+.playlist.feed-list .item-box .item-meta {
 	display: none;
 }
 
@@ -809,7 +818,7 @@ input.item_tools_inactive:hover {
 
 .box {
 	display: grid !important;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
 	padding: 0 2%;
 	display: block;
 }
