@@ -268,7 +268,7 @@ class addonItemProfileDisplay {
 		$item_link_html = '<div class="item-user-link"><a href="./?user=' . $itemDisplay->item_user_id . '">' . $user_name . '</a></div>';
 		$date_html = '<div class="item-date">' . $itemDisplay->dateService->date_time . '</div>';
 		
-		$metaOutput = $item_user_html . "<div style='float: left;'>" . $item_link_html . $date_html . "</div>";
+		$metaOutput = $item_user_html . "<div class='meta-links float-left'>" . $item_link_html . $date_html . "</div>";
 
 		//Only replace metaOutput if set to default value	
 		if($itemDisplay->metaOutput != $itemDisplay->itemMetaLinks()) { $metaOutput = $metaOutput . $itemDisplay->metaOutput;  }

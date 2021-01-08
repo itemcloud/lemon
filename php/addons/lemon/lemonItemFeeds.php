@@ -594,12 +594,12 @@ class addonItemFeedDisplay {
 				$tool_output = $this->userFeedTools($profile_feeds, $item_id, $dom_id);
 				$item_feed_output .= $tool_output;
 		}
-		$metaOutput = "<div style='float: right'>" . $item_feed_output . "</div>";
+		$metaOutput = "<div class='float-right'>" . $item_feed_output . "</div>";
 		
 		//Only add tools 
-		if($itemDisplay->metaOutput == $itemDisplay->itemMetaLinks()) { $metaOutput = $metaOutput;  }
-		else {  $metaOutput = $itemDisplay->metaOutput . $metaOutput; }
-		$itemDisplay->metaOutput = $metaOutput;		
+		if($itemDisplay->userTools == $itemDisplay->itemUserTools()) { $metaOutput = $metaOutput;  }
+		else {  $metaOutput = $itemDisplay->userTools . $metaOutput; }
+		$itemDisplay->userTools = $metaOutput;	
 		
 		if(isset($_GET['banner-feeds'])) { $itemDisplay->itemLink .= "&banner-feeds=" . $_GET['banner-feeds']; }
 		$itemDisplay->titleOutput = $itemDisplay->titleDisplayHTML();
