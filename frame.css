@@ -11,6 +11,7 @@ html, body {
 
 body {
 	margin: 0px;
+	margin: 0px;
 	background-color: #F8F8F8;
 	font-family: helvetica;
 	font-size: 1em;
@@ -92,7 +93,7 @@ a {
 }
 
 .nav_page_links {
-	margin-left: 20px;
+	margin: 8px 0px 0px 20px;
 	font-size: 1.2em
 }
 	
@@ -155,6 +156,7 @@ a {
 
 .nav_links a span:hover, .user_links a span:hover {
 	background-color: #333;
+	color: #FFF;
 }
 
 .nav_links { 
@@ -165,7 +167,7 @@ a {
 }
 
 .nav_links a {
-	margin: 0px 10px;
+	margin: 10px;
 }
 
 .user_links { 
@@ -175,7 +177,6 @@ a {
 /* Page Display */
 .splash-page, .page { 
 	padding: 0px 0px;
-	background-color: #F8F8F8;
 	font-size: 1.2em;
 }
 
@@ -183,7 +184,7 @@ a {
 	html, body {
 		font-size: 1.2em;
 	}
-	.section, .section_inner, .item-section, .feed-page, .page_section, .page_section .item-page, .profile-menu {
+	.section, .section_inner, .item-section, .feed-page, .page_section, .page_section .item-page,  .page_section .item-card,  .page_section .item-banner, .profile-menu {
 		width: auto !important;
 		min-width: 320px;
 	}
@@ -683,11 +684,11 @@ input.item_tools_inactive:hover {
 }
 
 .banner-section, .list-section {
-	width: 920px;
+	width: 920px !important;
 }
 
  .list-section .item-page {
-	width: 540px;
+	width: 580px;
 	float: right;
  }
 
@@ -791,7 +792,6 @@ input.item_tools_inactive:hover {
 }
 
 .banner .item-title {
-	color: #FFF;
 	width: 100%;
 }
 
@@ -809,7 +809,7 @@ input.item_tools_inactive:hover {
 
 .box {
 	display: grid !important;
-	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
 	padding: 0 2%;
 	display: block;
 }
@@ -926,7 +926,10 @@ div.inline-name, div.inline-remove {
 	padding: 4px 8px;
 	border-radius: 8px;
 }
-
+ 
+div.inline-image {
+	width: auto;
+}
 
 select.item-dropdown{
     display: inline-block;

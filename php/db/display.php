@@ -248,7 +248,8 @@ class pageManager extends Document {
 					. $this->displayItem()
 					. "</page></div>";
 		} else if (isset($_GET['user'])) {
-				$page = "<div class=\"item-section\"><page>"
+				$page = "<div class=\"clear\"></div>";
+				$page .= "<div class=\"item-section\"><page>"
 		       	    . $this->displayItemBlog()
 					. "</page>";
 				$page .= $this->handleItemBrowser('limit');	
@@ -601,7 +602,7 @@ class ItemDisplay {
 		$item_link_html = "<div class=\"item-user-link\"><a$onclick>" . $this->webroot . "?item="  . $this->item_id . "</a></div>";
 		$date_html = '<div class="item-date">' . $this->dateService->date_time . '</div>';
 		
-		return "<div style='float: left;'>" . $item_link_html . $date_html . "</div>";
+		return "<div class='meta-links float-left'>" . $item_link_html . $date_html . "</div>";
 	}
 
 	function itemUserTools() {
@@ -611,12 +612,17 @@ class ItemDisplay {
 			. "<div class=\"item-tools_grey float-right\" onclick=\"domId('itemEditForm" . $this->box_class . $this->item_id . "').submit()\">edit </div>"
 			. "</form>";
 			
-			return "<form id=\"itemForm" . $this->box_class . $this->item_id . "\" action=\"./?user=" . $this->item_user_id . "\" method=\"post\">"
+			$edit_form = "<form id=\"itemForm" . $this->box_class . $this->item_id . "\" action=\"./?user=" . $this->item_user_id . "\" method=\"post\">"
 			. "<input type=\"hidden\" name=\"delete\" value=\"" . $this->item_id ."\"/>"
 			. "<div class=\"item-tools_grey float-right\" onclick=\"domId('itemForm" . $this->box_class . $this->item_id . "').submit()\">delete</div>"
 			. "</form>" . $edit_button; 
+			
+			return "<div onmouseover=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='inline-block';\" onmouseout=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='none';\">"
+			. "<div class='item-settings item-tools_grey float-left' style='position: relative; padding: 8px 9px; margin: 0px'>&#8942;<div id='userTools" . $this->box_class . $this->item_id . "' style='position: absolute; width: 100px; display: none'>"
+			. $edit_form 
+			. "</div></div></div>";
 		}
-	}	
+	}		
 	
 	function nodeOutputHTML () {
 		$item_html = "";
@@ -643,9 +649,7 @@ class ItemDisplay {
 		$item_html .= "</div>";
 
 		$item_html .= "<div class='item-toolbar'>";		
-		
-		if($this->owner) { $item_html .= "<div onmouseover=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='inline-block';\" onmouseout=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='none';\"><div class='item-settings item-tools_grey float-left' style='position: relative; padding: 8px 9px; margin: 0px'>&#8942;<div id='userTools" . $this->box_class . $this->item_id . "' style='position: absolute; width: 100px; display: none'>" . $this->userTools . "</div></div></div>"; }
-	
+		$item_html .= $this->userTools;
 		$item_html .= "</div>";
 
 			
