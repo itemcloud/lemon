@@ -742,7 +742,7 @@ class addonFeedPageDisplay {
 				$page .= "</div>";
 				$tmp_items = (isset($pageManager->meta['feed']['items'])) ? $pageManager->meta['feed']['items'] : $pageManager->items;
 				$pageManager->items = $tmp_items;
-				$page .= "<div style=\"float: left; width: 280px; overflow: hidden; margin: 0px 20px; text-align: left\" class=\"feed-" . $feed['display_type'] . "\">" . $pageManager->displayItems($feed['display_type'], $item_info_limit) . "</div>";
+				$page .= "<div style=\"float: left; width: 280px; overflow: hidden; text-align: left\" class=\"feed-" . $feed['display_type'] . "\">" . $pageManager->displayItems($feed['display_type'], $item_info_limit) . "</div>";
 			} else if ($feed['display_type'] == 'topics') {	
 				$box_class = "item-page";
 				$tmp_items = $pageManager->items;

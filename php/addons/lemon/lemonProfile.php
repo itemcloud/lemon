@@ -38,6 +38,7 @@ class addonPostProfileHandler {
 	function handleAddOnPost ($itemManager) {
 		global $client;
 		$level = $this->DEFAULT_USER_LEVEL;
+		$user_id = $client->user_serial;				
 		
 		if(isset($_POST['itc_profile_name'])) {
 			$this->changeProfileName($_POST['itc_profile_name'], $client->user_serial);
@@ -54,7 +55,7 @@ class addonPostProfileHandler {
 		$itemManager->meta['title'] = $user_name;
 			
 		//Create a new profile if empty (when owner requests profile)
-		if($itemManager->meta['owner'] && !isset($itemManager->meta['profile']['user_id'])) {
+		if($user_id && $itemManager->meta['owner'] && !isset($itemManager->meta['profile']['user_id'])) {
 			$profile_insert = "INSERT INTO user_profile (user_id) VALUES('" . $client->user_serial . "')";
 			$new_profile = mysqli_query($this->stream, $profile_insert);
 			
