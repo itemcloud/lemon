@@ -42,8 +42,8 @@ class infoLinks {
 		$limit = $item->info_limit;
 		$extra = "<div class=\"item-tools_grey\" onclick=\"window.location='" . $item->webroot . $item->itemLink . "'\" title=\"Show more\">...</div>";
 
-		$info_string = $this->replaceUrls($item->info);
-		$info_string = ($limit && !isset($_GET['id'])) ? chopString($info_string, $limit,  $extra) : $info_string;
+		$info_string = $item->info;
+		$info_string = ($limit && strlen($this->replaceUrls($info_string)) > $limit) ? chopString($info_string, $limit,  $extra) : $this->replaceUrls($info_string);
 		
 		$class_name = "item-info";
 		if($raw_input) { $item->infoOutput = "<div class=\"$class_name\"><span>" . nl2br($info_string) . "</span></div>"; }
@@ -60,11 +60,23 @@ class infoLinks {
 }
  
 function checkUrls($match) {
-	if(fnmatch("*twitter.com/*/status*", $match[0])) {
+	$supported_image = array(
+		'gif',
+		'jpg',
+		'jpeg',
+		'png'
+	);
+
+	$src_file_name = $match[1];
+	$ext = strtolower(pathinfo($src_file_name, PATHINFO_EXTENSION)); // Using strtolower to overcome case sensitive
+	
+	if (in_array($ext, $supported_image)) {
+		$link = '<a href="' . $match[1] . '" target="_blank" title="' . $match[2] . '"><img class="inline-image" src="' . $match[1] . '"/></a>';
+	} else if(fnmatch("*twitter.com/*/status*", $match[0])) {
 		//Support for platform.twitter.com status embeds (widgets.js 7/1/2020)
 		$link = '<blockquote class="twitter-tweet"><a href="' . $match[0] . '">' . $match[0] . '</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>';
 	} else {
-		$link = '<a href="' . $match[1] . '" target="_blank" title="' . $match[2] . '">' . $match[1] . '</a>';
+		$link = '<a href="' . $match[1] . '">' . $match[1] . '</a>';
 	}
 	return $link;
 }
