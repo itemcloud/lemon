@@ -122,12 +122,12 @@ class addonReplyPageDisplay {
 			if($client->auth == true) {
 				$createForm = $this->displayOmniFirstCommentBox($pageManager, $pageManager->items[0]['item_id'], $classes);
 				$page .= "<div class=\"item-section\"><div class=\"item_reply\">";
-				if($pageManager->items[0]['level'] > 0) {
+				//if($pageManager->items[0]['level'] > 0) {
 					$page .= $createForm;
 					$page .= "<div class=\"clear\"></div>";
 					$page .= "</div>";	
 					$page .= "</div>";		
-				}
+				//}
 			}
 		}
 		

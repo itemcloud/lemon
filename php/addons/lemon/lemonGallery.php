@@ -169,8 +169,6 @@ class addonPostGalleryHandler {
 			$feed_id = isset($_POST['itc_gallery_add']) ? $_POST['itc_gallery_add'] : NULL;
 			$feed_name = isset($_POST['itc_gallery_name']) ? $_POST['itc_gallery_name'] : NULL;
 			
-			echo $feed_name;
-			
 			if($feed_id && $item_id && !$feed_name) {
 				$postFeedHandler = new addonPostFeedHandler($this->stream);				
 				$postFeedHandler->addItemFeed($user_id, $item_id, $feed_id);
