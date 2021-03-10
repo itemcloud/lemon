@@ -695,8 +695,8 @@ class ItemDisplay {
 	}
 	
 	function videoOverride () {
-		$file_display =  '<div class="item-link"><video width="100%" controls><source src="' 
-			. $this->webroot . $this->file . '" type="audio/mpeg">Download to play video.</video></div>';
+		$file_display = '<div class="item-link"><video width="100%" controls><source src="' 
+			. $this->webroot . $this->file . '" type="video/mpeg">Download to play video.</video></div>';
 		return $file_display;
 	} 				
 }

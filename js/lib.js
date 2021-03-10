@@ -358,6 +358,17 @@ class OmniFeedBox extends OmniBox {
 	functions_file() { return " action=\"index.php\" method=\"post\" enctype=\"multipart/form-data\""; }
 }
 
+class OmniPlaylistBox extends OmniFeedBox {
+
+	set_active_feed (feed_id) {
+		this.feed_id = feed_id;
+	}
+	
+	addItemButton () {
+		return "<input class=\"item-tools\" type=\"button\" name=\"checkInput" + this.str + "\" onClick=\"var value = document.getElementById('itc_link_txt" + this.str + "').value; if(value.match(/youtube.com/g)){ OmniController" + this.str + ".checkInput() }\"  value=\"&#10004 SAVE\"/><br />";
+	}	
+}
+
 class OmniCommentBox extends OmniFeedBox {
 	
 	set_active_item_id (item_id) {

@@ -13,7 +13,7 @@ body {
 	margin: 0px;
 	margin: 0px;
 	background-color: #F8F8F8;
-	font-family: helvetica;
+	font-family: Verdana, Arial, Tahoma, Serif;
 	font-size: 1em;
 	cursor: default;
 }
@@ -497,17 +497,17 @@ input.item_tools_inactive:hover {
 }
 
 .item_reply {
-	width: 820px;
+	width: 100%;
 	margin: 0px auto 20px auto;
 }
 
 .item_reply .item-section {
-	width: 720px;
+	width: 100%;
 	float: right;
 }
 
 .item_reply .item-box, .item_reply .item-page {
-	width: 640px;
+	width: 100%;
 	float: right;
 	clear: both;
 }
@@ -931,7 +931,6 @@ div.inline-name, div.inline-remove {
 	display: inline-block;
 	white-space: nowrap;
 	margin-right: 4px;
-	margin-top: 6px;
 	padding: 4px 8px;
 	border-radius: 8px;
 }

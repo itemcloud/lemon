@@ -59,7 +59,7 @@ $pageManager->displayDocumentHeader([
 	'scripts' => ['./js/lib.js',
 				'./js/lemonItemFeeds.js',
 				'./js/welcome.js'],
-	'styles' => ['./frame.css']
+	'styles' => ['./frame.css', './addons.css']
 ]);
 
 $pageManager->displayPageBanner($client, $auth);
