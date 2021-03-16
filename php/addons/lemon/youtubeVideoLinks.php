@@ -49,7 +49,8 @@ class youtubeVideoLinks {
 		}  else if ($raw_input && strpos($item->file, 'youtube.com') && $this->getYoutubeIdFromUrl($item->file) && ($item->box_class == "item-card" OR $item->box_class == "item-box" OR $item->box_class == "item-banner")) { 			
 			$youtube_ID = $this->getYoutubeIdFromUrl($item->file); 
 			$youtube_file = 'http://i3.ytimg.com/vi/' . $youtube_ID . '/hqdefault.jpg';
-
+			
+			$item->class_id = 4;
 			$onlick = "onclick=\"window.location='" . $item->webroot . $item->itemLink . "'\"";
 			$file_display = "<div $onlick class=\"item-link\"><div class=\"image-cell\"><img src=\"" . $youtube_file . "\" width=\"100%\"></div></div>";		
 			

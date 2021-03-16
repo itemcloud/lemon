@@ -407,7 +407,7 @@ class pageManager extends Document {
 		$javascript_omni_box = "<script>var OmniController = new OmniBox(" . $class_js_array . ", 'itemOmniBox');\n OmniController.toggle('" . $class_id . "');\n</script>";
 		$message = (isset($this->meta['message'])) ? "<center><div id=\"alertbox\" class=\"alertbox-show\">" . $this->meta['message'] . "</div></center>" : "<center><div id=\"alertbox\" class=\"alertbox-hide\"></div></center>";
 		
-		$createForm  = "<div class=\"item-section\"><div class=\"item-page\" style=\"margin: 20px; width: auto;\" id=\"itemOmniBox\">" . "</div></div>";
+		$createForm  = "<div class=\"item-section\"><div class=\"item-page\" style=\"padding: 20px; width: auto;\" id=\"itemOmniBox\">" . "</div></div>";
 		$createForm .= $javascript_omni_box;
 		return $message . $createForm . $javascript_omni_box;
 	}	
@@ -609,12 +609,12 @@ class ItemDisplay {
 		if($this->owner) { 
 			$edit_button = "<form id=\"itemEditForm" . $this->box_class . $this->item_id . "\" action=\"./?id=" . $this->item_id . "\" method=\"post\">"
 			. "<input type=\"hidden\" name=\"edit\" value=\"" . $this->item_id ."\"/>"
-			. "<div class=\"item-tools_grey float-right\" onclick=\"domId('itemEditForm" . $this->box_class . $this->item_id . "').submit()\">edit </div>"
+			. "<div class=\"item-tools float-right\" onclick=\"domId('itemEditForm" . $this->box_class . $this->item_id . "').submit()\">edit </div>"
 			. "</form>";
 			
 			$edit_form = "<form id=\"itemForm" . $this->box_class . $this->item_id . "\" action=\"./?user=" . $this->item_user_id . "\" method=\"post\">"
 			. "<input type=\"hidden\" name=\"delete\" value=\"" . $this->item_id ."\"/>"
-			. "<div class=\"item-tools_grey float-right\" onclick=\"domId('itemForm" . $this->box_class . $this->item_id . "').submit()\">delete</div>"
+			. "<div class=\"item-tools float-right\" onclick=\"domId('itemForm" . $this->box_class . $this->item_id . "').submit()\">delete</div>"
 			. "</form>" . $edit_button; 
 			
 			return "<div onmouseover=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='inline-block';\" onmouseout=\"domId('userTools" . $this->box_class . $this->item_id . "').style.display='none';\">"
@@ -641,7 +641,7 @@ class ItemDisplay {
 	function displayHTML() {
 		$this->nodeOutputHTML();
 		
-		$item_html = "<div class=\"" . $this->box_class . " class_" . $this->item['class_id'] . "\">";
+		$item_html = "<div class=\"" . $this->box_class . " class_" . $this->class_id . "\">";
 
 		$item_html .= "<div class='item-nodes'>";
 		$item_html .= $this->nodeOutput;

@@ -65,6 +65,12 @@ a {
 	font-size: 1.6em;
 }
 
+.section:after {
+content: "";
+  display: table;
+  clear: both;
+}
+
 @media only screen and (max-width: 1240px) {
 	.header, .header_inner, .footer, .footer_inner, .section, .section_inner, .profile-banner {
 		width: 100% !important;
@@ -496,6 +502,10 @@ input.item_tools_inactive:hover {
     padding: 0px 14px;
 }
 
+.item-toolbar .item-tools_grey {
+	padding: 0px;
+}
+
 .item_reply {
 	width: 100%;
 	margin: 0px auto 20px auto;
@@ -602,20 +612,20 @@ input.item_tools_inactive:hover {
 	object-fit: cover;
 }
 
-.item-card  .item-nodes .item-link  {
+.item-card.class_4 .item-nodes .item-link  {
 	width: 140px;
 	float: left;
 	border-bottom: 0px solid white;
 }
 
-.item-card .item-nodes .item-link {
+.item-card.class_4 .item-nodes .item-link {
 	width: 20%;
 	height: 120px;
 	background-image: linear-gradient(#666, #333);
 	overflow: hidden;
 	padding: 0px;
 }
-.item-card  .item-nodes .item-link .file_text {
+.item-card.class_4  .item-nodes .item-link .file_text {
 	margin-top: 30%;
 	max-width: 280px;
 	white-space: nowrap;
@@ -623,8 +633,9 @@ input.item_tools_inactive:hover {
 	text-overflow: ellipsis;
 }
 
-.item-card .item-meta  {
-	float: right; width: 80%;
+.item-card.class_4 .item-meta  {
+	float: right; 
+	width: 80%;
 	display: none;
 }
 
@@ -634,18 +645,18 @@ input.item_tools_inactive:hover {
 	text-overflow: ellipsis;
 }
 
-.item-card .item-nodes .item-title, .item-card .item-nodes .item-info {
+.item-card.class_4 .item-nodes .item-title, .item-card.class_4 .item-nodes .item-info {
 	margin-bottom: 2px;
 	float: right;
 	width: 80%;
 }
 
-.item-card .item-info span {
+.item-card.class_4 .item-info span {
 	display: inline-block;
 	padding: 8px;
 }
 
-.item-card .item-info {
+.item-card.class_4 .item-info {
 	max-height: 200px;
 	overflow: auto;
 }
@@ -960,7 +971,7 @@ select.item-dropdown option {
 	color: #222;
 	background-color: #FFF;
 }
-
+ 
 /*ADD-ONS*/
 div.item_feed_menu .feed_name {
   display: inline-block;

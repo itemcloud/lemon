@@ -11,7 +11,7 @@ $profile_addon['item-request'] = 'addonItemProfileRequest';
 $profile_addon['banner-display'] = 'addonBannerDisplay';
 
 //Add to global $addOns variable
-//$addOns[] = $profile_addon;
+$addOns[] = $profile_addon;
 
 class addonUserProfileAccount {
 	function __construct ($stream) {

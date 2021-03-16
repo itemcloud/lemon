@@ -798,8 +798,8 @@ class addonFeedPageDisplay {
 		$message = (isset($pageManager->meta['message'])) ? "<center><div id=\"alertbox\" class=\"alertbox-show\">" . $pageManager->meta['message'] . "</div></center>" : "<center><div id=\"alertbox\" class=\"alertbox-hide\"></div></center>";
 		
 		$createForm  = "<div class=\"item-section\">";
-		$createForm .= "<div class=\"feed-page\"><div class=\"item-page\" style=\"display: none; margin: 20px; width: auto;\" class=\"item-page\" id=\"itemOmniBox\">" . "</div></div>"
-			. "<div class=\"inline-block\" style=\"display: inline: block\" onclick=\"domId('itemOmniBox').style.display='block'; this.style.display='none'\" style=\"width: 640px; margin: 14px 0px; text-align: center; cursor: pointer\"><div class=\"item-tools\">+ <u>Add an Item</u></div></div>";
+		$createForm .= "<div class=\"feed-page\"><div class=\"item-page\" style=\"display: none; padding: 20px; width: auto;\" class=\"item-page\" id=\"itemOmniBox\">" . "</div></div>"
+			. "<div onclick=\"domId('itemOmniBox').style.display='block'; this.style.display='none'\" style=\"padding: 20px; text-align: center; cursor: pointer\"><div class=\"item-tools\">+ <u>Add an Item</u></div></div>";
 		$createForm .= $javascript_omni_box;
 		$createForm .= "</div>";
 		return $message . $createForm;
@@ -1119,20 +1119,20 @@ class addonPostFeedHandler {
 		$addon_request = new addonItemFeedRequest($this->stream, $item_loot_array);
 		$item_loot_array = $addon_request->getAddOnLoot($level);
 		
-		$addon_request = new addonItemReplyRequest($this->stream, $item_loot_array);
-		$item_loot_array = $addon_request->getAddOnLoot($level);
+		if(class_exists('addonItemReplyRequest')) { $addon_request = new addonItemReplyRequest($this->stream, $item_loot_array);
+		$item_loot_array = $addon_request->getAddOnLoot($level); }
 		
-		$addon_request = new addonItemFavoriteRequest($this->stream, $item_loot_array);
-		$item_loot_array = $addon_request->getAddOnLoot($level);
+		if(class_exists('addonItemFavoriteRequest')) { $addon_request = new addonItemFavoriteRequest($this->stream, $item_loot_array);
+		$item_loot_array = $addon_request->getAddOnLoot($level); }
 		
-		$addon_request = new addonItemGalleryRequest($this->stream, $item_loot_array);
-		$item_loot_array = $addon_request->getAddOnLoot($level);		
+		if(class_exists('addonItemGalleryRequest')) { $addon_request = new addonItemGalleryRequest($this->stream, $item_loot_array);
+		$item_loot_array = $addon_request->getAddOnLoot($level); }		
 				
-		$addon_request = new addonItemAudiofeedRequest($this->stream, $item_loot_array);
-		$item_loot_array = $addon_request->getAddOnLoot($level);
+		if(class_exists('addonItemAudiofeedRequest')) { $addon_request = new addonItemAudiofeedRequest($this->stream, $item_loot_array);
+		$item_loot_array = $addon_request->getAddOnLoot($level); }
 				
-		$addon_request = new addonItemPlaylistRequest($this->stream, $item_loot_array);
-		$item_loot_array = $addon_request->getAddOnLoot($level);			
+		if(class_exists('addonItemPlaylistRequest')) { $addon_request = new addonItemPlaylistRequest($this->stream, $item_loot_array);
+		$item_loot_array = $addon_request->getAddOnLoot($level); }
 		return $item_loot_array;
 	}
 		
