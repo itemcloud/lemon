@@ -1,5 +1,5 @@
 <?php //Add-On for profile display
-$profile_addon['addon-name'] = 'Lemon User Profiles';
+$profile_addon['addon-name'] = 'User Profiles (lemon 1.2.9)';
 $profile_addon['addon-version'] = '1.0';
 $profile_addon['post-handler'] = 'addonPostProfileHandler';
 
@@ -11,7 +11,7 @@ $profile_addon['item-request'] = 'addonItemProfileRequest';
 $profile_addon['banner-display'] = 'addonBannerDisplay';
 
 //Add to global $addOns variable
-$addOns[] = $profile_addon;
+//$addOns[] = $profile_addon;
 
 class addonUserProfileAccount {
 	function __construct ($stream) {
@@ -224,7 +224,7 @@ class addonProfileDisplay {
 		$banner_html = "<div class=\"profile-banner\" onlick=\"window.location='" . $profile_link . "'\">$n";
 		
 		$banner_html .= $pop_up;	
-		$banner_html .= "<div class=\"profile-banner_inner\" style=\"position: relative; overflow: hidden;\">$n";		
+		$banner_html .= "<div class=\"profile-banner_inner profile-banner_wrapper\" style=\"position: relative; background-image: url('" . $user_banner_html . "'); overflow: hidden;\" $user_banner_html>$n";		
 		$banner_html .= "<div class=\"profile-banner_overlay\">$n";
 		$banner_html .= $pop_up_button;	
 		
@@ -238,11 +238,6 @@ class addonProfileDisplay {
 		}	
 		$banner_html .= "<div class=\"clear\"></div>$n";
 		
-		$banner_html .= "</div>$n";	
-		
-		$banner_html .= "<div class=\"profile-banner_wrapper\" style=\"display: none; background-image: url('" . $user_banner_html . "'); overflow: hidden\" $user_banner_html;>$n";	
-		$banner_html .= $image_html;	
-		$banner_html .= "<div class=\"clear\"></div>$n";	
 		$banner_html .= "</div>$n";
 		
 		$banner_html .= "</div>$n";

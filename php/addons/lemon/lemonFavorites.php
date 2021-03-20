@@ -1,5 +1,5 @@
 <?php //Add-On for reply display
-$favorite_addon['addon_title'] = 'Lemon Favorite';
+$favorite_addon['addon_title'] = 'Favorites (lemon 1.2.9)';
 $favorite_addon['addon_name'] = 'lemon-favorite';
 $favorite_addon['addon-version'] = '1.0';
 $favorite_addon['collection_name'] = 'Favorites';
@@ -7,7 +7,6 @@ $favorite_addon['item_name'] = 'Item';
 $favorite_addon['addon_id'] = '1004';
 
 $favorite_addon['post-handler'] = 'addonPostFavoriteHandler';
-//$favorite_addon['page-display'] = 'addonFavoritePageDisplay';
 $favorite_addon['item-display'] = 'addonItemFavoriteDisplay';
 $favorite_addon['item-request'] = 'addonItemFavoriteRequest';
 $favorite_addon['add-new'] = true;

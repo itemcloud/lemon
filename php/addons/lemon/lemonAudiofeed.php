@@ -1,5 +1,5 @@
 <?php //Add-On for reply display
-$audiofeed_addon['addon_title'] = 'Lemon audiofeed';
+$audiofeed_addon['addon_title'] = 'Audiofeed (lemon 1.2.9)';
 $audiofeed_addon['addon_name'] = 'lemon-audiofeed';
 $audiofeed_addon['addon-version'] = '1.0';
 $audiofeed_addon['collection_name'] = 'Playlist';

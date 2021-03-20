@@ -1,9 +1,4 @@
--- phpMyAdmin SQL Dump
--- version 4.5.1
--- http://www.phpmyadmin.net
---
--- Host: 127.0.0.1
--- Generation Time: Nov 03, 2019 at 06:46 PM
+-- Itemcloud 1.1-1.2.x (lemon) Database Add-on
 -- Server version: 10.1.10-MariaDB
 -- PHP Version: 5.6.19
 

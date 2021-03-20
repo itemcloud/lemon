@@ -1,5 +1,5 @@
 <?php //Add-On for feed display
-$feeds_addon['addon-name'] = 'Item Feeds';
+$feeds_addon['addon-name'] = 'Item Feeds (lemon 1.2.9)';
 $feeds_addon['addon_name'] = 'lemon-feeds';
 $feeds_addon['addon-version'] = '1.0.2';
 $feeds_addon['default_img'] = 'default.png';

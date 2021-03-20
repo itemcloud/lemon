@@ -5,9 +5,9 @@
 ** | | __/ _ \ '_ ` _ \ / __| |/ _ \| | | |/ _` |
 ** | | ||  __/ | | | | | (__| | (_) | |_| | (_| |
 ** |_|\__\___|_| |_| |_|\___|_|\___/ \__,_|\__,_|
-**          ITEMCLOUD (LEMON) Version 1.1
+**          ITEMCLOUD (LEMON) Version 1.2
 **
-** Copyright (c) 2019-2020, ITEMCLOUD http://www.itemcloud.org/
+** Copyright (c) 2019-2021, ITEMCLOUD http://www.itemcloud.org/
 ** All rights reserved.
 ** developers@itemcloud.org
 **
@@ -15,9 +15,9 @@
 ** -------------------
 ** Lemon is licensed under the terms of the MIT license.
 **
-** @category   ITEMCLOUD (Lemon)
-** @package    Build Version 1.1
-** @copyright  Copyright (c) 2019-2020 ITEMCLOUD (http://www.itemcloud.org)
+** @category   ITEMCLOUD 1.2 (lemon)
+** @package    Build Version 1.1-1.2.9 (itemcloud-lemon.sql)
+** @copyright  Copyright (c) 2021 ITEMCLOUD (http://www.itemcloud.org)
 ** @license    https://spdx.org/licenses/MIT.html MIT License
 */
 
@@ -37,6 +37,7 @@ class Document {
 		}		
 
 		$title = $meta['title'];
+		$this->title = $title;
 		if (isset($this->meta['title'])) { $title = $this->meta['title'] ? $meta['title'] . " | " . $this->meta['title'] : $title; }
 		
 		$header = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
@@ -78,7 +79,7 @@ class Document {
 	}
 
 	function displayPageBanner ($user, $auth) {
-		$banner = new documentBanner($user, $auth);
+		$banner = new documentBanner($user, $auth, $this->title);
 		
 		global $addOns;
 		if($addOns) {
@@ -108,9 +109,10 @@ class Document {
 }
 
 class documentBanner {
-	function __construct ($user, $auth) {
+	function __construct ($user, $auth, $title) {
 		$this->user = $user;
 		$this->auth = $auth;
+		$this->title = $title;
 		
 		$this->logo = $this->pageBannerLogo();
 		$this->links = $this->pageBannerLinks();
@@ -122,7 +124,7 @@ class documentBanner {
 	}
 	
 	function pageBannerLogo () {
-		return "<div class=\"logo\" onClick=\"window.location='./'\">lemon</small></div>";	
+		return "<div class=\"logo\" onClick=\"window.location='./'\">" . $this->title . "</small></div>";	
 	}
 	
 	function pageBannerUser() {

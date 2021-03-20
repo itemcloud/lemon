@@ -1,5 +1,5 @@
 <?php //Add-On for reply display
-$gallery_addon['addon_title'] = 'Lemon gallery';
+$gallery_addon['addon_title'] = 'Gallery (lemon 1.2.9)';
 $gallery_addon['addon_name'] = 'lemon-gallery';
 $gallery_addon['addon-version'] = '1.0';
 $gallery_addon['collection_name'] = 'Image Gallery';

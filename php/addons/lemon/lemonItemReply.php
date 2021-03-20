@@ -1,5 +1,5 @@
 <?php //Add-On for reply display
-$reply_addon['addon_title'] = 'Lemon Item Reply (Comment Feeds)';
+$reply_addon['addon_title'] = 'Item Reply (lemon 1.2.9)';
 $reply_addon['addon_name'] = 'lemon-reply';
 $reply_addon['addon-version'] = '1.0.2';
 $reply_addon['collection_name'] = 'Comments';

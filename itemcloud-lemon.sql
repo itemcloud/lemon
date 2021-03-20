@@ -1,9 +1,4 @@
--- phpMyAdmin SQL Dump
--- version 4.6.6deb5
--- https://www.phpmyadmin.net/
---
--- Host: localhost:3306
--- Generation Time: Jul 16, 2020 at 03:35 PM
+-- Itemcloud 1.1-1.2.x (lemon) Database
 -- Server version: 10.1.44-MariaDB-0ubuntu0.18.04.1
 -- PHP Version: 7.0.33-0ubuntu0.16.04.3
 
