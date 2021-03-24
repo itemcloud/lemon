@@ -1,26 +1,51 @@
-<?php //Add-On for reply display
-$favorite_addon['addon_title'] = 'Favorites (lemon 1.2.9)';
-$favorite_addon['addon_name'] = 'lemon-favorite';
-$favorite_addon['addon-version'] = '1.0';
-$favorite_addon['collection_name'] = 'Favorites';
-$favorite_addon['item_name'] = 'Item';
-$favorite_addon['addon_id'] = '1004';
+<?php 
+/*
+**  _ _                      _                 _
+** (_) |_ ___ _ __ ___   ___| | ___  _   _  __| |
+** | | __/ _ \ '_ ` _ \ / __| |/ _ \| | | |/ _` |
+** | | ||  __/ | | | | | (__| | (_) | |_| | (_| |
+** |_|\__\___|_| |_| |_|\___|_|\___/ \__,_|\__,_|
+**          ITEMCLOUD (LEMON) Version 1.3
+**
+** Copyright (c) 2019-2021, ITEMCLOUD http://www.itemcloud.org/
+** All rights reserved.
+** developers@itemcloud.org
+**
+** @category   ITEMCLOUD (Lemon)
+** @package    Build Version 1.3
+** @copyright  Copyright (c) 2019-2021 ITEMCLOUD (http://www.itemcloud.org)
+** @license    https://spdx.org/licenses/MIT.html MIT License
+*/
 
-$favorite_addon['post-handler'] = 'addonPostFavoriteHandler';
-$favorite_addon['item-display'] = 'addonItemFavoriteDisplay';
-$favorite_addon['item-request'] = 'addonItemFavoriteRequest';
-$favorite_addon['add-new'] = true;
-
-//Add to global $addOns variable
-//$addOns[] = $favorite_addon;
-
-class addonPostFavoriteHandler {
-	function __construct ($stream) {
-		$this->stream = $stream;
+class favoriteItems {
+	function __construct () {
+		$this->addon_title = 'Lemon Favorite';
+		$this->addon_name = 'lemon-favorite';
+		$this->addon_version = '1.0';
+		$this->collection_name = 'Favorites';
+		$this->item_name = 'Item';
+		$this->addon_id = '1004';
+		$this->add_new = true;
 	}
 
-	function handleAddOnPost ($itemManager) {
-		global $client;	
+	function setActions () {
+		global $actions;
+		$actions['post-handler'][] = 'addonPostFavoriteHandler';
+		//$actions['page-display'][] = 'addonFavoritePageDisplay';
+		$actions['item-display'][] = 'addonItemFavoriteDisplay';
+		$actions['item-request'][] = 'addonItemFavoriteRequest';
+	}
+}
+
+//Add to global $addOns variable
+//$addOns[] = 'favoriteItems';
+
+class addonPostFavoriteHandler  extends favoriteItems {
+
+	function update ($itemManager) {
+		$client = $itemManager->client;	
+		
+		$this->stream = $itemManager->stream;
 		$user_id = $client->user_serial;
 		$user_level = $client->level;
 		
@@ -37,11 +62,10 @@ class addonPostFavoriteHandler {
 	}
 	
 	function addItemFavoriteFeed ($owner_id, $name, $feed_img, $item_id) {
-			global $favorite_addon;
 		
 			//Check if 'default' favorite feed has been created
 			$addon_check = "SELECT * FROM addon_feed, feed"
-				. " WHERE addon_feed.addon_id='" . $favorite_addon['addon_id'] . "'"
+				. " WHERE addon_feed.addon_id='" . $this->addon_id . "'"
 				. " AND feed.feed_id=addon_feed.feed_id"
 				. " AND feed.owner_id=" . $owner_id;
 				
@@ -60,7 +84,7 @@ class addonPostFavoriteHandler {
 				$feed_id = mysqli_insert_id($this->stream);
 				
 				if($feed_id) {
-					$user_quest = "INSERT INTO addon_feed (addon_name, addon_id, collection_name, item_name, feed_id, item_id, feed_limit) VALUES('" . $favorite_addon['addon_name'] . "', '" . $favorite_addon['addon_id'] . "', '" . $favorite_addon['collection_name'] . "', '" . $favorite_addon['item_name'] . "', '$feed_id', 0, 1)";
+					$user_quest = "INSERT INTO addon_feed (addon_name, addon_id, collection_name, item_name, feed_id, item_id, feed_limit) VALUES('" . $this->addon_name . "', '" . $this->addon_id . "', '" . $this->collection_name . "', '" . $this->item_name . "', '$feed_id', 0, 1)";
 					$success = mysqli_query($this->stream, $user_quest);
 					return $feed_id;
 				}
@@ -69,19 +93,18 @@ class addonPostFavoriteHandler {
 	}
 }
 
-class addonItemFavoriteDisplay {
-	function updateOutputHTML($itemDisplay) {
+class addonItemFavoriteDisplay extends favoriteItems  {
+	function update($itemDisplay) {
 		global $_ROOTweb;
 		global $client;
-		global $favorite_addon;
 		
 		//include to use with another add-on
-		$raw_input = ($itemDisplay->metaOutput == $itemDisplay->itemMetaLinks()) ? $itemDisplay->metaOutput : NULL;
-		if($raw_input) { $itemDisplay->metaOutput = ""; }
+		$raw_input = ($itemDisplay->userTools == $itemDisplay->itemUserTools()) ? $itemDisplay->userTools : NULL;
+		//if($raw_input) { $itemDisplay->userTools = ""; }
 				
 		//Currently grabs feed for active user or most recent feed
 		//Link to feed of feed items with this addon_id (all users)
-		$itemDisplay->metaOutput .= "<div style=\"float: right; padding-left: 4px; font-size: 12px;\">";
+		$userTools = "<div class=\"float-right\" style=\" padding-left: 4px; font-size: 12px;\">";
 		if(isset($itemDisplay->item['favorite-feeds'])) {
 			$i = 0;
 			foreach($itemDisplay->item['favorite-feeds'] as $feed) {
@@ -104,9 +127,9 @@ class addonItemFavoriteDisplay {
 					$remove_button .= "</div>";
 					$remove_button .= "</form></div>";
 					
-					$itemDisplay->metaOutput .=  $remove_button;
+					$userTools .=  $remove_button;
 				}	
-				$itemDisplay->metaOutput .= $feed_img;					
+				$userTools .= $feed_img;					
 				$i++;
 			}
 		} else if($client->user_serial) {
@@ -115,7 +138,7 @@ class addonItemFavoriteDisplay {
 			$count_text = (isset($itemDisplay->item['favorite-count'])) ? $itemDisplay->item['favorite-count'] : "";
 			
 			$page_form = "itc_fav_" . $itemDisplay->item['item_id'];
-			$itemDisplay->metaOutput .= "<form id=\"$page_form\" action=\"$_ROOTweb?id=" . $itemDisplay->item['item_id'] . "\" method=\"post\"><input type=\"hidden\" name=\"itc_favorite\" value=\"" . $itemDisplay->item['item_id'] . "\"/>"
+			$userTools .= "<form id=\"$page_form\" action=\"$_ROOTweb?id=" . $itemDisplay->item['item_id'] . "\" method=\"post\"><input type=\"hidden\" name=\"itc_favorite\" value=\"" . $itemDisplay->item['item_id'] . "\"/>"
 				. "<a title=\"Add to Favorites\" onclick=\"domId('$page_form').submit()\">"				
 				. $feed_img
 				. "</a>"
@@ -127,30 +150,30 @@ class addonItemFavoriteDisplay {
 			$count_text = (isset($itemDisplay->item['favorite-count'])) ? $itemDisplay->item['favorite-count'] : "";	
 			
 			$page_form = "itc_fav_" . $itemDisplay->item['item_id'];
-			$itemDisplay->metaOutput .= "<a title=\"Add to Favorites\" onclick=\"window.location='./?connect=1'\">"				
+			$userTools .= "<a title=\"Add to Favorites\" onclick=\"window.location='./?connect=1'\">"				
 				. $feed_img
 				. "</a>" . $count_text;		
 		}
-		$itemDisplay->metaOutput .= "</div>";
+		$userTools .= "</div>";
+		
+		$itemDisplay->userTools .= $userTools;
 	}
 }
 
-class addonItemFavoriteRequest {
-	function __construct ($stream, $items) {
-		$this->stream = $stream;
-		$this->item_loot = $items;
-	}
-	
-	function getAddOnLoot ($level){
+class addonItemFavoriteRequest extends favoriteItems {
+	function update($itemManager){
+		$this->stream = $itemManager->stream;
+		$this->item_loot = $itemManager->item_loot;
+		
+		$level = $itemManager->client->level;
 		$tmp_loot_array = NULL;
-		global $favorite_addon;
 		global $client;
 		
 		if($this->item_loot) { foreach($this->item_loot as $item) {
 			if ($client->user_serial) {
 				//Check if 'default' favorite feed has been created for owner
 				$addon_check = "SELECT addon_feed.*, feed.* FROM addon_feed, feed"
-					. " WHERE addon_feed.addon_id=" . $favorite_addon['addon_id']
+					. " WHERE addon_feed.addon_id=" . $this->addon_id
 					. " AND addon_feed.feed_id=feed.feed_id"
 					. " AND feed.owner_id=" . $client->user_serial;
 						
@@ -184,7 +207,7 @@ class addonItemFavoriteRequest {
 				. " WHERE feed_items.item_id=" . $item['item_id']
 				. " AND feed_items.feed_id=feed.feed_id"
 				. " AND feed_items.feed_id=addon_feed.feed_id"
-				. " AND addon_feed.addon_id=" . $favorite_addon['addon_id']
+				. " AND addon_feed.addon_id=" . $this->addon_id
 				. " ORDER BY feed_items.date DESC" //return most recent feed
 				. " LIMIT 1";
 
@@ -204,7 +227,7 @@ class addonItemFavoriteRequest {
 			. " WHERE feed_items.item_id=" . $item['item_id']
 			. " AND feed_items.feed_id=feed.feed_id"
 			. " AND feed_items.feed_id=addon_feed.feed_id"
-			. " AND addon_feed.addon_id=" . $favorite_addon['addon_id'];
+			. " AND addon_feed.addon_id=" . $this->addon_id;
 	 
 			$count_loot = mysqli_query($this->stream, $item_count);
 			$item['favorite-count'] = 0;
@@ -214,6 +237,7 @@ class addonItemFavoriteRequest {
 	
 		} }
 		$this->item_loot = $tmp_loot_array;
+		$itemManager->item_loot = $this->item_loot;
 		return $this->item_loot;
 	}
 	

@@ -1,5 +1,9 @@
 //----------------------------------//
-//------ ITEMCLOUD Lemon 1.2 -------//
+//------ ITEMCLOUD Lemon 1.3 -------//
+//------ ------------------- -------//
+//--- DEVELOPED FOR ITEMCLOUD.ORG --//
+//------ ------------------- -------//
+//-- (c) 2018-2021 Brett Docherty --//
 //----------------------------------//
 //------ JS LIBRARY FUNCTIONS ------//
 //----------------------------------//
@@ -10,18 +14,18 @@ var auto_more = true;
 var reached_bottom = false;
 var more_count = 10;
 var more_start = 10;
+var more_class = 'page';
 var feed_id = 0;
 
 window.onscroll = function(ev) {
     if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight && !reached_bottom && auto_more == true) {
-	setTimeout(display_more_items('more-items', more_count, more_start, feed_id), 5000);
+	setTimeout(display_more_items('more-items', more_count, more_start, feed_id, more_class), 5000);
     }
 };
 
 // JavaScript Document
-function display_more_items(element, count, start, feed_id) {
+function display_more_items(element, count, start, feed_id, more_class) {
 	reached_bottom = true;
-	
     var callback = function (x) {
 	if(x.responseText != "empty") {
 		document.getElementById(element).innerHTML += x.responseText;
@@ -43,7 +47,7 @@ function display_more_items(element, count, start, feed_id) {
     }
     
     if(document.getElementById(element)) {
-		XObj.open('POST','php/db/api.php?count=' + count + '&start=' + start + '&feed_id=' + feed_id, true);
+		XObj.open('POST','php/db/api.php?count=' + count + '&start=' + start + '&feed_id=' + feed_id + '&api=1' + '&more_class=' + more_class, true);
 		XObj.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 		XObj.send(null);
 	}
@@ -222,7 +226,7 @@ var OmniBox = class {
 	}
 	
 	addItemButton () {
-		var button = "<input class=\"item-tools\" type=\"button\" name=\"checkInput" + this.str + "\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
+		var button = "<input class=\"tools\" type=\"button\" name=\"checkInput" + this.str + "\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
 		return button;	
 	}
 	
@@ -262,7 +266,7 @@ var OmniBox = class {
 				var functions = this.functions_file();
 
 				var types = class_form['types'];
-				form_input += "<input type=\"file\" class=\"item-tools\" value=\"title\" name=\"itc_" + node['node_name'] + "\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" accept=\"";
+				form_input += "<input type=\"file\" class=\"tools\" value=\"title\" name=\"itc_" + node['node_name'] + "\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" accept=\"";
 
 				//accepted filetypes
 				form_input += types.join();
@@ -303,7 +307,7 @@ var OmniBox = class {
 				
 				//Toggle display status for non-required nodes					
 				if(!node['required']) {
-					form_input += "<span onClick=\"" + hide + "\" class=\"item-tools\">x</span>";
+					form_input += "<span onClick=\"" + hide + "\" class=\"tools\">x</span>";
 				}
 				
 				form_input += "</div>";
@@ -319,7 +323,7 @@ var OmniBox = class {
 		for (x in this.class_array) {
 			var item_class = this.class_array[x];
 			if(item_class['class_id'] == this.active_class) { inactive = ""; }
-			toggleItemClass += "<input class=\"item_tools" + inactive + "\" type=\"button\" onclick=\"OmniController" + this.str + ".toggle('" + item_class['class_id'] + "')\" value=\"" + item_class['class_name'] + "\"/>";
+			toggleItemClass += "<input class=\"tools" + inactive + "\" type=\"button\" onclick=\"OmniController" + this.str + ".toggle('" + item_class['class_id'] + "')\" value=\"" + item_class['class_name'] + "\"/>";
 			inactive = "_inactive";	
 		}
 		
@@ -344,7 +348,7 @@ class OmniFeedBox extends OmniBox {
 	}
 	
 	addItemButton () {
-		return "<input class=\"item-tools\" type=\"button\" name=\"checkInput" + this.str + "\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
+		return "<input class=\"tools\" type=\"button\" name=\"checkInput" + this.str + "\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
 	}	
 	
 	form_input(class_id) { 
@@ -365,7 +369,7 @@ class OmniPlaylistBox extends OmniFeedBox {
 	}
 	
 	addItemButton () {
-		return "<input class=\"item-tools\" type=\"button\" name=\"checkInput" + this.str + "\" onClick=\"var value = document.getElementById('itc_link_txt" + this.str + "').value; if(value.match(/youtube.com/g)){ OmniController" + this.str + ".checkInput() }\"  value=\"&#10004 SAVE\"/><br />";
+		return "<input class=\"tools\" type=\"button\" name=\"checkInput" + this.str + "\" onClick=\"var value = document.getElementById('itc_link_txt" + this.str + "').value; if(value.match(/youtube.com/g)){ OmniController" + this.str + ".checkInput() }\"  value=\"&#10004 SAVE\"/><br />";
 	}	
 }
 
@@ -403,8 +407,8 @@ class OmniEditBox extends OmniBox {
 	}
 	
 	addItemButton () {
-		var upload = "<input onClick=\"window.history.back()\"  type=\"button\" class=\"item-tools\" value=\"&#10008; Cancel\"/>";
-		    upload += "<input class=\"item-tools\" type=\"button\" name=\"checkInput\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
+		var upload = "<input onClick=\"window.history.back()\"  type=\"button\" class=\"tools\" value=\"&#10008; Cancel\"/>";
+		    upload += "<input class=\"tools\" type=\"button\" name=\"checkInput\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
 		return upload;
 	}
 
@@ -427,7 +431,7 @@ class OmniEditBox extends OmniBox {
 			
 			if(node['node_name'] == 'link') {
 			    if(item[node['node_name']]) {
-				form_input += "<input class=\"item-tools\" name=\"itc_" + node['node_name'] + "\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" type=\"hidden\" value=\"" + item[node['node_name']] + "\"/>";
+				form_input += "<input class=\"tools\" name=\"itc_" + node['node_name'] + "\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" type=\"hidden\" value=\"" + item[node['node_name']] + "\"/>";
 				form_input += item[node['node_name']];
 				form_input += "<hr />";
 				} else { 
@@ -435,7 +439,7 @@ class OmniEditBox extends OmniBox {
 					var functions = " action=\"index.php\" method=\"post\" enctype=\"multipart/form-data\"";
 
 					var types = class_form['types'];
-					form_input += "<input type=\"file\" class=\"item-tools\" name=\"itc_" + node['node_name'] + "_txt" + this.str + "\" id=\"itc_" + node['node_name'] + "\" accept=\"";
+					form_input += "<input type=\"file\" class=\"tools\" name=\"itc_" + node['node_name'] + "_txt" + this.str + "\" id=\"itc_" + node['node_name'] + "\" accept=\"";
 
 					//accepted filetypes
 					form_input += types.join();
@@ -455,7 +459,7 @@ class OmniEditBox extends OmniBox {
 						  + "domId('" + domid + "_txt" + this.str + "').value = '" + item[node['node_name']] + "';";
 					
 					form_input += "<div id=\"" + domid_add + "\" onclick=\"" + show + "\"><a>+ <u>Add " + node['node_name'] + "</u></a></div>";
-					form_input += "<div id=\"" + domid + "\" style=\"display: none\"><textarea id=\"" + domid + "_txt" + this.str + "\" class=\"form wider\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\">" + item[node['node_name']] + "</textarea> <span onClick=\"" + hide + "\" class=\"item-tools\">x</span></div>";
+					form_input += "<div id=\"" + domid + "\" style=\"display: none\"><textarea id=\"" + domid + "_txt" + this.str + "\" class=\"form wider\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length']  + "\" style=\"vertical-align: bottom\">" + item[node['node_name']] + "</textarea> <span onClick=\"" + hide + "\" class=\"tools\">x</span></div>";
 					form_input += "<hr />";
 				} else {
 					form_input += "<textarea class=\"form wider\" id=\"itc_" + node['node_name'] + "_txt" + this.str + "\" name=\"itc_" + node['node_name'] + "\" onkeyup=\"auto_expand(this)\" maxlength=\"" + node['length'] + "\">" + item[node['node_name']] + "</textarea>";
@@ -463,8 +467,8 @@ class OmniEditBox extends OmniBox {
 				}
 			}
 			
-		    var upload = "<input onClick=\"window.history.back()\"  type=\"button\" class=\"item-tools\" value=\"&#10008; Cancel\"/>";
-		    upload += "<input class=\"item-tools\" type=\"button\" name=\"checkInput\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
+		    var upload = "<input onClick=\"window.history.back()\"  type=\"button\" class=\"tools\" value=\"&#10008; Cancel\"/>";
+		    upload += "<input class=\"tools\" type=\"button\" name=\"checkInput\" onClick=\"OmniController" + this.str + ".checkInput()\"  value=\"&#10004 SAVE\"/><br />";
 		}
 
 		var inactive = "_inactive";
@@ -474,7 +478,7 @@ class OmniEditBox extends OmniBox {
 			var item_class = this.class_array[x];
 			if(item_class['class_id'] == this.active_class) { inactive = ""; }	
 			if(item_class['class_id'] == item['class_id']) {
-				toggleItemClass += "<input class=\"item_tools" + inactive + "\" type=\"button\" onclick=\"OmniController" + this.str + ".toggle('" + item_class['class_id'] + "')\" value=\"" + item_class['class_name'] + "\"/> ";
+				toggleItemClass += "<input class=\"tools" + inactive + "\" type=\"button\" onclick=\"OmniController" + this.str + ".toggle('" + item_class['class_id'] + "')\" value=\"" + item_class['class_name'] + "\"/> ";
 			}
 			inactive = "_inactive";
 		}

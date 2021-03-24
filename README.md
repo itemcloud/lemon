@@ -4,10 +4,10 @@
   </h3>
 </div>
 
-## lemon (1.2.9)
+## lemon (1.3)
 The itemcloudTM lemon build is provided as an example of a basic framework for content sharing. ICE Blocks (RSS+) connects the database with the display of HTML5, CSS and JS. This is a full-stack PHP application that can be set up in minutes and turned into anything.
 
-## MariaDB / MySQL
+## MariaDB
 Apache/2+ PHP/5.6+ (mysqli)
 Our projects are powered by open-source software.
  - Create a mysql database by importing 'itemcloud-db.sql'.
@@ -28,6 +28,8 @@ Our projects are powered by open-source software.
 ## Major Updates
  - Version 1.2.9 will be the final release with 1.1 legacy support
  - Version 1.3 will require 1.3.x compatible add-ons with actions enabled
+ 
+## Reference
  - Feed display classes: page, box, slide (banner), card, list, topic
  - Item types: note, link, file, photo, audio, video (not in nodes)
  - RSS nodes: title, description (info), link (file)

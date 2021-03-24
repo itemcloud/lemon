@@ -1,5 +1,9 @@
 //----------------------------------//
-//------ ITEMCLOUD Lemon 1.2 -------//
+//------ ITEMCLOUD Lemon 1.3 -------//
+//------ ------------------- -------//
+//--- DEVELOPED FOR ITEMCLOUD.ORG --//
+//------ ------------------- -------//
+//-- (c) 2018-2021 Brett Docherty --//
 //----------------------------------//
 //------- ITEM FEED FUNCTIONS ------//
 //----------------------------------//
@@ -14,7 +18,7 @@ var feedBrowse = class {
 		this.start = 0;
 		this.max = 6;
 		this.parent_div = parent_div;
-		this.class_text = "item-tools_grey item_feed_menu";
+		this.class_text = "tools item_feed_menu";
 	}
 	
 	update (start) {
@@ -37,7 +41,7 @@ var feedBrowse = class {
 		var feedMenu = "";
 		if(new_start >= 0) {
 			feedMenu += "<div onclick=\"itemFeedBrowser['" + this.index + "'].update(" + new_start + ")\" class=\"float-left " + this.class_text + "\">"
-					+ "<div class=\"item-tools_txt\">" + "&#8943;" + "</div>"
+					+ "<div class=\"tools_txt\">" + "&#8943;" + "</div>"
 					+ "</div>";
 		}
 		
@@ -86,7 +90,7 @@ var feedBrowse = class {
 		if(this.start + this.max < this.feeds.length) { 
 			var end_link = "";
 			feedMenu += "<div onclick=\"itemFeedBrowser['" + this.index + "'].update(" + (this.start + this.max) + ")\" '\"  class=\"float-right " + this.class_text + "\">"
-					+ "<div class=\"item-tools_txt\">" + "&#8943;" + "</div>"
+					+ "<div class=\"tools_txt\">" + "&#8943;" + "</div>"
 					+ "</div>";
 		}
 		

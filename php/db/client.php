@@ -5,7 +5,7 @@
 ** | | __/ _ \ '_ ` _ \ / __| |/ _ \| | | |/ _` |
 ** | | ||  __/ | | | | | (__| | (_) | |_| | (_| |
 ** |_|\__\___|_| |_| |_|\___|_|\___/ \__,_|\__,_|
-**          ITEMCLOUD (LEMON) Version 1.2
+**          ITEMCLOUD (LEMON) Version 1.3
 **
 ** Copyright (c) 2019-2021, ITEMCLOUD http://www.itemcloud.org/
 ** All rights reserved.
@@ -14,10 +14,12 @@
 ** Free Software License
 ** -------------------
 ** Lemon is licensed under the terms of the MIT license.
+** Free to use and share with this copyright included.
+** Thanks for your support!
 **
-** @category   ITEMCLOUD 1.2 (lemon)
-** @package    Build Version 1.1-1.2.9 (itemcloud-lemon.sql)
-** @copyright  Copyright (c) 2021 ITEMCLOUD (http://www.itemcloud.org)
+** @category   ITEMCLOUD (Lemon)
+** @package    Build Version 1.3
+** @copyright  Copyright (c) 2019-2021 ITEMCLOUD (http://www.itemcloud.org)
 ** @license    https://spdx.org/licenses/MIT.html MIT License
 */
 
@@ -26,14 +28,7 @@
 ** -------------------------------------------------------- */
 
 class Client extends Core {
-	
-	function enableAddOns() {
-		global $addOns;
-		if(isset($addOns)) {
-			$this->addOns = $addOns;
-		}
-	}
-		
+
 	function authorizeUser () {
 
 		$this->auth = false;
@@ -54,9 +49,11 @@ class Client extends Core {
 			$this->auth = true;
 			///-- serial --///
 			$this->user_serial = $_COOKIE[$uid];
+						
 			///-- getUser() --///
 			$this->level = $this->getUser($_COOKIE[$uid]);
 		} else {
+			
 			//new account request
 			if (isset($_REQUEST['REG_new']) && isset($_REQUEST['e']) && isset($_REQUEST['p'])) {
 				$user_match = $this->registerUser($_REQUEST['e'], $_REQUEST['p']);
@@ -75,21 +72,15 @@ class Client extends Core {
 	function getUser ($user_id) {
 		$stream = $this->stream;
 	  	if(!$stream){ return false; }
-	  
 		$user_auth = "SELECT * FROM user"
 			. " WHERE user_id='$user_id'";
 					
 		$query = $stream->query($user_auth);
 		$user = $query->fetch_assoc();
 		
-		if($this->addOns) {
-			foreach($this->addOns as $addOn) {
-				if(isset($addOn['user-request'])) { 
-					$addon_request = new $addOn['user-request']($this->stream, $user);
-					$user = $addon_request->getAddOnLoot($this);
-				}
-			}
-		} return $user['level'];
+		$this->user = $user;
+		if(isset($this->actions)) { runAddons($this->actions, $this, 'user-request'); }
+		return $this->user['level'];
 	}
 
 	function signIn ($e, $p) {
@@ -144,12 +135,28 @@ class Client extends Core {
 					foreach($this->addOns as $addOn) {
 						if(isset($addOn['user-account'])) {
 							//POST ADDONS
-							$addonClass = new $addOn['user-account']($this->stream);					
-							$new_user = $addonClass->handleAddOnJoin($new_user);
+							//$addonClass = new $addOn['user-account']($this->stream);					
+							//$new_user = $addonClass->handleAddOnJoin($new_user);
 						}
 					}
 				}
 				return $new_user;
+			}
+		}
+	}
+
+	function enableActions ($actions) {
+		if(isset($actions)) {
+			$this->actions = $actions;
+		}
+	}
+	
+	function enableAddOns($addOns) {		
+		if(isset($addOns)) {
+			$this->addOns = $addOns;
+			foreach($addOns as $addon) {
+				$addonClass = new $addon;
+				$addonClass->setActions();
 			}
 		}
 	}
@@ -160,8 +167,8 @@ class Client extends Core {
 		unset($_COOKIE[$uid]);
 	}
 
-	function itemManager() {
-		return new itemManager($this->stream, $this->level);
+	function itemManager($count) {
+		return new itemManager($this, $count);
 	}
 }
 
@@ -170,51 +177,46 @@ class Client extends Core {
 ** -------------------------------------------------------- */
 
 class itemManager {
-	var $stream;
 
-	function __construct ($stream, $level) {
-		$this->stream = $stream;
+	function __construct ($client, $count) {
+		$this->client = $client;
+		$this->stream = $client->stream;
 		$this->meta = NULL;
 		$this->items = NULL;
+		$this->item_index = 0; 
 		$this->addOns = NULL;
 		
-		$this->level = $level;
-		$this->classes = $this->getItemClasses($level);
+		$this->level = $client->level;
+		$this->classes = $this->getItemClasses($this->level);
 		$this->types = $this->getItemTypes();
 		
+		$this->meta['message'] = "";
+		$this->meta['item_count'] = $count;
 		$this->insertOk = "1";
 	}
-	
-	function enableAddOns () {
-		global $addOns;
-		if(isset($addOns)) {
-			$this->addOns = $addOns;
+
+	function enableActions ($actions) {
+		if(isset($actions)) {
+			$this->actions = $actions;
 		}
 	}
 	
 	function handleItemRequest() {
-		global $CONFIG;
 		
 		$start = (isset($_GET['start'])) ? $_GET['start'] : 0;
-		$count = $CONFIG['item_count'];
+		$count = $this->meta['item_count'];
 		$user_level = $this->level;
 		
 		if(isset($_GET['connect'])) {
 		    return;
 		}	
+
+		if(isset($this->actions) && !isset($_POST['edit'])) { runAddons($this->actions, $this, 'post-handler'); }
+		if(isset($this->active)) { return; }
 		
-		if($this->addOns) {
-			foreach($this->addOns as $addOn) {
-				if(isset($addOn['post-handler'])) {
-					//POST ADDONS
-					$addonClass = new $addOn['post-handler']($this->stream);					
-					$addonReturn = $addonClass->handleAddOnPost($this);
-					if($addonReturn == "active") { return $this->items; }
-				}
-			}
-		}
-		
-		if(isset($_POST['delete'])) {
+		if (isset($_GET['api'])) {
+			$this->items = $this->getAllItems($start, $count, $user_level);
+		} else if(isset($_POST['delete'])) {
 			global $message;
 			$message = "The item has been deleted.";
 			$this->deleteUserItem($_POST['delete']);
@@ -235,15 +237,16 @@ class itemManager {
 			}
 		} else if(isset($_GET['id'])){
 			$this->items = $this->getItemById($_GET['id']);
-			$this->meta['title'] = $this->items[0]['title'];		
-			if($this->items[0]['class_id']==4) { $this->meta['active_img'] = $CONFIG['ROOTweb'] . $this->items[0]['link']; }
+			$this->items[0]['active'] = true;
+			$this->meta['title'] = $this->items[0]['title'];	
+			if($this->items[0]['class_id']==4) { $this->meta['active_img'] = $this->items[0]['link']; }
 			else if(isset($yt_video_links_addon) && $this->items[0]['class_id']==2) { 
 				$ytVideoImage = new youtubeVideoLinks();
 				$this->meta['active_img'] = $ytVideoImage->returnImageURL($this->items[0]['link']);
 			}
 		} else if(isset($_GET['user'])){
 			$this->items = $this->getUserItems($_GET['user'], $start, $count, $user_level);
-		} else if(!$this->items && (empty($_GET) || isset($_GET['start']))) {
+		} else if(!$this->items && (empty($_GET) || isset($_GET['start']) || isset($_GET['grid']))) {
 			$this->items = $this->getAllItems($start, $count, $user_level);
 		} return $this->items;
 	}
@@ -251,8 +254,8 @@ class itemManager {
 	function insertItem($type, $title, $info, $file) {
 		$stream = $this->stream;
 
-		$title = $stream->real_escape_string($title);
-		$info = $stream->real_escape_string($info);
+		$title = strip_tags($stream->real_escape_string($title));
+		$info = strip_tags($stream->real_escape_string($info));
 		$quest = "INSERT INTO item (class_id, title, description, link)"
 				. " VALUES('$type', '$title', '$info', '$file')";
 		
@@ -281,6 +284,9 @@ class itemManager {
 		
 	function updateItem($item_id, $title, $info) {
 		$stream = $this->stream;
+		
+		$title = strip_tags($stream->real_escape_string($title));
+		$info = strip_tags($stream->real_escape_string($info));
 		$set = "SET title='$title', description='$info'";
 		
 		$quest = "UPDATE item $set WHERE item_id='$item_id'";
@@ -306,15 +312,9 @@ class itemManager {
 			}
 		}
 		
-		if(isset($this->addOns) == true) {
-			foreach($this->addOns as $addOn) {
-				if(isset($addOn['item-request'])) {
-					$addon_request = new $addOn['item-request']($this->stream, $item_loot_array);
-					$item_loot_array = $addon_request->getAddOnLoot($level);
-				}
-			}
-		}
-		return $item_loot_array;
+		$this->item_loot = $item_loot_array;
+		if(isset($this->actions)) { runAddons($this->actions, $this, 'item-request'); }
+		return $this->item_loot;
 	}
 
 	function getAllItems($start, $count, $user_level) {
@@ -325,7 +325,7 @@ class itemManager {
 		       . " AND user_items.level >= $user_level"
 		       . " ORDER BY user_items.date DESC"
 		       . " LIMIT $start, $count";
-		
+
 		$item_loot = mysqli_query($stream, $quest);
 		$item_loot_array = NULL;
 		if($item_loot) {
@@ -336,15 +336,9 @@ class itemManager {
 			}
 		}
 		
-		if(isset($this->addOns) == true) {
-			foreach($this->addOns as $addOn) {
-				if(isset($addOn['item-request'])) { 
-					$addon_request = new $addOn['item-request']($this->stream, $item_loot_array);
-					$item_loot_array = $addon_request->getAddOnLoot($user_level);
-				}
-			}
-		}
-		return $item_loot_array;
+		$this->item_loot = $item_loot_array;
+		if(isset($this->actions)) { runAddons($this->actions, $this, 'item-request'); }
+		return $this->item_loot;
 	}
 	
 	function getItemsByType() {
@@ -369,15 +363,9 @@ class itemManager {
 			}
 		}
 		
-		if(isset($this->addOns) == true) {
-			foreach($this->addOns as $addOn) {
-				if(isset($addOn['item-request'])) { 
-					$addon_request = new $addOn['item-request']($this->stream, $item_loot_array);
-					$item_loot_array = $addon_request->getAddOnLoot($this->level);
-				}
-			}
-		}		
-		return $item_loot_array;
+		$this->item_loot = $item_loot_array;
+		if(isset($this->actions)) { runAddons($this->actions, $this, 'item-request'); }
+		return $this->item_loot;
 	}
 	
 	function getItemsByClass($class_id, $limit, $start, $level) {
@@ -397,16 +385,10 @@ class itemManager {
 				$item_loot_array[] = $loot;
 			}
 		}
-
-		if(isset($this->addOns) == true) {
-			foreach($this->addOns as $addOn) {
-				if(isset($addOn['item-request'])) { 
-					$addon_request = new $addOn['item-request']($this->stream, $item_loot_array);
-					$item_loot_array = $addon_request->getAddOnLoot($level);
-				}
-			}
-		}					
-		return $item_loot_array;
+		
+		$this->item_loot = $item_loot_array;
+		if(isset($this->actions)) { runAddons($this->actions, $this, 'item-request'); }
+		return $this->item_loot;
 	}
 	
 	function deleteUserItem ($delete_id) {
@@ -485,7 +467,7 @@ class itemManager {
 			$folder = "files/";
 			$insertOk = 1;
 			$target_dir = $_ROOTdir . $folder;
-			$filesize = 10485760; //10MB
+			$filesize = 30485760; //10MB
 			
 			$posted_class = $_POST['itc_class_id'];			
 			$title = (isset($_POST['itc_title'])) ? $_POST['itc_title'] : "";

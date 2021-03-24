@@ -1,0 +1,163 @@
+/*******************************/
+/********* addons.css **********/
+/*******************************/
+/******** itemcloud.org ********/
+/*******************************/
+
+.item .item .item-toolbar {
+	display: none;
+}
+
+/*Feeds display*/
+.feed-banner {
+	margin: 0px auto;
+	padding: 20px 0px;
+}
+
+.tools.feed_menu {
+	padding: 0px;
+}
+.feed-banner .feed_menu .user {
+	width: 80px;
+	height: 80px; 
+}
+.feed-icon {
+	padding: 8px;
+}
+ 
+.feed-icon .user, .feed-menu .feed-icon .user  {
+	width: 80px;
+	height: 80px; 
+}
+ 
+.feed .banner .user {
+	width: 48px;
+	height: 48px; 
+}
+
+.feed .list .toolbar {
+	display: none;
+}
+
+div.feed_menu .feed_name {
+position: relative;
+}
+img.feed-image { width: 28px; height: 28px; vertical-align: middle; margin: 2px; }
+
+div.feed_menu .feed_name {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-transition: max-width .8s; /* For Safari 3.1 to 6.0 */
+  transition: max-width .8s;
+  max-width: 0px;
+  padding: 0px;
+  background-color: #DCDCDC;
+  color: #888;
+  border-radius: 16px;
+}
+div.feed_menu:hover .feed_name {
+	max-width: 280px;
+}
+div.feed_menu .feed_name_wrapper {
+position: absolute;
+}
+.feed_name {
+z-index: 12;
+}
+.browse-feeds .float-left, .browse-feeds .float-right {
+	display: block;
+	float: none;
+}
+.browse-feeds .feed_name_wrapper .item-tools_grey {
+position: static;
+}
+.browse-feeds .feed_name_wrapper {
+position: static; display: inline-block;
+}
+.browse-feeds {
+	text-align: left;
+	background-color: #FFF;
+	z-index: 12;
+}
+
+.browse-feeds .feed_menu {
+  max-width: 52px;
+  min-width: 52px;
+  border-radius: 32px;
+  font-size: 1.4em;
+  display: inline-block;
+}
+.browse-feeds .feed-image { width: 48px; height: 48px; border-radius: 50%; }
+.browse-feeds .tools_txt { height: 52px; width: 52px; font-size: 32px; margin: 0px; }
+
+.browse-feeds .inline-name {
+	margin: 0px 12px 0px 0px;
+	padding-top: 12px;
+}
+
+.profile .bar {
+	width: 100%;
+}
+
+.profile .bar .avatar { padding: 20px 0px; width: 140px; text-align: center; }
+.profile .bar .tools { margin: 0px; font-size: .8em; }
+
+.profile .bar .name {
+	cursor: pointer;
+}
+
+.profile .menu {
+	border-bottom: 1px solid #CCC;
+	min-width: 320px;
+}
+
+
+/* Add-Ons Item Reply */
+.reply div[id^='itemAdd'] {
+    display: none;
+}
+
+.reply .item {
+	margin: 0px auto 20px auto;
+}
+
+/* Add-Ons Item Gallery */
+.gallery {
+	margin: 10px;
+}
+
+.gallery.feed box .item {
+	padding: 0px;
+}
+
+.gallery.box .item .nodes .title, 
+.gallery.box .item .nodes .info,
+.gallery.box .item .meta {
+	display: none;
+}
+
+.gallery.box .item .nodes .link .image-cell img {
+	width: 100%;
+}
+
+/* Add-Ons Audiofeed */
+.audiofeed .item-page .item-title {
+	display: none;
+}
+
+.audiofeed .list .item .file {
+	display: none;
+}
+
+.playlist .list {
+	float: left;
+	width: 20%;
+	border: 1px solid #CCC;
+	background-color: #EEEEEE;
+}
+
+.playlist .list .item .nodes .title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

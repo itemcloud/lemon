@@ -1,6 +1,7 @@
--- Itemcloud 1.1-1.2.x (lemon) Database
--- Server version: 10.1.44-MariaDB-0ubuntu0.18.04.1
--- PHP Version: 7.0.33-0ubuntu0.16.04.3
+-- Copyright (c) 2018-2021 ITEMCLOUD <www.itemcloud.org>
+-- Package: Lemon 1.3
+-- Server version: 10.1.10-MariaDB
+-- PHP Version: 5.6.19
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";

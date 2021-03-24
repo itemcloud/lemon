@@ -1,4 +1,5 @@
--- Itemcloud 1.1-1.2.x (lemon) Database Add-on
+-- Copyright (c) 2018-2021 ITEMCLOUD <www.itemcloud.org>
+-- Package: Lemon 1.3
 -- Server version: 10.1.10-MariaDB
 -- PHP Version: 5.6.19
 
