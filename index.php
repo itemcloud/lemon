@@ -33,7 +33,7 @@ require_once($_ROOTdir .'php/db/client.php'); //Client extends Core, itemManager
 require_once($_ROOTdir .'php/db/display.php'); //PageManager extends Document, itemDisplay
 
 //ADD-ONS
-foreach (glob($_ROOTdir . "/php/addons/lemon/*.php") as $filename){
+foreach (glob($_ROOTdir . "/php/addons/1.3/*.php") as $filename){
    require_once($filename);
 }
 
