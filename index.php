@@ -58,13 +58,15 @@ $pageManager->enableActions($actions);
 $pageManager->enableRSS();
 
 $title = isset($CONFIG['title']) ? $CONFIG['title'] : 'lemon';
+$title = isset($CONFIG['title']) ? $CONFIG['title'] : 'light';
 $pageManager->displayDocumentHeader([
 	'title' => $title,
 	'scripts' => ['./js/lib.js',
 				'./js/itemFeeds.js',
 				'./js/welcome.js'],
 	'styles' => ['./frames.css',
-				'./addons.css']
+				'./addons.css'],
+	'className' => 'dark'
 ]);
 
 $pageManager->displayPageContent($client);
