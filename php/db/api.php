@@ -35,7 +35,7 @@ require_once('client.php'); //Client extends Core, itemManager, uploadManager
 require_once('display.php'); //PageManager extends Document, itemDisplay
 
 //ADD-ONS
-foreach (glob($_ROOTdir . "../addons/lemon/*.php") as $filename){
+foreach (glob($_ROOTdir . "../addons/1.3/*.php") as $filename){
    require_once($filename);
 }
 
