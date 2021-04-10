@@ -43,6 +43,9 @@ class Document {
 	}
 	
 	function displayDocumentHeader($meta) {
+		$this->title = isset($meta['title']) ? $meta['title']: "";
+		$this->className = isset($meta['className']) ? $meta['className'] : "";
+		
 		foreach($meta['scripts'] as $script => $src) { 
 		 	$scripts = (isset($scripts)) ? $scripts . '<script src="' . $src . '"></script>' : '<script src="' . $src . '"></script>';
 		}
@@ -51,7 +54,6 @@ class Document {
 		 	$styles = (isset($styles)) ? $styles . '<link rel="stylesheet" type="text/css" href="' . $src . '">' : '<link rel="stylesheet" type="text/css" href="' . $src . '">';
 		}		
 
-		$this->title = $meta['title'];
 		$title = $this->title;
 		if (isset($this->meta['title'])) { $title = $this->meta['title'] ? $meta['title'] . " | " . $this->meta['title'] : $title; }
 		
@@ -71,7 +73,9 @@ class Document {
 		$header .= $styles;
 		$header .= $scripts;
 		$header .= '</head>';
-		$header .= '<body>';
+		
+		$body_class = $this->className;
+		$header .= '<body class="' . $body_class. '">';
 		echo $header;
 	}
 
